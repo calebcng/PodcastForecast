@@ -1,0 +1,1308 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cue Sheet — Podcast Production Scheduler</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=IBM+Plex+Mono:wght@400;500;600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#17181A;
+    --panel:#202224;
+    --panel-2:#292c2f;
+    --border:#3a3d41;
+    --border-soft:#2e3134;
+    --text:#EDEAE3;
+    --text-dim:#9a9d9f;
+    --text-faint:#6d7072;
+    --amber:#E8A33D;
+    --amber-dim:#4a3a20;
+    --teal:#49B7A8;
+    --teal-dim:#204039;
+    --violet:#B48DE0;
+    --violet-dim:#362a49;
+    --red:#D9584A;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:var(--bg);
+    color:var(--text);
+    font-family:'Inter',sans-serif;
+    padding:28px 20px 60px;
+    -webkit-font-smoothing:antialiased;
+  }
+  .wrap{max-width:1180px;margin:0 auto;}
+
+  /* ---------- Masthead ---------- */
+  .masthead{
+    display:flex;
+    align-items:baseline;
+    gap:16px;
+    flex-wrap:wrap;
+    border-bottom:1px solid var(--border-soft);
+    padding-bottom:18px;
+    margin-bottom:22px;
+  }
+  .masthead .eyebrow{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:11px;
+    letter-spacing:0.14em;
+    color:var(--text-faint);
+    text-transform:uppercase;
+  }
+  .masthead h1{
+    font-family:'Barlow Condensed',sans-serif;
+    font-weight:700;
+    font-size:40px;
+    letter-spacing:0.01em;
+    margin:0;
+    line-height:1;
+  }
+  .masthead .tagline{
+    font-size:13px;
+    color:var(--text-dim);
+    margin:0;
+  }
+
+  /* ---------- Console (controls) ---------- */
+  .console{
+    display:grid;
+    grid-template-columns:1fr 1.4fr 1.4fr;
+    gap:1px;
+    background:var(--border);
+    border:1px solid var(--border);
+    border-radius:10px;
+    overflow:hidden;
+    margin-bottom:20px;
+  }
+  .strip{
+    background:var(--panel);
+    padding:16px 18px 18px;
+    position:relative;
+  }
+  .strip::before{
+    content:"";
+    position:absolute;
+    top:0;left:0;right:0;
+    height:3px;
+    background:var(--accent, var(--text-faint));
+  }
+  .strip-production{
+    grid-column:1 / -1;
+    display:grid;
+    grid-template-columns:1fr 1fr 2fr;
+    gap:18px;
+  }
+  .strip-label{
+    font-family:'Barlow Condensed',sans-serif;
+    font-weight:600;
+    font-size:15px;
+    letter-spacing:0.03em;
+    text-transform:uppercase;
+    color:var(--text);
+    margin-bottom:12px;
+    display:flex;
+    align-items:center;
+    gap:8px;
+    grid-column:1 / -1;
+  }
+  .strip-label .swatch{
+    width:9px;height:9px;border-radius:50%;
+    background:var(--accent, var(--text-faint));
+    display:inline-block;
+  }
+  .field{margin-bottom:10px;}
+  .field:last-child{margin-bottom:0;}
+  .field label{
+    display:block;
+    font-size:11px;
+    color:var(--text-dim);
+    margin-bottom:5px;
+    letter-spacing:0.02em;
+  }
+  .field input{
+    width:100%;
+    background:var(--panel-2);
+    border:1px solid var(--border);
+    color:var(--text);
+    font-family:'IBM Plex Mono',monospace;
+    font-size:14px;
+    padding:8px 10px;
+    border-radius:6px;
+    outline:none;
+    transition:border-color .15s ease;
+  }
+  .field input:focus{
+    border-color:var(--accent, var(--text-dim));
+  }
+  .field input::-webkit-calendar-picker-indicator{filter:invert(0.7);cursor:pointer;}
+
+  .breaks-wrap{margin-top:14px;}
+  .breaks-wrap > label{
+    display:block;
+    font-size:11px;
+    color:var(--text-dim);
+    margin-bottom:7px;
+    letter-spacing:0.02em;
+  }
+  .break-row{
+    display:grid;
+    grid-template-columns:1fr 1fr 26px;
+    gap:8px;
+    align-items:center;
+    background:var(--panel-2);
+    border:1px solid var(--border);
+    border-radius:6px;
+    padding:6px;
+    margin-bottom:8px;
+  }
+  .break-row .run-tag{
+    grid-column:1/-1;
+    font-family:'IBM Plex Mono',monospace;
+    font-size:10px;
+    letter-spacing:0.04em;
+    color:var(--accent);
+  }
+  .break-row input{
+    width:100%;
+    background:var(--panel);
+    border:1px solid var(--border);
+    color:var(--text);
+    font-family:'IBM Plex Mono',monospace;
+    font-size:12px;
+    padding:6px 7px;
+    border-radius:5px;
+    outline:none;
+  }
+  .break-row input:focus{border-color:var(--accent);}
+  .add-break-btn{
+    background:transparent;
+    border:1px dashed var(--accent);
+    color:var(--accent);
+    border-radius:6px;
+    font-family:'IBM Plex Mono',monospace;
+    font-size:12px;
+    padding:7px 10px;
+    cursor:pointer;
+    width:100%;
+    letter-spacing:0.02em;
+  }
+  .add-break-btn:hover{background:rgba(255,255,255,0.06);}
+
+  .runs-col{display:flex;flex-direction:column;}
+  .runs-col > label{
+    display:block;
+    font-size:11px;
+    color:var(--text-dim);
+    margin-bottom:7px;
+    letter-spacing:0.02em;
+  }
+  .runs-list{display:flex;flex-direction:column;gap:8px;margin-bottom:8px;}
+  .run-row{
+    display:grid;
+    grid-template-columns:1fr 88px 26px;
+    gap:8px;
+    align-items:center;
+    background:var(--panel-2);
+    border:1px solid var(--border);
+    border-radius:6px;
+    padding:6px;
+  }
+  .run-row .run-tag{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:10px;
+    color:var(--violet);
+    grid-column:1/-1;
+    letter-spacing:0.04em;
+  }
+  .run-row input{
+    width:100%;
+    background:var(--panel);
+    border:1px solid var(--border);
+    color:var(--text);
+    font-family:'IBM Plex Mono',monospace;
+    font-size:12px;
+    padding:6px 7px;
+    border-radius:5px;
+    outline:none;
+  }
+  .run-row input:focus{border-color:var(--violet);}
+  .remove-run{
+    background:transparent;
+    border:1px solid var(--border);
+    color:var(--text-faint);
+    border-radius:5px;
+    cursor:pointer;
+    font-size:14px;
+    line-height:1;
+    padding:6px 0;
+  }
+  .remove-run:hover{border-color:var(--red);color:var(--red);}
+  .add-run-btn{
+    background:var(--violet-dim);
+    border:1px dashed var(--violet);
+    color:var(--violet);
+    border-radius:6px;
+    font-family:'IBM Plex Mono',monospace;
+    font-size:12px;
+    padding:8px 10px;
+    cursor:pointer;
+    width:100%;
+    letter-spacing:0.02em;
+  }
+  .add-run-btn:hover{background:#40325a;}
+
+  .share-row{
+    display:flex;
+    gap:10px;
+    align-items:center;
+    flex-wrap:wrap;
+    margin:0 0 20px;
+  }
+  .share-btn{
+    background:var(--panel);
+    border:1px solid var(--border);
+    color:var(--text);
+    font-family:'IBM Plex Mono',monospace;
+    font-size:12px;
+    padding:9px 14px;
+    border-radius:7px;
+    cursor:pointer;
+    letter-spacing:0.02em;
+    white-space:nowrap;
+  }
+  .share-btn:hover{border-color:var(--text-dim);}
+  .share-btn.copied{border-color:var(--teal);color:var(--teal);}
+  .share-url{
+    flex:1;
+    min-width:220px;
+    background:var(--panel-2);
+    border:1px solid var(--border);
+    color:var(--text-dim);
+    font-family:'IBM Plex Mono',monospace;
+    font-size:11px;
+    padding:9px 10px;
+    border-radius:6px;
+    display:none;
+  }
+  .share-hint{
+    width:100%;
+    font-size:11px;
+    color:var(--text-faint);
+    font-family:'IBM Plex Mono',monospace;
+  }
+
+  .toolbar{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    flex-wrap:wrap;
+    gap:14px;
+    background:var(--panel);
+    border:1px solid var(--border-soft);
+    border-radius:10px;
+    padding:12px 16px;
+    margin-bottom:16px;
+  }
+  .toolbar-group{
+    display:flex;
+    align-items:center;
+    gap:8px;
+    flex-wrap:wrap;
+  }
+  .toolbar-group > span.tg-label{
+    font-size:11px;
+    color:var(--text-faint);
+    letter-spacing:0.03em;
+    text-transform:uppercase;
+    font-family:'IBM Plex Mono',monospace;
+    margin-right:2px;
+  }
+  .toolbar select{
+    background:var(--panel-2);
+    border:1px solid var(--border);
+    color:var(--text);
+    font-family:'IBM Plex Mono',monospace;
+    font-size:12px;
+    padding:7px 9px;
+    border-radius:6px;
+    outline:none;
+  }
+  .toolbar select:disabled{opacity:0.4;cursor:not-allowed;}
+  .zoom-btn{
+    background:var(--panel-2);
+    border:1px solid var(--border);
+    color:var(--text);
+    width:28px;height:28px;
+    border-radius:6px;
+    font-size:15px;
+    line-height:1;
+    cursor:pointer;
+    display:flex;align-items:center;justify-content:center;
+  }
+  .zoom-btn:hover:not(:disabled){border-color:var(--text-dim);}
+  .zoom-btn:disabled{opacity:0.35;cursor:not-allowed;}
+  .zoom-label{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:12px;
+    color:var(--text-dim);
+    min-width:64px;
+    text-align:center;
+  }
+
+  /* ---------- Summary ---------- */
+  .summary{
+    display:flex;
+    flex-wrap:wrap;
+    gap:10px;
+    margin-bottom:22px;
+  }
+  .summary-item{
+    background:var(--panel);
+    border:1px solid var(--border-soft);
+    border-radius:8px;
+    padding:10px 14px;
+    font-size:13px;
+    color:var(--text-dim);
+    display:flex;
+    align-items:center;
+    gap:8px;
+  }
+  .summary-item strong{
+    color:var(--text);
+    font-family:'IBM Plex Mono',monospace;
+    font-weight:600;
+  }
+  .summary-item .dot{
+    width:8px;height:8px;border-radius:50%;
+    background:var(--text-faint);
+  }
+  .summary-item.accent-amber .dot{background:var(--amber);}
+  .summary-item.accent-teal .dot{background:var(--teal);}
+  .summary-item.accent-violet .dot{background:var(--violet);}
+
+  .warning{
+    font-size:12px;
+    color:var(--amber);
+    background:var(--amber-dim);
+    border:1px solid var(--amber);
+    border-radius:6px;
+    padding:8px 12px;
+    margin-bottom:16px;
+    display:none;
+  }
+
+  /* ---------- Gantt ---------- */
+  .gantt-wrap{
+    background:var(--panel);
+    border:1px solid var(--border-soft);
+    border-radius:10px;
+    overflow-x:auto;
+    overflow-y:hidden;
+    position:relative;
+  }
+  .gantt{
+    position:relative;
+    display:grid;
+    grid-auto-rows:auto;
+    min-width:max-content;
+  }
+  .cell{
+    border-right:1px solid var(--border-soft);
+    border-bottom:1px solid var(--border-soft);
+    padding:8px 6px;
+    min-width:0;
+  }
+  .row-label{
+    position:sticky;
+    left:0;
+    z-index:3;
+    background:var(--panel-2);
+    border-right:1px solid var(--border);
+    display:flex;
+    flex-direction:column;
+    justify-content:center;
+    padding:8px 14px;
+  }
+  .row-label .rl-name{
+    font-family:'Barlow Condensed',sans-serif;
+    font-weight:600;
+    font-size:16px;
+    letter-spacing:0.02em;
+    color:var(--text);
+  }
+  .row-label .rl-sub{
+    font-size:10px;
+    color:var(--text-faint);
+    font-family:'IBM Plex Mono',monospace;
+    margin-top:2px;
+  }
+  .row-label.corner{
+    background:var(--panel);
+    border-bottom:1px solid var(--border-soft);
+  }
+
+  .head-cell{
+    background:var(--panel-2);
+    text-align:left;
+    position:relative;
+  }
+  .head-cell .wk{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:11px;
+    font-weight:600;
+    color:var(--text-dim);
+    letter-spacing:0.02em;
+  }
+  .head-cell .dr{
+    font-size:10px;
+    color:var(--text-faint);
+    margin-top:2px;
+  }
+  .head-cell .wk-mini{
+    font-size:9px;
+    color:var(--text-faint);
+    font-family:'IBM Plex Mono',monospace;
+    letter-spacing:0.06em;
+    margin-bottom:3px;
+  }
+  .day-row{display:flex;width:100%;}
+  .day-slot{
+    flex:1;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    gap:1px;
+  }
+  .day-slot .dow{
+    font-size:8px;
+    color:var(--text-faint);
+    text-transform:uppercase;
+    font-family:'IBM Plex Mono',monospace;
+    letter-spacing:0.03em;
+  }
+  .day-slot .dnum{
+    font-size:11px;
+    color:var(--text-dim);
+    font-family:'IBM Plex Mono',monospace;
+    font-weight:600;
+  }
+  .day-slot.weekend .dow,
+  .day-slot.weekend .dnum{color:var(--red);opacity:0.85;}
+
+  .track-cell{
+    background:var(--panel);
+    display:flex;
+    flex-wrap:wrap;
+    align-content:flex-start;
+    gap:4px;
+    min-height:54px;
+  }
+  .track-cell.writing{background:linear-gradient(180deg, rgba(232,163,61,0.03), transparent);}
+  .track-cell.release{background:linear-gradient(180deg, rgba(73,183,168,0.03), transparent);}
+  .track-cell.production{background:linear-gradient(180deg, rgba(180,141,224,0.03), transparent);}
+
+  .track-cell.break-cell{
+    background-image:repeating-linear-gradient(135deg, rgba(255,255,255,0.035) 0 6px, transparent 6px 12px);
+    position:relative;
+  }
+  .track-cell.break-cell::after{
+    content:"BREAK";
+    position:absolute;
+    inset:0;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-family:'IBM Plex Mono',monospace;
+    font-size:9px;
+    letter-spacing:0.08em;
+    color:var(--text-faint);
+    pointer-events:none;
+  }
+
+  .chip{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:11px;
+    font-weight:600;
+    padding:3px 7px 3px 6px;
+    border-radius:4px;
+    background:var(--panel-2);
+    border-left:3px solid var(--accent);
+    color:var(--text);
+    line-height:1.4;
+    white-space:nowrap;
+  }
+  .chip.writing{--accent:var(--amber);}
+  .chip.release{--accent:var(--teal);}
+
+  .production-row{
+    position:relative;
+    background:var(--panel);
+  }
+  .prod-bar{
+    position:absolute;
+    top:6px;
+    height:26px;
+    background:var(--violet-dim);
+    border:1px solid var(--violet);
+    border-left:4px solid var(--violet);
+    border-radius:4px;
+    padding:0 8px;
+    display:flex;
+    align-items:center;
+    gap:8px;
+    overflow:hidden;
+    white-space:nowrap;
+    font-family:'IBM Plex Mono',monospace;
+    font-size:11px;
+    color:var(--text);
+    cursor:default;
+  }
+  .prod-bar .pb-eps{font-weight:600;color:var(--violet);}
+  .prod-bar .pb-date{color:var(--text-faint);}
+
+  .playhead{
+    position:absolute;
+    top:0;bottom:0;
+    width:0;
+    border-left:1.5px dashed var(--red);
+    z-index:2;
+    pointer-events:none;
+  }
+  .playhead .tag{
+    position:absolute;
+    top:2px;left:4px;
+    font-family:'IBM Plex Mono',monospace;
+    font-size:9px;
+    letter-spacing:0.06em;
+    color:var(--red);
+    text-transform:uppercase;
+    white-space:nowrap;
+  }
+
+  footer{
+    margin-top:18px;
+    font-size:11px;
+    color:var(--text-faint);
+    font-family:'IBM Plex Mono',monospace;
+  }
+
+  @media (max-width:820px){
+    .console{grid-template-columns:1fr;}
+    .strip-production{grid-template-columns:1fr;}
+    .masthead h1{font-size:30px;}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="masthead">
+    <div>
+      <div class="eyebrow">Podcast Production</div>
+      <h1>Cue Sheet</h1>
+      <p class="tagline">Three tracks, one release calendar.</p>
+    </div>
+  </div>
+
+  <div class="console">
+    <div class="strip strip-program">
+      <div class="strip-label"><span class="swatch"></span>Program</div>
+      <div class="field">
+        <label>Total episodes</label>
+        <input type="number" id="totalEpisodes" value="20" min="1" step="1">
+      </div>
+      <div class="field">
+        <label>Start counting from episode #</label>
+        <input type="number" id="startEpNum" value="1" min="1" step="1">
+      </div>
+    </div>
+    <div class="strip strip-writing" style="--accent:var(--amber)">
+      <div class="strip-label"><span class="swatch"></span>Track A — Writing</div>
+      <div class="field">
+        <label>Start date</label>
+        <input type="date" id="wStart" style="--accent:var(--amber)">
+      </div>
+      <div class="field">
+        <label>Pace (episodes / week)</label>
+        <input type="number" id="wPace" value="2" min="0.1" step="0.1" style="--accent:var(--amber)">
+      </div>
+      <div class="breaks-wrap">
+        <label>Breaks (optional)</label>
+        <div class="breaks-list" id="writingBreaksList"></div>
+        <button class="add-break-btn" id="writingAddBreakBtn" type="button">+ Add break</button>
+      </div>
+    </div>
+    <div class="strip strip-release" style="--accent:var(--teal)">
+      <div class="strip-label"><span class="swatch"></span>Track B — Release</div>
+      <div class="field">
+        <label>Start date</label>
+        <input type="date" id="rStart" style="--accent:var(--teal)">
+      </div>
+      <div class="field">
+        <label>Pace (episodes / week)</label>
+        <input type="number" id="rPace" value="1" min="0.1" step="0.1" style="--accent:var(--teal)">
+      </div>
+      <div class="breaks-wrap">
+        <label>Breaks (optional)</label>
+        <div class="breaks-list" id="releaseBreaksList"></div>
+        <button class="add-break-btn" id="releaseAddBreakBtn" type="button">+ Add break</button>
+      </div>
+    </div>
+
+    <div class="strip strip-production" style="--accent:var(--violet)">
+      <div class="strip-label"><span class="swatch"></span>Track C — Production</div>
+      <div class="field">
+        <label>Recording time / episode (min)</label>
+        <input type="number" id="recTime" value="90" min="0" step="5" style="--accent:var(--violet)">
+      </div>
+      <div class="field">
+        <label>Editing time / episode (min)</label>
+        <input type="number" id="editTime" value="150" min="0" step="5" style="--accent:var(--violet)">
+      </div>
+      <div class="runs-col">
+        <label>Production runs</label>
+        <div class="runs-list" id="runsList"></div>
+        <button class="add-run-btn" id="addRunBtn" type="button">+ Add production run</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="share-row">
+    <button class="share-btn" id="shareBtn" type="button">Copy link with these settings</button>
+    <input class="share-url" id="shareUrlBox" type="text" readonly>
+    <div class="share-hint" id="shareHint">Works once this page is hosted at a real URL or opened from a saved file — not from this in-chat preview.</div>
+  </div>
+
+  <div class="summary">
+    <div class="summary-item accent-amber"><span class="dot"></span>Writing finishes <strong id="wFinish">—</strong></div>
+    <div class="summary-item accent-violet"><span class="dot"></span>Production finishes <strong id="pFinish">—</strong></div>
+    <div class="summary-item accent-teal"><span class="dot"></span>Release finishes <strong id="rFinish">—</strong></div>
+    <div class="summary-item"><span class="dot"></span><strong id="totalWeeks">—</strong> weeks on the board</div>
+  </div>
+
+  <div class="warning" id="warning"></div>
+
+  <div class="toolbar">
+    <div class="toolbar-group">
+      <span class="tg-label">Week count</span>
+      <select id="weekCountMode">
+        <option value="earliest">From earliest start date</option>
+        <option value="weekstart">From start of that week</option>
+      </select>
+      <select id="weekStartDay">
+        <option value="1">Week starts Monday</option>
+        <option value="0">Week starts Sunday</option>
+      </select>
+    </div>
+    <div class="toolbar-group">
+      <span class="tg-label">Zoom</span>
+      <button class="zoom-btn" id="zoomOutBtn" type="button" title="Zoom out">−</button>
+      <span class="zoom-label" id="zoomLabel">Week</span>
+      <button class="zoom-btn" id="zoomInBtn" type="button" title="Zoom in">+</button>
+    </div>
+  </div>
+
+  <div class="gantt-wrap">
+    <div class="gantt" id="gantt"></div>
+  </div>
+
+  <footer>Writing &amp; release run on 7-day weeks. Production runs on 8-hour weekdays (weekends skipped), block spans shown on the calendar.</footer>
+</div>
+
+<script>
+const MAX_WEEKS = 260; // safety cap (~5 years)
+const MINUTES_PER_DAY = 480;
+
+function fmtDate(d){ return d.toLocaleDateString('en-US',{month:'short',day:'numeric'}); }
+function fmtDateFull(d){ return d.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}); }
+function addDays(d, n){ const r = new Date(d); r.setDate(r.getDate()+n); return r; }
+function parseLocalDate(str){ const [y,m,d] = str.split('-').map(Number); return new Date(y, m-1, d); }
+function isWeekend(d){ const day = d.getDay(); return day === 0 || day === 6; }
+
+// Snap a date back to the start of its week (Sunday=0 or Monday=1 as week-start-day)
+function getWeekStartAnchor(date, weekStartDay){
+  const day = date.getDay();
+  const diff = (day - weekStartDay + 7) % 7;
+  return addDays(date, -diff);
+}
+
+// Layered weekend-tint gradient for a given week's start date (used when zoomed to day view)
+function weekendGradient(wkStart){
+  const stops = [];
+  for(let d=0; d<7; d++){
+    const dayDate = addDays(wkStart, d);
+    const wknd = isWeekend(dayDate);
+    const startPct = (d/7*100).toFixed(3);
+    const endPct = ((d+1)/7*100).toFixed(3);
+    const color = wknd ? 'rgba(217,88,74,0.10)' : 'rgba(0,0,0,0)';
+    stops.push(`${color} ${startPct}%`, `${color} ${endPct}%`);
+  }
+  return `linear-gradient(90deg, ${stops.join(', ')})`;
+}
+
+// ---- Zoom state ----
+const PX_PER_WEEK_LEVELS = [70, 110, 170, 260, 380];
+const DAY_VIEW_THRESHOLD_INDEX = 3; // index at/above which day ticks + weekend shading appear
+let zoomIndex = 1;
+function showDayView(){ return zoomIndex >= DAY_VIEW_THRESHOLD_INDEX; }
+function updateZoomUI(){
+  document.getElementById('zoomLabel').textContent = showDayView() ? 'Day view' : 'Week view';
+  document.getElementById('zoomOutBtn').disabled = zoomIndex === 0;
+  document.getElementById('zoomInBtn').disabled = zoomIndex === PX_PER_WEEK_LEVELS.length - 1;
+}
+document.getElementById('zoomOutBtn').addEventListener('click', () => {
+  zoomIndex = Math.max(0, zoomIndex - 1);
+  updateZoomUI();
+  render();
+});
+document.getElementById('zoomInBtn').addEventListener('click', () => {
+  zoomIndex = Math.min(PX_PER_WEEK_LEVELS.length - 1, zoomIndex + 1);
+  updateZoomUI();
+  render();
+});
+document.getElementById('weekCountMode').addEventListener('change', () => {
+  document.getElementById('weekStartDay').disabled = document.getElementById('weekCountMode').value !== 'weekstart';
+  render();
+});
+document.getElementById('weekStartDay').addEventListener('change', render);
+
+// Does the week [wkStart, wkEnd] overlap any break range?
+function weekOverlapsBreak(wkStart, wkEnd, breaks){
+  return breaks.some(b => wkStart <= b.end && wkEnd >= b.start);
+}
+
+// For a track: given start date, pace, total episodes, and break ranges -> array of {episode, date, week}
+// Weeks that overlap a break contribute zero progress; the schedule simply resumes after.
+function episodeDates(start, pace, total, breaks){
+  const out = [];
+  breaks = breaks || [];
+  if(pace <= 0 || total <= 0) return out;
+  let activeWeeks = 0;
+  let cumulative = 0;
+  let week = 0;
+  while(cumulative < total && week < MAX_WEEKS){
+    week++;
+    const wkStart = addDays(start, (week-1)*7);
+    const wkEnd = addDays(start, week*7 - 1);
+    if(weekOverlapsBreak(wkStart, wkEnd, breaks)) continue; // paused week, no progress
+    activeWeeks++;
+    const newCum = Math.min(total, Math.floor(activeWeeks*pace + 1e-9));
+    if(newCum > cumulative){
+      for(let ep = cumulative+1; ep <= newCum; ep++){
+        out.push({episode: ep, date: wkEnd, week});
+      }
+      cumulative = newCum;
+    }
+  }
+  return out;
+}
+
+// Business-day math: returns the date production work completes
+function addWorkDays(start, totalMinutes){
+  let current = new Date(start);
+  while(isWeekend(current)) current = addDays(current, 1);
+  let minutesLeft = totalMinutes;
+  while(minutesLeft > MINUTES_PER_DAY){
+    minutesLeft -= MINUTES_PER_DAY;
+    current = addDays(current, 1);
+    while(isWeekend(current)) current = addDays(current, 1);
+  }
+  return current;
+}
+
+// ---- Production runs state ----
+let runIdCounter = 0;
+let productionRuns = [];
+
+function addRun(startStr, episodes){
+  runIdCounter++;
+  productionRuns.push({ id: runIdCounter, start: startStr, episodes: episodes });
+}
+
+function renderRunsList(){
+  const list = document.getElementById('runsList');
+  list.innerHTML = '';
+  productionRuns.forEach((run, i) => {
+    const row = document.createElement('div');
+    row.className = 'run-row';
+    row.innerHTML = `
+      <div class="run-tag">RUN ${i+1}</div>
+      <input type="date" data-id="${run.id}" data-field="start" value="${run.start}">
+      <input type="number" data-id="${run.id}" data-field="episodes" min="1" step="1" value="${run.episodes}">
+      <button class="remove-run" data-id="${run.id}" title="Remove run">×</button>
+    `;
+    list.appendChild(row);
+  });
+
+  list.querySelectorAll('input').forEach(inp => {
+    inp.addEventListener('input', e => {
+      const id = parseInt(e.target.dataset.id, 10);
+      const field = e.target.dataset.field;
+      const run = productionRuns.find(r => r.id === id);
+      if(!run) return;
+      run[field] = field === 'episodes' ? parseInt(e.target.value, 10) : e.target.value;
+      render();
+    });
+  });
+  list.querySelectorAll('.remove-run').forEach(btn => {
+    btn.addEventListener('click', e => {
+      const id = parseInt(e.target.dataset.id, 10);
+      productionRuns = productionRuns.filter(r => r.id !== id);
+      renderRunsList();
+      render();
+    });
+  });
+}
+
+document.getElementById('addRunBtn').addEventListener('click', () => {
+  const last = productionRuns[productionRuns.length-1];
+  const nextStart = last ? addDays(parseLocalDate(last.start), 14).toISOString().slice(0,10) : new Date().toISOString().slice(0,10);
+  addRun(nextStart, 5);
+  renderRunsList();
+  render();
+});
+
+// ---- Breaks state (writing & release tracks) ----
+let breakIdCounter = 0;
+const breaksState = { writing: [], release: [] };
+
+function addBreakBlock(key, startStr, endStr){
+  breakIdCounter++;
+  breaksState[key].push({ id: breakIdCounter, start: startStr, end: endStr });
+}
+
+function renderBreaksList(key){
+  const list = document.getElementById(key + 'BreaksList');
+  list.innerHTML = '';
+  breaksState[key].forEach((b, i) => {
+    const row = document.createElement('div');
+    row.className = 'break-row';
+    row.innerHTML = `
+      <div class="run-tag">BREAK ${i+1}</div>
+      <input type="date" data-key="${key}" data-id="${b.id}" data-field="start" value="${b.start}">
+      <input type="date" data-key="${key}" data-id="${b.id}" data-field="end" value="${b.end}">
+      <button class="remove-run" data-key="${key}" data-id="${b.id}" title="Remove break">×</button>
+    `;
+    list.appendChild(row);
+  });
+
+  list.querySelectorAll('input').forEach(inp => {
+    inp.addEventListener('input', e => {
+      const k = e.target.dataset.key;
+      const id = parseInt(e.target.dataset.id, 10);
+      const field = e.target.dataset.field;
+      const b = breaksState[k].find(x => x.id === id);
+      if(!b) return;
+      b[field] = e.target.value;
+      render();
+    });
+  });
+  list.querySelectorAll('.remove-run').forEach(btn => {
+    btn.addEventListener('click', e => {
+      const k = e.target.dataset.key;
+      const id = parseInt(e.target.dataset.id, 10);
+      breaksState[k] = breaksState[k].filter(x => x.id !== id);
+      renderBreaksList(k);
+      render();
+    });
+  });
+}
+
+document.getElementById('writingAddBreakBtn').addEventListener('click', () => {
+  const d = new Date().toISOString().slice(0,10);
+  addBreakBlock('writing', d, d);
+  renderBreaksList('writing');
+  render();
+});
+document.getElementById('releaseAddBreakBtn').addEventListener('click', () => {
+  const d = new Date().toISOString().slice(0,10);
+  addBreakBlock('release', d, d);
+  renderBreaksList('release');
+  render();
+});
+
+function render(){
+  const total = parseInt(document.getElementById('totalEpisodes').value, 10);
+  const startEpNum = parseInt(document.getElementById('startEpNum').value, 10) || 1;
+  const wStartStr = document.getElementById('wStart').value;
+  const rStartStr = document.getElementById('rStart').value;
+  const wPace = parseFloat(document.getElementById('wPace').value);
+  const rPace = parseFloat(document.getElementById('rPace').value);
+  const recTime = parseFloat(document.getElementById('recTime').value) || 0;
+  const editTime = parseFloat(document.getElementById('editTime').value) || 0;
+
+  const warningEl = document.getElementById('warning');
+  warningEl.style.display = 'none';
+  let warnings = [];
+
+  if(!total || total < 1 || !wStartStr || !rStartStr || !wPace || !rPace || wPace<=0 || rPace<=0){
+    document.getElementById('gantt').innerHTML = '';
+    document.getElementById('wFinish').textContent = '—';
+    document.getElementById('rFinish').textContent = '—';
+    document.getElementById('pFinish').textContent = '—';
+    document.getElementById('totalWeeks').textContent = '—';
+    return;
+  }
+
+  const wStart = parseLocalDate(wStartStr);
+  const rStart = parseLocalDate(rStartStr);
+
+  function parseBreaks(key){
+    const parsed = [];
+    breaksState[key].forEach(b => {
+      if(!b.start || !b.end) return;
+      const s = parseLocalDate(b.start);
+      const e = parseLocalDate(b.end);
+      if(s > e){ warnings.push(`A break on ${key === 'writing' ? 'Track A' : 'Track B'} has an end date before its start date, so it was ignored.`); return; }
+      parsed.push({ start: s, end: e });
+    });
+    return parsed;
+  }
+  const wBreaks = parseBreaks('writing');
+  const rBreaks = parseBreaks('release');
+
+  const wEpisodes = episodeDates(wStart, wPace, total, wBreaks);
+  const rEpisodes = episodeDates(rStart, rPace, total, rBreaks);
+
+  // ---- Production runs: sort by start date, number episodes sequentially ----
+  const validRuns = productionRuns
+    .filter(r => r.start && r.episodes > 0)
+    .map(r => ({...r, startDate: parseLocalDate(r.start)}))
+    .sort((a,b) => a.startDate - b.startDate);
+
+  let epCounter = 0;
+  validRuns.forEach(r => {
+    const minutesNeeded = r.episodes * (recTime + editTime);
+    r.finishDate = addWorkDays(r.startDate, minutesNeeded);
+    r.epStart = epCounter + 1;
+    r.epEnd = epCounter + r.episodes;
+    epCounter += r.episodes;
+  });
+
+  const producedTotal = validRuns.reduce((s,r) => s + r.episodes, 0);
+  if(validRuns.length && producedTotal !== total){
+    warnings.push(`Production runs total ${producedTotal} episode${producedTotal===1?'':'s'}, program calls for ${total}.`);
+  }
+
+  // lane assignment for overlapping runs
+  const lanes = [];
+  validRuns.forEach(r => {
+    let laneIdx = lanes.findIndex(endDate => endDate < r.startDate);
+    if(laneIdx === -1){ laneIdx = lanes.length; lanes.push(r.finishDate); }
+    else { lanes[laneIdx] = r.finishDate; }
+    r.lane = laneIdx;
+  });
+  const numLanes = Math.max(1, lanes.length);
+
+  // ---- Global calendar span ----
+  const allStarts = [wStart, rStart, ...validRuns.map(r => r.startDate)];
+  const allEnds = [
+    wEpisodes.length ? wEpisodes[wEpisodes.length-1].date : wStart,
+    rEpisodes.length ? rEpisodes[rEpisodes.length-1].date : rStart,
+    ...validRuns.map(r => r.finishDate)
+  ];
+  const globalStartRaw = new Date(Math.min(...allStarts.map(d => d.getTime())));
+  const weekCountMode = document.getElementById('weekCountMode').value;
+  const weekStartDay = parseInt(document.getElementById('weekStartDay').value, 10);
+  const globalStart = weekCountMode === 'weekstart' ? getWeekStartAnchor(globalStartRaw, weekStartDay) : globalStartRaw;
+  const lastDate = new Date(Math.max(...allEnds.map(d => d.getTime())));
+
+  let numWeeks = Math.floor((lastDate - globalStart) / (7*86400000)) + 1;
+  if(numWeeks > MAX_WEEKS){
+    numWeeks = MAX_WEEKS;
+    warnings.push(`This schedule runs long — showing the first ${MAX_WEEKS} weeks.`);
+  }
+  if(warnings.length){
+    warningEl.style.display = 'block';
+    warningEl.textContent = warnings.join(' ');
+  }
+
+  function groupByGlobalWeek(episodes){
+    const map = {};
+    episodes.forEach(({episode, date}) => {
+      const idx = Math.floor((date - globalStart) / (7*86400000));
+      if(idx >= numWeeks) return;
+      if(!map[idx]) map[idx] = [];
+      map[idx].push(episode);
+    });
+    return map;
+  }
+  const wMap = groupByGlobalWeek(wEpisodes);
+  const rMap = groupByGlobalWeek(rEpisodes);
+
+  // ---- Summary ----
+  document.getElementById('wFinish').textContent = wEpisodes.length
+    ? fmtDateFull(wEpisodes[wEpisodes.length-1].date) + ' (Wk ' + wEpisodes[wEpisodes.length-1].week + ')' : '—';
+  document.getElementById('rFinish').textContent = rEpisodes.length
+    ? fmtDateFull(rEpisodes[rEpisodes.length-1].date) + ' (Wk ' + rEpisodes[rEpisodes.length-1].week + ')' : '—';
+  document.getElementById('pFinish').textContent = validRuns.length
+    ? fmtDateFull(new Date(Math.max(...validRuns.map(r => r.finishDate.getTime())))) : '—';
+  document.getElementById('totalWeeks').textContent = numWeeks;
+
+  // ---- Build grid ----
+  const pxPerWeek = PX_PER_WEEK_LEVELS[zoomIndex];
+  const pxPerDay = pxPerWeek/7;
+  const labelColW = 170;
+  const prodRowH = Math.max(54, numLanes*32 + 12);
+  const dayView = showDayView();
+  const headerRowH = dayView ? 50 : 56;
+
+  const gantt = document.getElementById('gantt');
+  gantt.innerHTML = '';
+  gantt.style.gridTemplateColumns = `${labelColW}px repeat(${numWeeks}, ${pxPerWeek}px)`;
+  gantt.style.gridTemplateRows = `${headerRowH}px auto auto ${prodRowH}px`;
+
+  const corner = document.createElement('div');
+  corner.className = 'row-label corner';
+  corner.style.gridColumn = '1';
+  corner.style.gridRow = '1';
+  gantt.appendChild(corner);
+
+  for(let i=0;i<numWeeks;i++){
+    const wkStart = addDays(globalStart, i*7);
+    const wkEnd = addDays(globalStart, i*7+6);
+    const cell = document.createElement('div');
+    cell.className = 'cell head-cell';
+    cell.style.gridColumn = String(i+2);
+    cell.style.gridRow = '1';
+    if(dayView){
+      const slots = Array.from({length:7}).map((_,d) => {
+        const dayDate = addDays(wkStart, d);
+        const wknd = isWeekend(dayDate);
+        return `<div class="day-slot${wknd?' weekend':''}"><span class="dow">${dayDate.toLocaleDateString('en-US',{weekday:'narrow'})}</span><span class="dnum">${dayDate.getDate()}</span></div>`;
+      }).join('');
+      cell.innerHTML = `<div class="wk-mini">WEEK ${i+1}</div><div class="day-row">${slots}</div>`;
+      cell.style.backgroundImage = weekendGradient(wkStart);
+    } else {
+      cell.innerHTML = `<div class="wk">WEEK ${i+1}</div><div class="dr">${fmtDate(wkStart)}–${fmtDate(wkEnd)}</div>`;
+    }
+    gantt.appendChild(cell);
+  }
+
+  const wLabel = document.createElement('div');
+  wLabel.className = 'row-label';
+  wLabel.style.gridColumn = '1';
+  wLabel.style.gridRow = '2';
+  wLabel.innerHTML = `<div class="rl-name" style="color:var(--amber)">Writing</div><div class="rl-sub">${wPace} ep/wk from ${fmtDate(wStart)}</div>`;
+  gantt.appendChild(wLabel);
+
+  const rLabel = document.createElement('div');
+  rLabel.className = 'row-label';
+  rLabel.style.gridColumn = '1';
+  rLabel.style.gridRow = '3';
+  rLabel.innerHTML = `<div class="rl-name" style="color:var(--teal)">Release</div><div class="rl-sub">${rPace} ep/wk from ${fmtDate(rStart)}</div>`;
+  gantt.appendChild(rLabel);
+
+  const pLabel = document.createElement('div');
+  pLabel.className = 'row-label';
+  pLabel.style.gridColumn = '1';
+  pLabel.style.gridRow = '4';
+  pLabel.innerHTML = `<div class="rl-name" style="color:var(--violet)">Production</div><div class="rl-sub">${recTime+editTime} min/ep · 8h day</div>`;
+  gantt.appendChild(pLabel);
+
+  for(let i=0;i<numWeeks;i++){
+    const wkStart = addDays(globalStart, i*7);
+    const wkEnd = addDays(globalStart, i*7+6);
+
+    const wIsBreak = weekOverlapsBreak(wkStart, wkEnd, wBreaks);
+    const wCell = document.createElement('div');
+    wCell.className = 'cell track-cell writing' + (wIsBreak ? ' break-cell' : '');
+    wCell.style.gridColumn = String(i+2);
+    wCell.style.gridRow = '2';
+    {
+      const layers = [];
+      if(wIsBreak) layers.push('repeating-linear-gradient(135deg, rgba(255,255,255,0.035) 0 6px, transparent 6px 12px)');
+      if(dayView) layers.push(weekendGradient(wkStart));
+      layers.push('linear-gradient(180deg, rgba(232,163,61,0.03), transparent)');
+      wCell.style.backgroundImage = layers.join(', ');
+    }
+    (wMap[i]||[]).forEach(ep=>{
+      const chip = document.createElement('div');
+      chip.className = 'chip writing';
+      chip.textContent = 'EP ' + (startEpNum + ep - 1);
+      wCell.appendChild(chip);
+    });
+    gantt.appendChild(wCell);
+
+    const rIsBreak = weekOverlapsBreak(wkStart, wkEnd, rBreaks);
+    const rCell = document.createElement('div');
+    rCell.className = 'cell track-cell release' + (rIsBreak ? ' break-cell' : '');
+    rCell.style.gridColumn = String(i+2);
+    rCell.style.gridRow = '3';
+    {
+      const layers = [];
+      if(rIsBreak) layers.push('repeating-linear-gradient(135deg, rgba(255,255,255,0.035) 0 6px, transparent 6px 12px)');
+      if(dayView) layers.push(weekendGradient(wkStart));
+      layers.push('linear-gradient(180deg, rgba(73,183,168,0.03), transparent)');
+      rCell.style.backgroundImage = layers.join(', ');
+    }
+    (rMap[i]||[]).forEach(ep=>{
+      const chip = document.createElement('div');
+      chip.className = 'chip release';
+      chip.textContent = 'EP ' + (startEpNum + ep - 1);
+      rCell.appendChild(chip);
+    });
+    gantt.appendChild(rCell);
+
+    const pCell = document.createElement('div');
+    pCell.className = 'cell';
+    pCell.style.gridColumn = String(i+2);
+    pCell.style.gridRow = '4';
+    if(dayView) pCell.style.backgroundImage = weekendGradient(wkStart);
+    gantt.appendChild(pCell);
+  }
+
+  // production overlay row (bars span across the week cells)
+  const prodOverlay = document.createElement('div');
+  prodOverlay.className = 'production-row';
+  prodOverlay.style.gridColumn = `2 / ${numWeeks+2}`;
+  prodOverlay.style.gridRow = '4';
+  validRuns.forEach(r => {
+    if(r.startDate > lastDate) return;
+    const leftDays = (r.startDate - globalStart) / 86400000;
+    const spanDays = Math.max(1, (r.finishDate - r.startDate) / 86400000 + 1);
+    const bar = document.createElement('div');
+    bar.className = 'prod-bar';
+    bar.style.left = (leftDays*pxPerDay) + 'px';
+    bar.style.width = (spanDays*pxPerDay - 4) + 'px';
+    bar.style.top = (6 + r.lane*32) + 'px';
+    const epLabel = r.epStart === r.epEnd ? `EP ${startEpNum + r.epStart - 1}` : `EP ${startEpNum + r.epStart - 1}–${startEpNum + r.epEnd - 1}`;
+    bar.innerHTML = `<span class="pb-eps">${epLabel}</span><span class="pb-date">→ ${fmtDate(r.finishDate)}</span>`;
+    bar.title = `${epLabel} · starts ${fmtDateFull(r.startDate)} · finishes ${fmtDateFull(r.finishDate)}`;
+    prodOverlay.appendChild(bar);
+  });
+  gantt.appendChild(prodOverlay);
+
+  // today playhead
+  const today = new Date();
+  today.setHours(0,0,0,0);
+  const offsetDays = Math.floor((today - globalStart) / 86400000);
+  if(offsetDays >= 0 && offsetDays <= numWeeks*7){
+    const left = labelColW + offsetDays*pxPerDay;
+    const play = document.createElement('div');
+    play.className = 'playhead';
+    play.style.left = left + 'px';
+    play.innerHTML = '<div class="tag">Today</div>';
+    gantt.appendChild(play);
+  }
+}
+
+// ---- URL param helpers ----
+function encodeList(items){ return items.join('|'); }
+function decodeList(str){ return str ? str.split('|').filter(Boolean).map(pair => pair.split(':')) : []; }
+
+// Returns a real, navigable base URL (origin+path), or null if we're in a context
+// (sandboxed preview, blob:, about:, data:) where a pasteable link can't be built.
+function getBaseURL(){
+  const proto = window.location.protocol;
+  if(proto !== 'http:' && proto !== 'https:' && proto !== 'file:') return null;
+  if(window.location.origin === 'null') return null;
+  return window.location.origin + window.location.pathname;
+}
+
+function buildShareURL(){
+  const base = getBaseURL();
+  if(base === null) return null;
+  const p = new URLSearchParams();
+  p.set('total', document.getElementById('totalEpisodes').value);
+  p.set('startEp', document.getElementById('startEpNum').value);
+  p.set('wStart', document.getElementById('wStart').value);
+  p.set('wPace', document.getElementById('wPace').value);
+  p.set('rStart', document.getElementById('rStart').value);
+  p.set('rPace', document.getElementById('rPace').value);
+  p.set('rec', document.getElementById('recTime').value);
+  p.set('edit', document.getElementById('editTime').value);
+  p.set('wcMode', document.getElementById('weekCountMode').value);
+  p.set('wcStart', document.getElementById('weekStartDay').value);
+  p.set('zoom', String(zoomIndex));
+  if(breaksState.writing.length) p.set('wBreaks', encodeList(breaksState.writing.map(b => `${b.start}:${b.end}`)));
+  if(breaksState.release.length) p.set('rBreaks', encodeList(breaksState.release.map(b => `${b.start}:${b.end}`)));
+  if(productionRuns.length) p.set('runs', encodeList(productionRuns.map(r => `${r.start}:${r.episodes}`)));
+  return base + '?' + p.toString();
+}
+
+function showCopied(){
+  const btn = document.getElementById('shareBtn');
+  const original = 'Copy link with these settings';
+  btn.textContent = 'Link copied ✓';
+  btn.classList.add('copied');
+  setTimeout(() => { btn.textContent = original; btn.classList.remove('copied'); }, 2200);
+}
+
+document.getElementById('shareBtn').addEventListener('click', () => {
+  const url = buildShareURL();
+  const box = document.getElementById('shareUrlBox');
+  if(url === null){
+    box.style.display = 'block';
+    box.value = "Can't build a real link from this in-chat preview — save/host the HTML file first, then this button will copy a working URL.";
+    box.focus();
+    box.select();
+    return;
+  }
+  box.style.display = 'block';
+  box.value = url;
+  box.focus();
+  box.select();
+  if(navigator.clipboard && navigator.clipboard.writeText){
+    navigator.clipboard.writeText(url).then(showCopied).catch(() => {
+      try{ document.execCommand('copy'); showCopied(); }catch(e){ /* box stays visible & selected for manual copy */ }
+    });
+  } else {
+    try{ document.execCommand('copy'); showCopied(); }catch(e){ /* box stays visible & selected for manual copy */ }
+  }
+});
+
+// ---- init defaults ----
+const urlParams = new URLSearchParams(window.location.search);
+const today = new Date();
+
+document.getElementById('totalEpisodes').value = urlParams.get('total') || document.getElementById('totalEpisodes').value;
+document.getElementById('startEpNum').value = urlParams.get('startEp') || document.getElementById('startEpNum').value;
+document.getElementById('wStart').value = urlParams.get('wStart') || today.toISOString().slice(0,10);
+document.getElementById('wPace').value = urlParams.get('wPace') || document.getElementById('wPace').value;
+document.getElementById('rStart').value = urlParams.get('rStart') || addDays(today, 28).toISOString().slice(0,10);
+document.getElementById('rPace').value = urlParams.get('rPace') || document.getElementById('rPace').value;
+document.getElementById('recTime').value = urlParams.get('rec') || document.getElementById('recTime').value;
+document.getElementById('editTime').value = urlParams.get('edit') || document.getElementById('editTime').value;
+
+if(urlParams.has('runs')){
+  decodeList(urlParams.get('runs')).forEach(([s, ep]) => { if(s && ep) addRun(s, parseInt(ep, 10)); });
+} else {
+  addRun(addDays(today, 7).toISOString().slice(0,10), 10);
+  addRun(addDays(today, 21).toISOString().slice(0,10), 10);
+}
+renderRunsList();
+
+if(urlParams.has('wBreaks')) decodeList(urlParams.get('wBreaks')).forEach(([s, e]) => { if(s && e) addBreakBlock('writing', s, e); });
+if(urlParams.has('rBreaks')) decodeList(urlParams.get('rBreaks')).forEach(([s, e]) => { if(s && e) addBreakBlock('release', s, e); });
+renderBreaksList('writing');
+renderBreaksList('release');
+
+if(urlParams.has('wcMode')) document.getElementById('weekCountMode').value = urlParams.get('wcMode');
+if(urlParams.has('wcStart')) document.getElementById('weekStartDay').value = urlParams.get('wcStart');
+document.getElementById('weekStartDay').disabled = document.getElementById('weekCountMode').value !== 'weekstart';
+
+if(urlParams.has('zoom')){
+  const z = parseInt(urlParams.get('zoom'), 10);
+  if(!isNaN(z) && z >= 0 && z < PX_PER_WEEK_LEVELS.length) zoomIndex = z;
+}
+updateZoomUI();
+
+if(getBaseURL() === null){
+  document.getElementById('shareHint').textContent = "This in-chat preview can't produce a real link — save this file or host it, then the button will copy a working URL.";
+} else {
+  document.getElementById('shareHint').textContent = 'Opens this exact configuration when pasted into a new tab.';
+}
+
+['totalEpisodes','startEpNum','wStart','wPace','rStart','rPace','recTime','editTime'].forEach(id=>{
+  document.getElementById(id).addEventListener('input', render);
+});
+
+render();
+</script>
+</body>
+</html>
