@@ -6,6 +6,14 @@
 <title>Production Schedule</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=IBM+Plex+Mono:wght@400;500;600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<script>
+  (function(){
+    try{
+      var t = localStorage.getItem('pf-theme');
+      if(t === 'light' || t === 'dark') document.documentElement.setAttribute('data-theme', t);
+    }catch(e){}
+  })();
+</script>
 <style>
   :root{
     --bg:#17181A;
@@ -23,6 +31,27 @@
     --violet:#B48DE0;
     --violet-dim:#362a49;
     --red:#D9584A;
+    --calendar-icon-filter:invert(1);
+    color-scheme:dark;
+  }
+  [data-theme="light"]{
+    --bg:#E8EAEC;
+    --panel:#FFFFFF;
+    --panel-2:#F1F2F4;
+    --border:#C5C9CE;
+    --border-soft:#D8DBDF;
+    --text:#1A1C1E;
+    --text-dim:#5A5E63;
+    --text-faint:#8A8F94;
+    --amber:#C47D1A;
+    --amber-dim:#F3E4C4;
+    --teal:#2A8F82;
+    --teal-dim:#D0EBE6;
+    --violet:#7B5AA8;
+    --violet-dim:#E6DCF2;
+    --red:#C94438;
+    --calendar-icon-filter:none;
+    color-scheme:light;
   }
   *{box-sizing:border-box;}
   html,body{margin:0;padding:0;}
@@ -45,6 +74,13 @@
     padding-bottom:18px;
     margin-bottom:22px;
   }
+  .masthead-top{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:12px;
+    width:100%;
+  }
   .masthead .eyebrow{
     font-family:'IBM Plex Mono',monospace;
     font-size:11px;
@@ -52,6 +88,20 @@
     color:var(--text-faint);
     text-transform:uppercase;
   }
+  .theme-toggle{
+    flex:0 0 auto;
+    background:var(--panel);
+    border:1px solid var(--border);
+    color:var(--text-dim);
+    font-family:'IBM Plex Mono',monospace;
+    font-size:11px;
+    letter-spacing:0.04em;
+    padding:6px 10px;
+    border-radius:6px;
+    cursor:pointer;
+    white-space:nowrap;
+  }
+  .theme-toggle:hover{border-color:var(--text-dim);color:var(--text);}
   .title-input{
     font-family:'Barlow Condensed',sans-serif;
     font-weight:700;
@@ -154,7 +204,12 @@
   .field input:focus{
     border-color:var(--accent, var(--text-dim));
   }
-  .field input::-webkit-calendar-picker-indicator{filter:invert(0.7);cursor:pointer;}
+  input[type="date"]::-webkit-calendar-picker-indicator{
+    filter:var(--calendar-icon-filter);
+    cursor:pointer;
+    opacity:0.85;
+  }
+  input[type="date"]::-webkit-calendar-picker-indicator:hover{opacity:1;}
 
   /* ---------- Pace mode toggle + per-day grid ---------- */
   .seg-toggle{
@@ -175,7 +230,7 @@
     letter-spacing:0.01em;
   }
   .seg-btn.active{
-    background:rgba(255,255,255,0.07);
+    background:color-mix(in srgb, var(--text) 8%, transparent);
     color:var(--accent);
     box-shadow:inset 0 -2px 0 var(--accent);
   }
@@ -211,7 +266,7 @@
   }
   .day-pace-cell.enabled .dp-toggle{
     color:var(--accent);
-    background:rgba(255,255,255,0.07);
+    background:color-mix(in srgb, var(--text) 8%, transparent);
   }
   .day-pace-cell input{
     width:100%;
@@ -277,7 +332,7 @@
     width:100%;
     letter-spacing:0.02em;
   }
-  .add-break-btn:hover{background:rgba(255,255,255,0.06);}
+  .add-break-btn:hover{background:color-mix(in srgb, var(--text) 6%, transparent);}
 
   .runs-col{display:flex;flex-direction:column;}
   .runs-col > label{
@@ -366,7 +421,7 @@
     width:100%;
     letter-spacing:0.02em;
   }
-  .add-run-btn:hover{background:#40325a;}
+  .add-run-btn:hover{background:var(--violet-dim);filter:brightness(1.08);}
 
   .share-row{
     display:flex;
@@ -787,7 +842,10 @@
 
   <div class="masthead">
     <div style="width:100%;">
-      <div class="eyebrow">Podcast Production</div>
+      <div class="masthead-top">
+        <div class="eyebrow">Podcast Production</div>
+        <button type="button" class="theme-toggle" id="themeToggle" aria-label="Toggle color theme">Light mode</button>
+      </div>
       <textarea id="pageTitle" class="title-input" rows="1" maxlength="160">Production Schedule</textarea>
       <p class="tagline">Three tracks, one release calendar.</p>
     </div>
@@ -1726,6 +1784,23 @@ titleInput.addEventListener('input', () => {
   syncTitleHeight();
 });
 window.addEventListener('resize', syncTitleHeight);
+
+// ---- theme toggle ----
+const themeToggle = document.getElementById('themeToggle');
+function currentTheme(){
+  return document.documentElement.getAttribute('data-theme') === 'light' ? 'light' : 'dark';
+}
+function applyTheme(theme){
+  if(theme === 'light') document.documentElement.setAttribute('data-theme', 'light');
+  else document.documentElement.removeAttribute('data-theme');
+  themeToggle.textContent = theme === 'light' ? 'Dark mode' : 'Light mode';
+  themeToggle.setAttribute('aria-label', theme === 'light' ? 'Switch to dark mode' : 'Switch to light mode');
+  try{ localStorage.setItem('pf-theme', theme); }catch(e){}
+}
+applyTheme(currentTheme());
+themeToggle.addEventListener('click', () => {
+  applyTheme(currentTheme() === 'light' ? 'dark' : 'light');
+});
 
 // ---- init defaults ----
 const urlParams = new URLSearchParams(window.location.search);
