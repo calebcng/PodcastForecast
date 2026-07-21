@@ -1087,6 +1087,9 @@ function addWorkDays(start, totalMinutes){
 }
 
 // ---- Pace mode state (writing & release tracks) ----
+// DOM ids use short prefixes (wDayGrid, rPaceField); state keys are full track names.
+const TRACK_DOM = { writing: 'w', release: 'r' };
+
 function defaultDayConfig(){
   return [0,1,2,3,4,5,6].map(d => ({ day: d, enabled: d>=1 && d<=5, count: 1 }));
 }
@@ -1096,7 +1099,7 @@ const paceState = {
 };
 
 function renderDayGrid(key){
-  const container = document.getElementById(key + 'DayGrid');
+  const container = document.getElementById(TRACK_DOM[key] + 'DayGrid');
   container.innerHTML = '';
   paceState[key].dayConfig.forEach(cfg => {
     const cell = document.createElement('div');
@@ -1130,9 +1133,10 @@ function renderDayGrid(key){
 
 function setPaceMode(key, mode){
   paceState[key].mode = mode;
-  document.querySelectorAll(`#${key}PaceModeToggle .seg-btn`).forEach(b => b.classList.toggle('active', b.dataset.mode === mode));
-  document.getElementById(key + 'PaceField').style.display = mode === 'pace' ? '' : 'none';
-  document.getElementById(key + 'DayGrid').style.display = mode === 'days' ? 'grid' : 'none';
+  const prefix = TRACK_DOM[key];
+  document.querySelectorAll(`#${prefix}PaceModeToggle .seg-btn`).forEach(b => b.classList.toggle('active', b.dataset.mode === mode));
+  document.getElementById(prefix + 'PaceField').style.display = mode === 'pace' ? '' : 'none';
+  document.getElementById(prefix + 'DayGrid').style.display = mode === 'days' ? 'grid' : 'none';
   render();
 }
 document.querySelectorAll('#wPaceModeToggle .seg-btn').forEach(b => b.addEventListener('click', () => setPaceMode('writing', b.dataset.mode)));
