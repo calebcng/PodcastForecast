@@ -63,10 +63,17 @@
     border-bottom:2px solid transparent;
     color:var(--text);
     outline:none;
-    padding:0;
+    padding:0 0 4px;
     display:block;
     width:100%;
-    max-width:640px;
+    max-width:none;
+    resize:none;
+    overflow:hidden;
+    white-space:pre-wrap;
+    word-wrap:break-word;
+    overflow-wrap:anywhere;
+    field-sizing:content;
+    min-height:1.15em;
   }
   .title-input:hover{border-bottom-color:var(--border);}
   .title-input:focus{border-bottom-color:var(--text-dim);}
@@ -781,7 +788,7 @@
   <div class="masthead">
     <div style="width:100%;">
       <div class="eyebrow">Podcast Production</div>
-      <input type="text" id="pageTitle" class="title-input" value="Production Schedule" maxlength="80">
+      <textarea id="pageTitle" class="title-input" rows="1" maxlength="160">Production Schedule</textarea>
       <p class="tagline">Three tracks, one release calendar.</p>
     </div>
   </div>
@@ -1709,7 +1716,16 @@ document.getElementById('shareBtn').addEventListener('click', () => {
 
 // ---- page title ----
 const titleInput = document.getElementById('pageTitle');
-titleInput.addEventListener('input', () => { document.title = titleInput.value || 'Production Schedule'; });
+function syncTitleHeight(){
+  // Fallback when field-sizing isn't supported: grow to fit wrapped lines.
+  titleInput.style.height = 'auto';
+  titleInput.style.height = titleInput.scrollHeight + 'px';
+}
+titleInput.addEventListener('input', () => {
+  document.title = titleInput.value || 'Production Schedule';
+  syncTitleHeight();
+});
+window.addEventListener('resize', syncTitleHeight);
 
 // ---- init defaults ----
 const urlParams = new URLSearchParams(window.location.search);
@@ -1717,6 +1733,7 @@ const today = new Date();
 
 if(urlParams.has('title')) titleInput.value = urlParams.get('title');
 document.title = titleInput.value || 'Production Schedule';
+syncTitleHeight();
 
 document.getElementById('totalEpisodes').value = urlParams.get('total') || document.getElementById('totalEpisodes').value;
 document.getElementById('startEpNum').value = urlParams.get('startEp') || document.getElementById('startEpNum').value;
