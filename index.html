@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Cue Sheet — Podcast Production Scheduler</title>
+<title>Production Schedule</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=IBM+Plex+Mono:wght@400;500;600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
@@ -52,18 +52,28 @@
     color:var(--text-faint);
     text-transform:uppercase;
   }
-  .masthead h1{
+  .title-input{
     font-family:'Barlow Condensed',sans-serif;
     font-weight:700;
     font-size:40px;
     letter-spacing:0.01em;
-    margin:0;
-    line-height:1;
+    line-height:1.15;
+    background:transparent;
+    border:none;
+    border-bottom:2px solid transparent;
+    color:var(--text);
+    outline:none;
+    padding:0;
+    display:block;
+    width:100%;
+    max-width:640px;
   }
+  .title-input:hover{border-bottom-color:var(--border);}
+  .title-input:focus{border-bottom-color:var(--text-dim);}
   .masthead .tagline{
     font-size:13px;
     color:var(--text-dim);
-    margin:0;
+    margin:4px 0 0;
   }
 
   /* ---------- Console (controls) ---------- */
@@ -139,6 +149,77 @@
   }
   .field input::-webkit-calendar-picker-indicator{filter:invert(0.7);cursor:pointer;}
 
+  /* ---------- Pace mode toggle + per-day grid ---------- */
+  .seg-toggle{
+    display:flex;
+    border:1px solid var(--border);
+    border-radius:6px;
+    overflow:hidden;
+  }
+  .seg-btn{
+    flex:1;
+    background:var(--panel-2);
+    border:none;
+    color:var(--text-dim);
+    font-family:'IBM Plex Mono',monospace;
+    font-size:11px;
+    padding:8px 4px;
+    cursor:pointer;
+    letter-spacing:0.01em;
+  }
+  .seg-btn.active{
+    background:rgba(255,255,255,0.07);
+    color:var(--accent);
+    box-shadow:inset 0 -2px 0 var(--accent);
+  }
+  .day-pace-grid{
+    display:grid;
+    grid-template-columns:repeat(7, 1fr);
+    gap:4px;
+    margin-top:10px;
+  }
+  .day-pace-cell{
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    gap:4px;
+    background:var(--panel-2);
+    border:1px solid var(--border);
+    border-radius:6px;
+    padding:6px 2px;
+  }
+  .day-pace-cell.enabled{border-color:var(--accent);}
+  .dp-toggle{
+    width:100%;
+    font-size:10px;
+    font-family:'IBM Plex Mono',monospace;
+    background:transparent;
+    border:none;
+    color:var(--text-dim);
+    cursor:pointer;
+    text-align:center;
+    padding:3px 0;
+    border-radius:4px;
+    letter-spacing:0.02em;
+  }
+  .day-pace-cell.enabled .dp-toggle{
+    color:var(--accent);
+    background:rgba(255,255,255,0.07);
+  }
+  .day-pace-cell input{
+    width:100%;
+    text-align:center;
+    background:var(--panel);
+    border:1px solid var(--border);
+    color:var(--text);
+    font-family:'IBM Plex Mono',monospace;
+    font-size:11px;
+    padding:4px 0;
+    border-radius:4px;
+    outline:none;
+  }
+  .day-pace-cell input:disabled{opacity:0.3;}
+
   .breaks-wrap{margin-top:14px;}
   .breaks-wrap > label{
     display:block;
@@ -200,25 +281,34 @@
     letter-spacing:0.02em;
   }
   .runs-list{display:flex;flex-direction:column;gap:8px;margin-bottom:8px;}
+  .runs-empty{
+    font-size:11px;
+    color:var(--text-faint);
+    font-family:'IBM Plex Mono',monospace;
+    padding:8px 2px;
+  }
   .run-row{
-    display:grid;
-    grid-template-columns:1fr 88px 26px;
-    gap:8px;
-    align-items:center;
+    display:flex;
+    flex-direction:column;
+    gap:7px;
     background:var(--panel-2);
     border:1px solid var(--border);
     border-radius:6px;
-    padding:6px;
+    padding:8px;
   }
   .run-row .run-tag{
     font-family:'IBM Plex Mono',monospace;
     font-size:10px;
     color:var(--violet);
-    grid-column:1/-1;
     letter-spacing:0.04em;
   }
-  .run-row input{
-    width:100%;
+  .run-row-top{
+    display:flex;
+    gap:8px;
+    align-items:center;
+  }
+  .run-row-top input[type="date"]{
+    flex:1;
     background:var(--panel);
     border:1px solid var(--border);
     color:var(--text);
@@ -228,8 +318,9 @@
     border-radius:5px;
     outline:none;
   }
-  .run-row input:focus{border-color:var(--violet);}
+  .run-row-top input[type="date"]:focus{border-color:var(--violet);}
   .remove-run{
+    flex:0 0 auto;
     background:transparent;
     border:1px solid var(--border);
     color:var(--text-faint);
@@ -237,9 +328,25 @@
     cursor:pointer;
     font-size:14px;
     line-height:1;
-    padding:6px 0;
+    padding:6px 9px;
   }
   .remove-run:hover{border-color:var(--red);color:var(--red);}
+  .run-slider-wrap{
+    display:flex;
+    align-items:center;
+    gap:9px;
+  }
+  .run-slider-wrap input[type="range"]{
+    flex:1;
+    accent-color:var(--violet);
+  }
+  .run-slider-wrap .run-slider-val{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:11px;
+    color:var(--violet);
+    min-width:52px;
+    text-align:right;
+  }
   .add-run-btn{
     background:var(--violet-dim);
     border:1px dashed var(--violet);
@@ -438,6 +545,10 @@
     color:var(--text-faint);
     font-family:'IBM Plex Mono',monospace;
     margin-top:2px;
+    max-width:150px;
+    overflow:hidden;
+    text-overflow:ellipsis;
+    white-space:nowrap;
   }
   .row-label.corner{
     background:var(--panel);
@@ -470,12 +581,13 @@
   }
   .day-row{display:flex;width:100%;}
   .day-slot{
-    flex:1;
+    flex:0 0 auto;
     display:flex;
     flex-direction:column;
     align-items:center;
     justify-content:center;
     gap:1px;
+    overflow:hidden;
   }
   .day-slot .dow{
     font-size:8px;
@@ -501,14 +613,8 @@
     gap:4px;
     min-height:54px;
   }
-  .track-cell.writing{background:linear-gradient(180deg, rgba(232,163,61,0.03), transparent);}
-  .track-cell.release{background:linear-gradient(180deg, rgba(73,183,168,0.03), transparent);}
-  .track-cell.production{background:linear-gradient(180deg, rgba(180,141,224,0.03), transparent);}
 
-  .track-cell.break-cell{
-    background-image:repeating-linear-gradient(135deg, rgba(255,255,255,0.035) 0 6px, transparent 6px 12px);
-    position:relative;
-  }
+  .track-cell.break-cell{position:relative;}
   .track-cell.break-cell::after{
     content:"BREAK";
     position:absolute;
@@ -534,9 +640,37 @@
     color:var(--text);
     line-height:1.4;
     white-space:nowrap;
+    max-width:108px;
+    overflow:hidden;
+    text-overflow:ellipsis;
+    cursor:default;
   }
   .chip.writing{--accent:var(--amber);}
   .chip.release{--accent:var(--teal);}
+
+  .day-overlay{position:relative;min-height:44px;}
+  .day-chip{
+    position:absolute;
+    top:8px;
+    height:28px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    border-radius:4px;
+    background:var(--panel-2);
+    border-left:3px solid var(--accent);
+    font-family:'IBM Plex Mono',monospace;
+    font-size:11px;
+    font-weight:600;
+    color:var(--text);
+    overflow:hidden;
+    white-space:nowrap;
+    text-overflow:ellipsis;
+    padding:0 5px;
+    cursor:default;
+  }
+  .day-chip.writing{--accent:var(--amber);}
+  .day-chip.release{--accent:var(--teal);}
 
   .production-row{
     position:relative;
@@ -553,16 +687,19 @@
     padding:0 8px;
     display:flex;
     align-items:center;
-    gap:8px;
     overflow:hidden;
-    white-space:nowrap;
     font-family:'IBM Plex Mono',monospace;
     font-size:11px;
     color:var(--text);
     cursor:default;
   }
-  .prod-bar .pb-eps{font-weight:600;color:var(--violet);}
-  .prod-bar .pb-date{color:var(--text-faint);}
+  .prod-bar .pb-text{
+    overflow:hidden;
+    text-overflow:ellipsis;
+    white-space:nowrap;
+    min-width:0;
+    flex:1;
+  }
 
   .playhead{
     position:absolute;
@@ -583,6 +720,47 @@
     white-space:nowrap;
   }
 
+  .tooltip-box{
+    position:fixed;
+    z-index:80;
+    background:var(--panel-2);
+    border:1px solid var(--border);
+    color:var(--text);
+    font-family:'IBM Plex Mono',monospace;
+    font-size:11px;
+    padding:6px 10px;
+    border-radius:6px;
+    pointer-events:none;
+    box-shadow:0 6px 18px rgba(0,0,0,0.45);
+    display:none;
+    white-space:nowrap;
+    max-width:300px;
+  }
+
+  /* ---------- Notes ---------- */
+  .notes-panel{
+    background:var(--panel);
+    border:1px solid var(--border-soft);
+    border-radius:10px;
+    padding:16px 18px;
+    margin-top:20px;
+  }
+  .notes-panel textarea{
+    width:100%;
+    min-height:110px;
+    background:var(--panel-2);
+    border:1px solid var(--border);
+    color:var(--text);
+    font-family:'Inter',sans-serif;
+    font-size:13px;
+    padding:10px 12px;
+    border-radius:8px;
+    outline:none;
+    resize:vertical;
+    line-height:1.5;
+  }
+  .notes-panel textarea:focus{border-color:var(--text-dim);}
+
   footer{
     margin-top:18px;
     font-size:11px;
@@ -593,7 +771,7 @@
   @media (max-width:820px){
     .console{grid-template-columns:1fr;}
     .strip-production{grid-template-columns:1fr;}
-    .masthead h1{font-size:30px;}
+    .title-input{font-size:30px;}
   }
 </style>
 </head>
@@ -601,9 +779,9 @@
 <div class="wrap">
 
   <div class="masthead">
-    <div>
+    <div style="width:100%;">
       <div class="eyebrow">Podcast Production</div>
-      <h1>Cue Sheet</h1>
+      <input type="text" id="pageTitle" class="title-input" value="Production Schedule" maxlength="80">
       <p class="tagline">Three tracks, one release calendar.</p>
     </div>
   </div>
@@ -627,9 +805,17 @@
         <input type="date" id="wStart" style="--accent:var(--amber)">
       </div>
       <div class="field">
+        <label>Pace mode</label>
+        <div class="seg-toggle" id="wPaceModeToggle">
+          <button type="button" class="seg-btn active" data-mode="pace">Episodes/week</button>
+          <button type="button" class="seg-btn" data-mode="days">Specific days</button>
+        </div>
+      </div>
+      <div class="field" id="wPaceField">
         <label>Pace (episodes / week)</label>
         <input type="number" id="wPace" value="2" min="0.1" step="0.1" style="--accent:var(--amber)">
       </div>
+      <div class="day-pace-grid" id="wDayGrid" style="display:none;"></div>
       <div class="breaks-wrap">
         <label>Breaks (optional)</label>
         <div class="breaks-list" id="writingBreaksList"></div>
@@ -643,9 +829,17 @@
         <input type="date" id="rStart" style="--accent:var(--teal)">
       </div>
       <div class="field">
+        <label>Pace mode</label>
+        <div class="seg-toggle" id="rPaceModeToggle">
+          <button type="button" class="seg-btn active" data-mode="pace">Episodes/week</button>
+          <button type="button" class="seg-btn" data-mode="days">Specific days</button>
+        </div>
+      </div>
+      <div class="field" id="rPaceField">
         <label>Pace (episodes / week)</label>
         <input type="number" id="rPace" value="1" min="0.1" step="0.1" style="--accent:var(--teal)">
       </div>
+      <div class="day-pace-grid" id="rDayGrid" style="display:none;"></div>
       <div class="breaks-wrap">
         <label>Breaks (optional)</label>
         <div class="breaks-list" id="releaseBreaksList"></div>
@@ -710,12 +904,21 @@
     <div class="gantt" id="gantt"></div>
   </div>
 
-  <footer>Writing &amp; release run on 7-day weeks. Production runs on 8-hour weekdays (weekends skipped), block spans shown on the calendar.</footer>
+  <footer>Writing &amp; release run on 7-day weeks (or specific weekdays, if configured). Production runs on 8-hour weekdays (weekends skipped), block spans shown on the calendar.</footer>
+
+  <div class="notes-panel">
+    <div class="strip-label"><span class="swatch" style="--accent:var(--text-faint)"></span>Notes</div>
+    <textarea id="notesArea" placeholder="Notes about this schedule — talent availability, sponsor deadlines, anything worth remembering..."></textarea>
+  </div>
 </div>
+
+<div class="tooltip-box" id="tooltipBox"></div>
 
 <script>
 const MAX_WEEKS = 260; // safety cap (~5 years)
 const MINUTES_PER_DAY = 480;
+const DAY_NAMES_SHORT = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+const DAY_NAMES_MINI = ['Su','Mo','Tu','We','Th','Fr','Sa'];
 
 function fmtDate(d){ return d.toLocaleDateString('en-US',{month:'short',day:'numeric'}); }
 function fmtDateFull(d){ return d.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}); }
@@ -742,6 +945,30 @@ function weekendGradient(wkStart){
     stops.push(`${color} ${startPct}%`, `${color} ${endPct}%`);
   }
   return `linear-gradient(90deg, ${stops.join(', ')})`;
+}
+
+// ---- Shared tooltip ----
+function showTooltip(e, text){
+  const tip = document.getElementById('tooltipBox');
+  tip.textContent = text;
+  tip.style.display = 'block';
+  positionTooltip(e);
+}
+function positionTooltip(e){
+  const tip = document.getElementById('tooltipBox');
+  const pad = 14;
+  let left = e.clientX + pad;
+  let top = e.clientY + pad;
+  if(left > window.innerWidth - 260) left = e.clientX - pad - 220;
+  if(top > window.innerHeight - 60) top = e.clientY - pad - 30;
+  tip.style.left = left + 'px';
+  tip.style.top = top + 'px';
+}
+function hideTooltip(){ document.getElementById('tooltipBox').style.display = 'none'; }
+function attachTooltip(el, text){
+  el.addEventListener('mouseenter', e => showTooltip(e, text));
+  el.addEventListener('mousemove', positionTooltip);
+  el.addEventListener('mouseleave', hideTooltip);
 }
 
 // ---- Zoom state ----
@@ -774,9 +1001,11 @@ document.getElementById('weekStartDay').addEventListener('change', render);
 function weekOverlapsBreak(wkStart, wkEnd, breaks){
   return breaks.some(b => wkStart <= b.end && wkEnd >= b.start);
 }
+function dateInBreaks(date, breaks){
+  return breaks.some(b => date >= b.start && date <= b.end);
+}
 
-// For a track: given start date, pace, total episodes, and break ranges -> array of {episode, date, week}
-// Weeks that overlap a break contribute zero progress; the schedule simply resumes after.
+// For a track in "episodes/week" pace mode
 function episodeDates(start, pace, total, breaks){
   const out = [];
   breaks = breaks || [];
@@ -801,6 +1030,49 @@ function episodeDates(start, pace, total, breaks){
   return out;
 }
 
+// For a track in "specific days" pace mode: walk day by day, only enabled weekdays produce episodes
+function episodeDatesByDays(start, dayConfig, total, breaks){
+  const out = [];
+  breaks = breaks || [];
+  if(total <= 0) return out;
+  const active = dayConfig.filter(c => c.enabled && c.count > 0);
+  if(!active.length) return out;
+  let cumulative = 0;
+  let cursor = new Date(start);
+  let daysWalked = 0;
+  const maxDays = MAX_WEEKS*7;
+  while(cumulative < total && daysWalked < maxDays){
+    const cfg = dayConfig.find(c => c.day === cursor.getDay());
+    if(cfg && cfg.enabled && cfg.count > 0 && !dateInBreaks(cursor, breaks)){
+      const newCum = Math.min(total, cumulative + cfg.count);
+      if(newCum > cumulative){
+        const week = Math.floor((cursor - start) / (7*86400000)) + 1;
+        for(let ep = cumulative+1; ep <= newCum; ep++){
+          out.push({episode: ep, date: new Date(cursor), week});
+        }
+        cumulative = newCum;
+      }
+    }
+    cursor = addDays(cursor, 1);
+    daysWalked++;
+  }
+  return out;
+}
+
+// Merge consecutive same-day episodes into single groups for compact day-view rendering
+function groupEpisodesByDate(episodes){
+  const groups = [];
+  episodes.forEach(({episode, date}) => {
+    const last = groups[groups.length-1];
+    if(last && last.date.getTime() === date.getTime() && last.epEnd === episode - 1){
+      last.epEnd = episode;
+    } else {
+      groups.push({ date, epStart: episode, epEnd: episode });
+    }
+  });
+  return groups;
+}
+
 // Business-day math: returns the date production work completes
 function addWorkDays(start, totalMinutes){
   let current = new Date(start);
@@ -814,6 +1086,58 @@ function addWorkDays(start, totalMinutes){
   return current;
 }
 
+// ---- Pace mode state (writing & release tracks) ----
+function defaultDayConfig(){
+  return [0,1,2,3,4,5,6].map(d => ({ day: d, enabled: d>=1 && d<=5, count: 1 }));
+}
+const paceState = {
+  writing: { mode: 'pace', dayConfig: defaultDayConfig() },
+  release: { mode: 'pace', dayConfig: defaultDayConfig() }
+};
+
+function renderDayGrid(key){
+  const container = document.getElementById(key + 'DayGrid');
+  container.innerHTML = '';
+  paceState[key].dayConfig.forEach(cfg => {
+    const cell = document.createElement('div');
+    cell.className = 'day-pace-cell' + (cfg.enabled ? ' enabled' : '');
+    cell.innerHTML = `
+      <button type="button" class="dp-toggle" data-key="${key}" data-day="${cfg.day}">${DAY_NAMES_MINI[cfg.day]}</button>
+      <input type="number" min="0" step="1" value="${cfg.count}" data-key="${key}" data-day="${cfg.day}" ${cfg.enabled ? '' : 'disabled'}>
+    `;
+    container.appendChild(cell);
+  });
+  container.querySelectorAll('.dp-toggle').forEach(btn => {
+    btn.addEventListener('click', e => {
+      const k = e.currentTarget.dataset.key;
+      const day = parseInt(e.currentTarget.dataset.day, 10);
+      const cfg = paceState[k].dayConfig.find(c => c.day === day);
+      cfg.enabled = !cfg.enabled;
+      renderDayGrid(k);
+      render();
+    });
+  });
+  container.querySelectorAll('input').forEach(inp => {
+    inp.addEventListener('input', e => {
+      const k = e.target.dataset.key;
+      const day = parseInt(e.target.dataset.day, 10);
+      const cfg = paceState[k].dayConfig.find(c => c.day === day);
+      cfg.count = parseInt(e.target.value, 10) || 0;
+      render();
+    });
+  });
+}
+
+function setPaceMode(key, mode){
+  paceState[key].mode = mode;
+  document.querySelectorAll(`#${key}PaceModeToggle .seg-btn`).forEach(b => b.classList.toggle('active', b.dataset.mode === mode));
+  document.getElementById(key + 'PaceField').style.display = mode === 'pace' ? '' : 'none';
+  document.getElementById(key + 'DayGrid').style.display = mode === 'days' ? 'grid' : 'none';
+  render();
+}
+document.querySelectorAll('#wPaceModeToggle .seg-btn').forEach(b => b.addEventListener('click', () => setPaceMode('writing', b.dataset.mode)));
+document.querySelectorAll('#rPaceModeToggle .seg-btn').forEach(b => b.addEventListener('click', () => setPaceMode('release', b.dataset.mode)));
+
 // ---- Production runs state ----
 let runIdCounter = 0;
 let productionRuns = [];
@@ -823,48 +1147,84 @@ function addRun(startStr, episodes){
   productionRuns.push({ id: runIdCounter, start: startStr, episodes: episodes });
 }
 
+function remainingEpisodes(excludeId){
+  const total = parseInt(document.getElementById('totalEpisodes').value, 10) || 0;
+  const used = productionRuns.reduce((s,r) => r.id === excludeId ? s : s + (r.episodes||0), 0);
+  return Math.max(0, total - used);
+}
+
 function renderRunsList(){
+  const total = parseInt(document.getElementById('totalEpisodes').value, 10) || 0;
   const list = document.getElementById('runsList');
   list.innerHTML = '';
+
+  if(!productionRuns.length){
+    const empty = document.createElement('div');
+    empty.className = 'runs-empty';
+    empty.textContent = 'No production runs yet — add one below.';
+    list.appendChild(empty);
+  }
+
   productionRuns.forEach((run, i) => {
+    const othersSum = productionRuns.reduce((s,r) => r.id === run.id ? s : s + (r.episodes||0), 0);
+    const maxForThis = Math.max(0, total - othersSum);
+    if(run.episodes > maxForThis) run.episodes = maxForThis;
+
     const row = document.createElement('div');
     row.className = 'run-row';
     row.innerHTML = `
       <div class="run-tag">RUN ${i+1}</div>
-      <input type="date" data-id="${run.id}" data-field="start" value="${run.start}">
-      <input type="number" data-id="${run.id}" data-field="episodes" min="1" step="1" value="${run.episodes}">
-      <button class="remove-run" data-id="${run.id}" title="Remove run">×</button>
+      <div class="run-row-top">
+        <input type="date" data-id="${run.id}" data-field="start" value="${run.start}">
+        <button class="remove-run" data-id="${run.id}" title="Remove run">×</button>
+      </div>
+      <div class="run-slider-wrap">
+        <input type="range" min="0" max="${maxForThis}" step="1" value="${run.episodes}" data-id="${run.id}" class="run-slider">
+        <span class="run-slider-val" data-id="${run.id}">${run.episodes} ep${run.episodes===1?'':'s'}</span>
+      </div>
     `;
     list.appendChild(row);
   });
 
-  list.querySelectorAll('input').forEach(inp => {
+  list.querySelectorAll('input[type="date"]').forEach(inp => {
     inp.addEventListener('input', e => {
       const id = parseInt(e.target.dataset.id, 10);
-      const field = e.target.dataset.field;
       const run = productionRuns.find(r => r.id === id);
       if(!run) return;
-      run[field] = field === 'episodes' ? parseInt(e.target.value, 10) : e.target.value;
+      run.start = e.target.value;
       render();
     });
   });
   list.querySelectorAll('.remove-run').forEach(btn => {
     btn.addEventListener('click', e => {
-      const id = parseInt(e.target.dataset.id, 10);
+      const id = parseInt(e.currentTarget.dataset.id, 10);
       productionRuns = productionRuns.filter(r => r.id !== id);
       renderRunsList();
       render();
     });
+  });
+  list.querySelectorAll('.run-slider').forEach(sl => {
+    sl.addEventListener('input', e => {
+      const id = parseInt(e.target.dataset.id, 10);
+      const run = productionRuns.find(r => r.id === id);
+      if(!run) return;
+      run.episodes = parseInt(e.target.value, 10) || 0;
+      const label = list.querySelector(`.run-slider-val[data-id="${id}"]`);
+      if(label) label.textContent = run.episodes + ' ep' + (run.episodes===1?'':'s');
+      render();
+    });
+    sl.addEventListener('change', () => renderRunsList());
   });
 }
 
 document.getElementById('addRunBtn').addEventListener('click', () => {
   const last = productionRuns[productionRuns.length-1];
   const nextStart = last ? addDays(parseLocalDate(last.start), 14).toISOString().slice(0,10) : new Date().toISOString().slice(0,10);
-  addRun(nextStart, 5);
+  addRun(nextStart, remainingEpisodes());
   renderRunsList();
   render();
 });
+document.getElementById('totalEpisodes').addEventListener('input', () => renderRunsList());
 
 // ---- Breaks state (writing & release tracks) ----
 let breakIdCounter = 0;
@@ -903,8 +1263,8 @@ function renderBreaksList(key){
   });
   list.querySelectorAll('.remove-run').forEach(btn => {
     btn.addEventListener('click', e => {
-      const k = e.target.dataset.key;
-      const id = parseInt(e.target.dataset.id, 10);
+      const k = e.currentTarget.dataset.key;
+      const id = parseInt(e.currentTarget.dataset.id, 10);
       breaksState[k] = breaksState[k].filter(x => x.id !== id);
       renderBreaksList(k);
       render();
@@ -930,16 +1290,18 @@ function render(){
   const startEpNum = parseInt(document.getElementById('startEpNum').value, 10) || 1;
   const wStartStr = document.getElementById('wStart').value;
   const rStartStr = document.getElementById('rStart').value;
-  const wPace = parseFloat(document.getElementById('wPace').value);
-  const rPace = parseFloat(document.getElementById('rPace').value);
+  const wPaceVal = parseFloat(document.getElementById('wPace').value);
+  const rPaceVal = parseFloat(document.getElementById('rPace').value);
   const recTime = parseFloat(document.getElementById('recTime').value) || 0;
   const editTime = parseFloat(document.getElementById('editTime').value) || 0;
+  const wMode = paceState.writing.mode;
+  const rMode = paceState.release.mode;
 
   const warningEl = document.getElementById('warning');
   warningEl.style.display = 'none';
   let warnings = [];
 
-  if(!total || total < 1 || !wStartStr || !rStartStr || !wPace || !rPace || wPace<=0 || rPace<=0){
+  if(!total || total < 1 || !wStartStr || !rStartStr){
     document.getElementById('gantt').innerHTML = '';
     document.getElementById('wFinish').textContent = '—';
     document.getElementById('rFinish').textContent = '—';
@@ -965,8 +1327,21 @@ function render(){
   const wBreaks = parseBreaks('writing');
   const rBreaks = parseBreaks('release');
 
-  const wEpisodes = episodeDates(wStart, wPace, total, wBreaks);
-  const rEpisodes = episodeDates(rStart, rPace, total, rBreaks);
+  let wEpisodes, rEpisodes;
+  if(wMode === 'pace'){
+    if(!wPaceVal || wPaceVal <= 0) warnings.push('Track A pace must be greater than 0.');
+    wEpisodes = episodeDates(wStart, wPaceVal, total, wBreaks);
+  } else {
+    wEpisodes = episodeDatesByDays(wStart, paceState.writing.dayConfig, total, wBreaks);
+    if(!wEpisodes.length) warnings.push('Track A has no active days selected, so writing never progresses.');
+  }
+  if(rMode === 'pace'){
+    if(!rPaceVal || rPaceVal <= 0) warnings.push('Track B pace must be greater than 0.');
+    rEpisodes = episodeDates(rStart, rPaceVal, total, rBreaks);
+  } else {
+    rEpisodes = episodeDatesByDays(rStart, paceState.release.dayConfig, total, rBreaks);
+    if(!rEpisodes.length) warnings.push('Track B has no active days selected, so release never progresses.');
+  }
 
   // ---- Production runs: sort by start date, number episodes sequentially ----
   const validRuns = productionRuns
@@ -1031,8 +1406,8 @@ function render(){
     });
     return map;
   }
-  const wMap = groupByGlobalWeek(wEpisodes);
-  const rMap = groupByGlobalWeek(rEpisodes);
+  const wMap = wMode === 'pace' ? groupByGlobalWeek(wEpisodes) : {};
+  const rMap = rMode === 'pace' ? groupByGlobalWeek(rEpisodes) : {};
 
   // ---- Summary ----
   document.getElementById('wFinish').textContent = wEpisodes.length
@@ -1073,7 +1448,10 @@ function render(){
       const slots = Array.from({length:7}).map((_,d) => {
         const dayDate = addDays(wkStart, d);
         const wknd = isWeekend(dayDate);
-        return `<div class="day-slot${wknd?' weekend':''}"><span class="dow">${dayDate.toLocaleDateString('en-US',{weekday:'narrow'})}</span><span class="dnum">${dayDate.getDate()}</span></div>`;
+        // Same rounding scheme used for day-chip/bar left-edges: cumulative round(d*pxPerDay)
+        // deltas, so header tick boundaries land on the identical pixel as any overlay content.
+        const slotW = Math.round((d+1)*pxPerDay) - Math.round(d*pxPerDay);
+        return `<div class="day-slot${wknd?' weekend':''}" style="width:${slotW}px"><span class="dow">${dayDate.toLocaleDateString('en-US',{weekday:'narrow'})}</span><span class="dnum">${dayDate.getDate()}</span></div>`;
       }).join('');
       cell.innerHTML = `<div class="wk-mini">WEEK ${i+1}</div><div class="day-row">${slots}</div>`;
       cell.style.backgroundImage = weekendGradient(wkStart);
@@ -1087,14 +1465,24 @@ function render(){
   wLabel.className = 'row-label';
   wLabel.style.gridColumn = '1';
   wLabel.style.gridRow = '2';
-  wLabel.innerHTML = `<div class="rl-name" style="color:var(--amber)">Writing</div><div class="rl-sub">${wPace} ep/wk from ${fmtDate(wStart)}</div>`;
+  {
+    const sub = wMode === 'pace'
+      ? `${wPaceVal || 0} ep/wk from ${fmtDate(wStart)}`
+      : `${paceState.writing.dayConfig.filter(c=>c.enabled).map(c=>DAY_NAMES_SHORT[c.day]).join(',') || 'no days set'} from ${fmtDate(wStart)}`;
+    wLabel.innerHTML = `<div class="rl-name" style="color:var(--amber)">Writing</div><div class="rl-sub" title="${sub}">${sub}</div>`;
+  }
   gantt.appendChild(wLabel);
 
   const rLabel = document.createElement('div');
   rLabel.className = 'row-label';
   rLabel.style.gridColumn = '1';
   rLabel.style.gridRow = '3';
-  rLabel.innerHTML = `<div class="rl-name" style="color:var(--teal)">Release</div><div class="rl-sub">${rPace} ep/wk from ${fmtDate(rStart)}</div>`;
+  {
+    const sub = rMode === 'pace'
+      ? `${rPaceVal || 0} ep/wk from ${fmtDate(rStart)}`
+      : `${paceState.release.dayConfig.filter(c=>c.enabled).map(c=>DAY_NAMES_SHORT[c.day]).join(',') || 'no days set'} from ${fmtDate(rStart)}`;
+    rLabel.innerHTML = `<div class="rl-name" style="color:var(--teal)">Release</div><div class="rl-sub" title="${sub}">${sub}</div>`;
+  }
   gantt.appendChild(rLabel);
 
   const pLabel = document.createElement('div');
@@ -1110,7 +1498,7 @@ function render(){
 
     const wIsBreak = weekOverlapsBreak(wkStart, wkEnd, wBreaks);
     const wCell = document.createElement('div');
-    wCell.className = 'cell track-cell writing' + (wIsBreak ? ' break-cell' : '');
+    wCell.className = 'cell track-cell' + (wIsBreak ? ' break-cell' : '');
     wCell.style.gridColumn = String(i+2);
     wCell.style.gridRow = '2';
     {
@@ -1120,17 +1508,21 @@ function render(){
       layers.push('linear-gradient(180deg, rgba(232,163,61,0.03), transparent)');
       wCell.style.backgroundImage = layers.join(', ');
     }
-    (wMap[i]||[]).forEach(ep=>{
-      const chip = document.createElement('div');
-      chip.className = 'chip writing';
-      chip.textContent = 'EP ' + (startEpNum + ep - 1);
-      wCell.appendChild(chip);
-    });
+    if(wMode === 'pace'){
+      (wMap[i]||[]).forEach(ep=>{
+        const chip = document.createElement('div');
+        chip.className = 'chip writing';
+        const label = 'EP ' + (startEpNum + ep - 1);
+        chip.textContent = label;
+        attachTooltip(chip, label);
+        wCell.appendChild(chip);
+      });
+    }
     gantt.appendChild(wCell);
 
     const rIsBreak = weekOverlapsBreak(wkStart, wkEnd, rBreaks);
     const rCell = document.createElement('div');
-    rCell.className = 'cell track-cell release' + (rIsBreak ? ' break-cell' : '');
+    rCell.className = 'cell track-cell' + (rIsBreak ? ' break-cell' : '');
     rCell.style.gridColumn = String(i+2);
     rCell.style.gridRow = '3';
     {
@@ -1140,12 +1532,16 @@ function render(){
       layers.push('linear-gradient(180deg, rgba(73,183,168,0.03), transparent)');
       rCell.style.backgroundImage = layers.join(', ');
     }
-    (rMap[i]||[]).forEach(ep=>{
-      const chip = document.createElement('div');
-      chip.className = 'chip release';
-      chip.textContent = 'EP ' + (startEpNum + ep - 1);
-      rCell.appendChild(chip);
-    });
+    if(rMode === 'pace'){
+      (rMap[i]||[]).forEach(ep=>{
+        const chip = document.createElement('div');
+        chip.className = 'chip release';
+        const label = 'EP ' + (startEpNum + ep - 1);
+        chip.textContent = label;
+        attachTooltip(chip, label);
+        rCell.appendChild(chip);
+      });
+    }
     gantt.appendChild(rCell);
 
     const pCell = document.createElement('div');
@@ -1156,7 +1552,35 @@ function render(){
     gantt.appendChild(pCell);
   }
 
-  // production overlay row (bars span across the week cells)
+  // Day-precision overlays for tracks in "specific days" mode — chips sit exactly under their calendar day
+  function buildDayOverlay(gridRow, episodes, cls){
+    const overlay = document.createElement('div');
+    overlay.className = 'day-overlay';
+    overlay.style.gridColumn = `2 / ${numWeeks+2}`;
+    overlay.style.gridRow = String(gridRow);
+    groupEpisodesByDate(episodes).forEach(g => {
+      if(g.date < globalStart || g.date > lastDate) return;
+      const dayOffset = Math.round((g.date - globalStart) / 86400000);
+      const left = Math.round(dayOffset * pxPerDay);
+      // Width must never exceed the day's own slot (right-edge minus left-edge), or it
+      // visually spills into the next day and throws off everything after it.
+      const rightEdge = Math.round((dayOffset+1) * pxPerDay);
+      const width = Math.max(4, (rightEdge - left) - 4);
+      const chip = document.createElement('div');
+      chip.className = 'day-chip ' + cls;
+      chip.style.left = left + 'px';
+      chip.style.width = width + 'px';
+      const label = g.epStart === g.epEnd ? `EP ${startEpNum + g.epStart - 1}` : `EP ${startEpNum + g.epStart - 1}–${startEpNum + g.epEnd - 1}`;
+      chip.textContent = label;
+      attachTooltip(chip, `${label} · ${fmtDateFull(g.date)}`);
+      overlay.appendChild(chip);
+    });
+    return overlay;
+  }
+  if(wMode === 'days') gantt.appendChild(buildDayOverlay(2, wEpisodes, 'writing'));
+  if(rMode === 'days') gantt.appendChild(buildDayOverlay(3, rEpisodes, 'release'));
+
+  // production overlay row (bars span across the week cells, positioned to exact days)
   const prodOverlay = document.createElement('div');
   prodOverlay.className = 'production-row';
   prodOverlay.style.gridColumn = `2 / ${numWeeks+2}`;
@@ -1167,12 +1591,15 @@ function render(){
     const spanDays = Math.max(1, (r.finishDate - r.startDate) / 86400000 + 1);
     const bar = document.createElement('div');
     bar.className = 'prod-bar';
-    bar.style.left = (leftDays*pxPerDay) + 'px';
-    bar.style.width = (spanDays*pxPerDay - 4) + 'px';
+    const leftPx = Math.round(leftDays*pxPerDay);
+    const rightPx = Math.round((leftDays+spanDays)*pxPerDay);
+    bar.style.left = leftPx + 'px';
+    bar.style.width = Math.max(4, (rightPx - leftPx) - 4) + 'px';
     bar.style.top = (6 + r.lane*32) + 'px';
     const epLabel = r.epStart === r.epEnd ? `EP ${startEpNum + r.epStart - 1}` : `EP ${startEpNum + r.epStart - 1}–${startEpNum + r.epEnd - 1}`;
-    bar.innerHTML = `<span class="pb-eps">${epLabel}</span><span class="pb-date">→ ${fmtDate(r.finishDate)}</span>`;
-    bar.title = `${epLabel} · starts ${fmtDateFull(r.startDate)} · finishes ${fmtDateFull(r.finishDate)}`;
+    const fullText = `${epLabel} → ${fmtDate(r.finishDate)}`;
+    bar.innerHTML = `<span class="pb-text">${fullText}</span>`;
+    attachTooltip(bar, `${epLabel} · starts ${fmtDateFull(r.startDate)} · finishes ${fmtDateFull(r.finishDate)}`);
     prodOverlay.appendChild(bar);
   });
   gantt.appendChild(prodOverlay);
@@ -1182,7 +1609,7 @@ function render(){
   today.setHours(0,0,0,0);
   const offsetDays = Math.floor((today - globalStart) / 86400000);
   if(offsetDays >= 0 && offsetDays <= numWeeks*7){
-    const left = labelColW + offsetDays*pxPerDay;
+    const left = labelColW + Math.round(offsetDays*pxPerDay);
     const play = document.createElement('div');
     play.className = 'playhead';
     play.style.left = left + 'px';
@@ -1194,6 +1621,19 @@ function render(){
 // ---- URL param helpers ----
 function encodeList(items){ return items.join('|'); }
 function decodeList(str){ return str ? str.split('|').filter(Boolean).map(pair => pair.split(':')) : []; }
+function encodeDayConfig(cfg){ return cfg.filter(c => c.enabled).map(c => `${c.day}:${c.count}`).join(','); }
+function applyDayConfigFromParam(key, str){
+  if(!str) return;
+  const map = {};
+  str.split(',').filter(Boolean).forEach(pair => {
+    const [d,c] = pair.split(':').map(Number);
+    map[d] = c;
+  });
+  paceState[key].dayConfig.forEach(cfg => {
+    if(Object.prototype.hasOwnProperty.call(map, cfg.day)){ cfg.enabled = true; cfg.count = map[cfg.day]; }
+    else { cfg.enabled = false; }
+  });
+}
 
 // Returns a real, navigable base URL (origin+path), or null if we're in a context
 // (sandboxed preview, blob:, about:, data:) where a pasteable link can't be built.
@@ -1208,12 +1648,17 @@ function buildShareURL(){
   const base = getBaseURL();
   if(base === null) return null;
   const p = new URLSearchParams();
+  p.set('title', document.getElementById('pageTitle').value);
   p.set('total', document.getElementById('totalEpisodes').value);
   p.set('startEp', document.getElementById('startEpNum').value);
   p.set('wStart', document.getElementById('wStart').value);
+  p.set('wMode', paceState.writing.mode);
   p.set('wPace', document.getElementById('wPace').value);
+  if(paceState.writing.mode === 'days') p.set('wDays', encodeDayConfig(paceState.writing.dayConfig));
   p.set('rStart', document.getElementById('rStart').value);
+  p.set('rMode', paceState.release.mode);
   p.set('rPace', document.getElementById('rPace').value);
+  if(paceState.release.mode === 'days') p.set('rDays', encodeDayConfig(paceState.release.dayConfig));
   p.set('rec', document.getElementById('recTime').value);
   p.set('edit', document.getElementById('editTime').value);
   p.set('wcMode', document.getElementById('weekCountMode').value);
@@ -1222,6 +1667,8 @@ function buildShareURL(){
   if(breaksState.writing.length) p.set('wBreaks', encodeList(breaksState.writing.map(b => `${b.start}:${b.end}`)));
   if(breaksState.release.length) p.set('rBreaks', encodeList(breaksState.release.map(b => `${b.start}:${b.end}`)));
   if(productionRuns.length) p.set('runs', encodeList(productionRuns.map(r => `${r.start}:${r.episodes}`)));
+  const notes = document.getElementById('notesArea').value;
+  if(notes) p.set('notes', notes);
   return base + '?' + p.toString();
 }
 
@@ -1256,9 +1703,16 @@ document.getElementById('shareBtn').addEventListener('click', () => {
   }
 });
 
+// ---- page title ----
+const titleInput = document.getElementById('pageTitle');
+titleInput.addEventListener('input', () => { document.title = titleInput.value || 'Production Schedule'; });
+
 // ---- init defaults ----
 const urlParams = new URLSearchParams(window.location.search);
 const today = new Date();
+
+if(urlParams.has('title')) titleInput.value = urlParams.get('title');
+document.title = titleInput.value || 'Production Schedule';
 
 document.getElementById('totalEpisodes').value = urlParams.get('total') || document.getElementById('totalEpisodes').value;
 document.getElementById('startEpNum').value = urlParams.get('startEp') || document.getElementById('startEpNum').value;
@@ -1269,11 +1723,21 @@ document.getElementById('rPace').value = urlParams.get('rPace') || document.getE
 document.getElementById('recTime').value = urlParams.get('rec') || document.getElementById('recTime').value;
 document.getElementById('editTime').value = urlParams.get('edit') || document.getElementById('editTime').value;
 
+if(urlParams.has('wMode')) paceState.writing.mode = urlParams.get('wMode');
+if(urlParams.has('wDays')) applyDayConfigFromParam('writing', urlParams.get('wDays'));
+if(urlParams.has('rMode')) paceState.release.mode = urlParams.get('rMode');
+if(urlParams.has('rDays')) applyDayConfigFromParam('release', urlParams.get('rDays'));
+renderDayGrid('writing');
+renderDayGrid('release');
+document.querySelectorAll('#wPaceModeToggle .seg-btn').forEach(b => b.classList.toggle('active', b.dataset.mode === paceState.writing.mode));
+document.querySelectorAll('#rPaceModeToggle .seg-btn').forEach(b => b.classList.toggle('active', b.dataset.mode === paceState.release.mode));
+document.getElementById('wPaceField').style.display = paceState.writing.mode === 'pace' ? '' : 'none';
+document.getElementById('wDayGrid').style.display = paceState.writing.mode === 'days' ? 'grid' : 'none';
+document.getElementById('rPaceField').style.display = paceState.release.mode === 'pace' ? '' : 'none';
+document.getElementById('rDayGrid').style.display = paceState.release.mode === 'days' ? 'grid' : 'none';
+
 if(urlParams.has('runs')){
   decodeList(urlParams.get('runs')).forEach(([s, ep]) => { if(s && ep) addRun(s, parseInt(ep, 10)); });
-} else {
-  addRun(addDays(today, 7).toISOString().slice(0,10), 10);
-  addRun(addDays(today, 21).toISOString().slice(0,10), 10);
 }
 renderRunsList();
 
@@ -1291,6 +1755,8 @@ if(urlParams.has('zoom')){
   if(!isNaN(z) && z >= 0 && z < PX_PER_WEEK_LEVELS.length) zoomIndex = z;
 }
 updateZoomUI();
+
+if(urlParams.has('notes')) document.getElementById('notesArea').value = urlParams.get('notes');
 
 if(getBaseURL() === null){
   document.getElementById('shareHint').textContent = "This in-chat preview can't produce a real link — save this file or host it, then the button will copy a working URL.";
