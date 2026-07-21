@@ -31,7 +31,6 @@
     --violet:#B48DE0;
     --violet-dim:#362a49;
     --red:#D9584A;
-    --calendar-icon-filter:invert(1);
     color-scheme:dark;
   }
   [data-theme="light"]{
@@ -50,7 +49,6 @@
     --violet:#7B5AA8;
     --violet-dim:#E6DCF2;
     --red:#C94438;
-    --calendar-icon-filter:none;
     color-scheme:light;
   }
   *{box-sizing:border-box;}
@@ -159,8 +157,15 @@
   .strip-production{
     grid-column:1 / -1;
     display:grid;
-    grid-template-columns:1fr 1fr 2fr;
+    grid-template-columns:minmax(200px, 260px) 1fr;
     gap:18px;
+    align-items:start;
+  }
+  .prod-times{
+    display:flex;
+    flex-direction:column;
+    gap:0;
+    min-width:0;
   }
   .strip-label{
     font-family:'Barlow Condensed',sans-serif;
@@ -204,10 +209,18 @@
   .field input:focus{
     border-color:var(--accent, var(--text-dim));
   }
-  input[type="date"]::-webkit-calendar-picker-indicator{
-    filter:var(--calendar-icon-filter);
+  /* Force the native dark glyph, then invert it in dark mode so it matches --text.
+     (color-scheme:dark alone lightens the icon; combining that with invert makes it black again.) */
+  input[type="date"]{color-scheme:light;}
+  :root:not([data-theme="light"]) input[type="date"]::-webkit-calendar-picker-indicator{
+    filter:invert(1);
     cursor:pointer;
     opacity:0.85;
+  }
+  [data-theme="light"] input[type="date"]::-webkit-calendar-picker-indicator{
+    filter:none;
+    cursor:pointer;
+    opacity:0.75;
   }
   input[type="date"]::-webkit-calendar-picker-indicator:hover{opacity:1;}
 
@@ -334,7 +347,7 @@
   }
   .add-break-btn:hover{background:color-mix(in srgb, var(--text) 6%, transparent);}
 
-  .runs-col{display:flex;flex-direction:column;}
+  .runs-col{display:flex;flex-direction:column;min-width:0;}
   .runs-col > label{
     display:block;
     font-size:11px;
@@ -914,13 +927,15 @@
 
     <div class="strip strip-production" style="--accent:var(--violet)">
       <div class="strip-label"><span class="swatch"></span>Track C — Production</div>
-      <div class="field">
-        <label>Recording time / episode (min)</label>
-        <input type="number" id="recTime" value="90" min="0" step="5" style="--accent:var(--violet)">
-      </div>
-      <div class="field">
-        <label>Editing time / episode (min)</label>
-        <input type="number" id="editTime" value="150" min="0" step="5" style="--accent:var(--violet)">
+      <div class="prod-times">
+        <div class="field">
+          <label>Recording time / episode (min)</label>
+          <input type="number" id="recTime" value="90" min="0" step="5" style="--accent:var(--violet)">
+        </div>
+        <div class="field">
+          <label>Editing time / episode (min)</label>
+          <input type="number" id="editTime" value="150" min="0" step="5" style="--accent:var(--violet)">
+        </div>
       </div>
       <div class="runs-col">
         <label>Production runs</label>
