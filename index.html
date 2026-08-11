@@ -748,7 +748,8 @@
   .chip.release{--accent:var(--teal);}
   body.is-dragging{cursor:grabbing;}
   body.is-dragging .chip,
-  body.is-dragging .day-chip{pointer-events:none;}
+  body.is-dragging .day-chip,
+  body.is-dragging .prod-bar{pointer-events:none;}
   .drag-ghost{
     position:fixed;
     z-index:90;
@@ -885,6 +886,18 @@
   .production-row{
     position:relative;
     background:var(--panel);
+    z-index:1;
+    min-height:44px;
+  }
+  .prod-drop-zone{
+    position:absolute;
+    top:0;bottom:0;
+    z-index:0;
+  }
+  .prod-drop-zone.drop-target{
+    background:color-mix(in srgb, var(--accent, var(--violet)) 18%, transparent);
+    outline:1px solid var(--accent, var(--violet));
+    outline-offset:-1px;
   }
   .prod-bar{
     position:absolute;
@@ -901,14 +914,19 @@
     font-family:'IBM Plex Mono',monospace;
     font-size:11px;
     color:var(--text);
-    cursor:default;
+    cursor:grab;
+    user-select:none;
+    z-index:1;
   }
+  .prod-bar:active{cursor:grabbing;}
+  .prod-bar.dragging{opacity:0.35;}
   .prod-bar .pb-text{
     overflow:hidden;
     text-overflow:ellipsis;
     white-space:nowrap;
     min-width:0;
     flex:1;
+    pointer-events:none;
   }
 
   .playhead{
@@ -1569,6 +1587,7 @@ let dragGhost = null;
 let activeDropTarget = null;
 let weekDropTargets = []; // { el, trackKey, weekEndDate, wkStart, wkEnd }
 let dayDropTargets = [];  // { el, trackKey, dayDate }
+let prodDropTargets = []; // { el, dayDate }
 
 function clearDropHighlights(){
   document.querySelectorAll('.drop-target').forEach(el => el.classList.remove('drop-target'));
@@ -1578,11 +1597,24 @@ function clearDropHighlights(){
 function resetDropTargetLists(){
   weekDropTargets = [];
   dayDropTargets = [];
+  prodDropTargets = [];
 }
 
 function destroyDragGhost(){
   if(dragGhost && dragGhost.parentNode) dragGhost.parentNode.removeChild(dragGhost);
   dragGhost = null;
+}
+
+function hitTestProdDropTarget(clientX, clientY){
+  const stack = document.elementsFromPoint(clientX, clientY);
+  for(let i = 0; i < stack.length; i++){
+    const hit = prodDropTargets.find(t => t.el === stack[i]);
+    if(hit) return hit;
+  }
+  return prodDropTargets.find(t => {
+    const r = t.el.getBoundingClientRect();
+    return clientX >= r.left && clientX <= r.right && clientY >= r.top && clientY <= r.bottom;
+  }) || null;
 }
 
 function hitTestDropTarget(clientX, clientY, trackKey, mode){
@@ -1614,8 +1646,9 @@ function hitTestDropTarget(clientX, clientY, trackKey, mode){
 
 function updateDropHighlight(clientX, clientY){
   if(!dragPayload) return;
-  const mode = paceState[dragPayload.trackKey].mode;
-  const hit = hitTestDropTarget(clientX, clientY, dragPayload.trackKey, mode);
+  const hit = dragPayload.kind === 'production'
+    ? hitTestProdDropTarget(clientX, clientY)
+    : hitTestDropTarget(clientX, clientY, dragPayload.trackKey, paceState[dragPayload.trackKey].mode);
   if(activeDropTarget && (!hit || activeDropTarget.el !== hit.el)){
     activeDropTarget.el.classList.remove('drop-target');
     activeDropTarget = null;
@@ -1628,6 +1661,10 @@ function updateDropHighlight(clientX, clientY){
 
 function commitDropFromPointer(){
   if(!dragPayload || !activeDropTarget) return;
+  if(dragPayload.kind === 'production'){
+    applyProductionRunMove(dragPayload.runId, activeDropTarget.dayDate);
+    return;
+  }
   const { trackKey, episode } = dragPayload;
   const mode = paceState[trackKey].mode;
   if(mode === 'pace'){
@@ -1660,6 +1697,11 @@ function endPointerDrag(){
   window.removeEventListener('pointercancel', onPointerDragUp);
 }
 
+function dragAccentForPayload(payload){
+  if(payload.kind === 'production') return 'var(--violet)';
+  return payload.trackKey === 'writing' ? 'var(--amber)' : 'var(--teal)';
+}
+
 function onPointerDragMove(e){
   if(!dragPayload) return;
   if(!dragPayload.active){
@@ -1673,7 +1715,7 @@ function onPointerDragMove(e){
     dragGhost = document.createElement('div');
     dragGhost.className = 'drag-ghost';
     dragGhost.textContent = dragPayload.label;
-    dragGhost.style.setProperty('--accent', dragPayload.trackKey === 'writing' ? 'var(--amber)' : 'var(--teal)');
+    dragGhost.style.setProperty('--accent', dragAccentForPayload(dragPayload));
     document.body.appendChild(dragGhost);
   }
   if(dragGhost){
@@ -1702,10 +1744,33 @@ function makeChipDraggable(chip, trackKey, episode){
     hideTooltip();
     const startEpNum = parseInt(document.getElementById('startEpNum').value, 10) || 1;
     dragPayload = {
+      kind: 'episode',
       trackKey,
       episode,
       chip,
       label: 'EP ' + (startEpNum + episode - 1),
+      startX: e.clientX,
+      startY: e.clientY,
+      active: false
+    };
+    window.addEventListener('pointermove', onPointerDragMove);
+    window.addEventListener('pointerup', onPointerDragUp);
+    window.addEventListener('pointercancel', onPointerDragUp);
+  });
+}
+
+function makeProdBarDraggable(bar, runId, label){
+  bar.draggable = false;
+  bar.dataset.runId = String(runId);
+  bar.addEventListener('pointerdown', e => {
+    if(e.button !== 0) return;
+    e.preventDefault();
+    hideTooltip();
+    dragPayload = {
+      kind: 'production',
+      runId,
+      chip: bar,
+      label,
       startX: e.clientX,
       startY: e.clientY,
       active: false
@@ -1734,6 +1799,15 @@ function setupDayDropTarget(zone, trackKey, dayDate){
   dayDropTargets.push({
     el: zone,
     trackKey,
+    dayDate: startOfDay(dayDate)
+  });
+}
+
+function setupProdDropTarget(zone, dayDate){
+  zone.dataset.dropTrack = 'production';
+  zone.style.setProperty('--accent', 'var(--violet)');
+  prodDropTargets.push({
+    el: zone,
     dayDate: startOfDay(dayDate)
   });
 }
@@ -1789,6 +1863,16 @@ let productionRuns = [];
 function addRun(startStr, episodes){
   runIdCounter++;
   productionRuns.push({ id: runIdCounter, start: startStr, episodes: episodes });
+}
+
+function applyProductionRunMove(runId, newDate){
+  const run = productionRuns.find(r => r.id === runId);
+  if(!run) return;
+  const next = toISODate(startOfDay(newDate));
+  if(run.start === next) return;
+  run.start = next;
+  renderRunsList();
+  render();
 }
 
 function remainingEpisodes(excludeId){
@@ -2278,6 +2362,21 @@ function render(){
   prodOverlay.className = 'production-row';
   prodOverlay.style.gridColumn = `2 / ${numWeeks+2}`;
   prodOverlay.style.gridRow = '4';
+  prodOverlay.style.setProperty('--accent', 'var(--violet)');
+  {
+    const totalDays = numWeeks * 7;
+    for(let d = 0; d < totalDays; d++){
+      const dayDate = addDays(globalStart, d);
+      const left = Math.round(d * pxPerDay);
+      const rightEdge = Math.round((d + 1) * pxPerDay);
+      const zone = document.createElement('div');
+      zone.className = 'prod-drop-zone';
+      zone.style.left = left + 'px';
+      zone.style.width = Math.max(1, rightEdge - left) + 'px';
+      setupProdDropTarget(zone, dayDate);
+      prodOverlay.appendChild(zone);
+    }
+  }
   validRuns.forEach(r => {
     if(r.startDate > lastDate) return;
     const leftDays = (r.startDate - globalStart) / 86400000;
@@ -2292,7 +2391,8 @@ function render(){
     const epLabel = r.epStart === r.epEnd ? `EP ${startEpNum + r.epStart - 1}` : `EP ${startEpNum + r.epStart - 1}–${startEpNum + r.epEnd - 1}`;
     const fullText = `${epLabel} → ${fmtDate(r.finishDate)}`;
     bar.innerHTML = `<span class="pb-text">${fullText}</span>`;
-    attachTooltip(bar, `${epLabel} · starts ${fmtDateFull(r.startDate)} · finishes ${fmtDateFull(r.finishDate)}`);
+    attachTooltip(bar, `${epLabel} · starts ${fmtDateFull(r.startDate)} · finishes ${fmtDateFull(r.finishDate)} · drag to reschedule`);
+    makeProdBarDraggable(bar, r.id, epLabel);
     prodOverlay.appendChild(bar);
   });
   gantt.appendChild(prodOverlay);
