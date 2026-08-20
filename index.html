@@ -31,6 +31,10 @@
     --teal-dim:#204039;
     --violet:#B48DE0;
     --violet-dim:#362a49;
+    --sky:#5BA3D9;
+    --sky-dim:#1e3344;
+    --rose:#D97B8C;
+    --rose-dim:#4a2a32;
     --red:#D9584A;
     color-scheme:dark;
   }
@@ -49,6 +53,10 @@
     --teal-dim:#D0EBE6;
     --violet:#7B5AA8;
     --violet-dim:#E6DCF2;
+    --sky:#2A7AB0;
+    --sky-dim:#D4E8F5;
+    --rose:#B85A6A;
+    --rose-dim:#F5DCE1;
     --red:#C94438;
     color-scheme:light;
   }
@@ -61,7 +69,7 @@
     padding:28px 20px 60px;
     -webkit-font-smoothing:antialiased;
   }
-  .wrap{max-width:1180px;margin:0 auto;}
+  .wrap{width:100%;}
 
   /* ---------- Masthead ---------- */
   .masthead{
@@ -135,7 +143,7 @@
   /* ---------- Console (controls) ---------- */
   .console{
     display:grid;
-    grid-template-columns:1fr 1fr 1fr;
+    grid-template-columns:repeat(auto-fit, minmax(280px, 1fr));
     gap:1px;
     background:var(--border);
     border:1px solid var(--border);
@@ -174,6 +182,7 @@
     height:3px;
     background:var(--accent, var(--text-faint));
   }
+  .strip-runs,
   .strip-production{
     display:flex;
     flex-direction:column;
@@ -391,7 +400,7 @@
   .run-row .run-tag{
     font-family:'IBM Plex Mono',monospace;
     font-size:10px;
-    color:var(--violet);
+    color:var(--accent, var(--violet));
     letter-spacing:0.04em;
   }
   .run-row-top{
@@ -410,7 +419,7 @@
     border-radius:5px;
     outline:none;
   }
-  .run-row-top input[type="date"]:focus{border-color:var(--violet);}
+  .run-row-top input[type="date"]:focus{border-color:var(--accent, var(--violet));}
   .remove-run{
     flex:0 0 auto;
     background:transparent;
@@ -430,19 +439,19 @@
   }
   .run-slider-wrap input[type="range"]{
     flex:1;
-    accent-color:var(--violet);
+    accent-color:var(--accent, var(--violet));
   }
   .run-slider-wrap .run-slider-val{
     font-family:'IBM Plex Mono',monospace;
     font-size:11px;
-    color:var(--violet);
+    color:var(--accent, var(--violet));
     min-width:52px;
     text-align:right;
   }
   .add-run-btn{
-    background:var(--violet-dim);
-    border:1px dashed var(--violet);
-    color:var(--violet);
+    background:color-mix(in srgb, var(--accent, var(--violet)) 18%, transparent);
+    border:1px dashed var(--accent, var(--violet));
+    color:var(--accent, var(--violet));
     border-radius:6px;
     font-family:'IBM Plex Mono',monospace;
     font-size:12px;
@@ -451,7 +460,7 @@
     width:100%;
     letter-spacing:0.02em;
   }
-  .add-run-btn:hover{background:var(--violet-dim);filter:brightness(1.08);}
+  .add-run-btn:hover{filter:brightness(1.08);}
 
   .share-row{
     display:flex;
@@ -557,7 +566,8 @@
     display:flex;
     flex-wrap:wrap;
     gap:10px;
-    margin-bottom:22px;
+    margin-top:14px;
+    margin-bottom:8px;
   }
   .summary-item{
     background:var(--panel);
@@ -580,8 +590,10 @@
     background:var(--text-faint);
   }
   .summary-item.accent-amber .dot{background:var(--amber);}
+  .summary-item.accent-sky .dot{background:var(--sky);}
   .summary-item.accent-teal .dot{background:var(--teal);}
   .summary-item.accent-violet .dot{background:var(--violet);}
+  .summary-item.accent-rose .dot{background:var(--rose);}
 
   .warning{
     font-size:12px;
@@ -638,10 +650,18 @@
     color:var(--text-faint);
     font-family:'IBM Plex Mono',monospace;
     margin-top:2px;
-    max-width:150px;
+    max-width:172px;
     overflow:hidden;
     text-overflow:ellipsis;
     white-space:nowrap;
+  }
+  .row-label .rl-finish{
+    font-size:10px;
+    color:var(--text-dim);
+    font-family:'IBM Plex Mono',monospace;
+    margin-top:4px;
+    line-height:1.35;
+    max-width:172px;
   }
   .row-label.corner{
     background:var(--panel);
@@ -742,7 +762,10 @@
   .chip:active{cursor:grabbing;}
   .chip.dragging{opacity:0.35;}
   .chip.writing{--accent:var(--amber);}
+  .chip.editing{--accent:var(--sky);}
   .chip.release{--accent:var(--teal);}
+  .chip.production{--accent:var(--violet);}
+  .chip.post{--accent:var(--rose);}
   body.is-dragging{cursor:grabbing;}
   body.is-dragging .chip,
   body.is-dragging .day-chip,
@@ -806,7 +829,9 @@
   .day-chip:active{cursor:grabbing;}
   .day-chip.dragging{opacity:0.35;}
   .day-chip.writing{--accent:var(--amber);}
+  .day-chip.editing{--accent:var(--sky);}
   .day-chip.release{--accent:var(--teal);}
+  .day-chip.post{--accent:var(--rose);}
 
   .gen-btn{
     margin-top:12px;
@@ -900,9 +925,9 @@
     position:absolute;
     top:6px;
     height:26px;
-    background:var(--violet-dim);
-    border:1px solid var(--violet);
-    border-left:4px solid var(--violet);
+    background:color-mix(in srgb, var(--accent, var(--violet)) 22%, transparent);
+    border:1px solid var(--accent, var(--violet));
+    border-left:4px solid var(--accent, var(--violet));
     border-radius:4px;
     padding:0 8px;
     display:flex;
@@ -1015,7 +1040,7 @@
         <button type="button" class="theme-toggle" id="themeToggle" aria-label="Toggle color theme">Light mode</button>
       </div>
       <textarea id="pageTitle" class="title-input" rows="1" maxlength="160">Production Schedule</textarea>
-      <p class="tagline">Three tracks, one release calendar.</p>
+      <p class="tagline">Five tracks, one release calendar.</p>
     </div>
   </div>
 
@@ -1031,13 +1056,6 @@
         <input type="number" id="startEpNum" value="1" min="1" step="1">
       </div>
     </div>
-  </div>
-
-  <div class="summary">
-    <div class="summary-item accent-amber"><span class="dot"></span>Writing finishes <strong id="wFinish">—</strong></div>
-    <div class="summary-item accent-violet"><span class="dot"></span>Production finishes <strong id="pFinish">—</strong></div>
-    <div class="summary-item accent-teal"><span class="dot"></span>Release finishes <strong id="rFinish">—</strong></div>
-    <div class="summary-item"><span class="dot"></span><strong id="totalWeeks">—</strong> weeks on the board</div>
   </div>
 
   <div class="warning" id="warning"></div>
@@ -1066,7 +1084,11 @@
     <div class="gantt" id="gantt"></div>
   </div>
 
-  <footer>Writing &amp; release run on 7-day weeks (or specific weekdays, if configured). Production runs on 8-hour weekdays (weekends skipped), block spans shown on the calendar.</footer>
+  <div class="summary">
+    <div class="summary-item"><span class="dot"></span><strong id="totalWeeks">—</strong> weeks on the board</div>
+  </div>
+
+  <footer>Writing, editing &amp; release run on 7-day weeks (or specific weekdays, if configured). Production &amp; post-production can use timed runs (8-hour weekdays, weekends skipped) or an episodes/week schedule.</footer>
 
   <div class="notes-panel">
     <div class="strip-label"><span class="swatch" style="--accent:var(--text-faint)"></span>Notes</div>
@@ -1099,8 +1121,111 @@
       </div>
       <button class="gen-btn" id="wGenerateBtn" type="button" style="--accent:var(--amber)">Generate writing schedule</button>
     </div>
+
+    <div class="strip strip-editing" style="--accent:var(--sky)">
+      <div class="strip-label"><span class="swatch"></span>Track B — Editing</div>
+      <div class="field">
+        <label>Start date</label>
+        <input type="date" id="eStart" style="--accent:var(--sky)">
+      </div>
+      <div class="field">
+        <label>Pace mode</label>
+        <div class="seg-toggle" id="ePaceModeToggle">
+          <button type="button" class="seg-btn active" data-mode="pace">Episodes/week</button>
+          <button type="button" class="seg-btn" data-mode="days">Specific days</button>
+        </div>
+      </div>
+      <div class="field" id="ePaceField">
+        <label>Pace (episodes / week)</label>
+        <input type="number" id="ePace" value="2" min="0.1" step="0.1" style="--accent:var(--sky)">
+      </div>
+      <div class="day-pace-grid" id="eDayGrid" style="display:none;"></div>
+      <div class="breaks-wrap">
+        <label>Breaks (optional)</label>
+        <div class="breaks-list" id="editingBreaksList"></div>
+        <button class="add-break-btn" id="editingAddBreakBtn" type="button">+ Add break</button>
+      </div>
+      <button class="gen-btn" id="eGenerateBtn" type="button" style="--accent:var(--sky)">Generate editing schedule</button>
+    </div>
+
+    <div class="strip strip-runs" style="--accent:var(--violet)">
+      <div class="strip-label"><span class="swatch"></span>Track C — Production</div>
+      <div class="prod-times">
+        <div class="field">
+          <label>Recording time / episode (min)</label>
+          <input type="number" id="recTime" value="90" min="0" step="5" style="--accent:var(--violet)">
+        </div>
+      </div>
+      <div class="field">
+        <label>Schedule mode</label>
+        <div class="seg-toggle" id="pScheduleModeToggle">
+          <button type="button" class="seg-btn active" data-mode="runs">Runs</button>
+          <button type="button" class="seg-btn" data-mode="pace">Episodes/week</button>
+        </div>
+      </div>
+      <div class="runs-col" id="pRunsPanel">
+        <label>Production runs</label>
+        <div class="runs-list" id="runsList"></div>
+        <button class="add-run-btn" id="addRunBtn" type="button">+ Add production run</button>
+      </div>
+      <div id="pSchedulePanel" style="display:none;">
+        <div class="field">
+          <label>Start date</label>
+          <input type="date" id="pStart" style="--accent:var(--violet)">
+        </div>
+        <div class="field">
+          <label>Pace (episodes / week)</label>
+          <input type="number" id="pPace" value="2" min="0.1" step="0.1" style="--accent:var(--violet)">
+        </div>
+        <div class="breaks-wrap">
+          <label>Breaks (optional)</label>
+          <div class="breaks-list" id="productionBreaksList"></div>
+          <button class="add-break-btn" id="productionAddBreakBtn" type="button">+ Add break</button>
+        </div>
+        <button class="gen-btn" id="pGenerateBtn" type="button" style="--accent:var(--violet)">Generate production schedule</button>
+      </div>
+    </div>
+
+    <div class="strip strip-runs" style="--accent:var(--rose)">
+      <div class="strip-label"><span class="swatch"></span>Track D — Post-production</div>
+      <div class="prod-times">
+        <div class="field">
+          <label>Editing time / episode (min)</label>
+          <input type="number" id="editTime" value="150" min="0" step="5" style="--accent:var(--rose)">
+        </div>
+      </div>
+      <div class="field">
+        <label>Schedule mode</label>
+        <div class="seg-toggle" id="ppScheduleModeToggle">
+          <button type="button" class="seg-btn active" data-mode="runs">Runs</button>
+          <button type="button" class="seg-btn" data-mode="pace">Episodes/week</button>
+        </div>
+      </div>
+      <div class="runs-col" id="ppRunsPanel">
+        <label>Post-production runs</label>
+        <div class="runs-list" id="postRunsList"></div>
+        <button class="add-run-btn" id="postAddRunBtn" type="button">+ Add post-production run</button>
+      </div>
+      <div id="ppSchedulePanel" style="display:none;">
+        <div class="field">
+          <label>Start date</label>
+          <input type="date" id="ppStart" style="--accent:var(--rose)">
+        </div>
+        <div class="field">
+          <label>Pace (episodes / week)</label>
+          <input type="number" id="ppPace" value="2" min="0.1" step="0.1" style="--accent:var(--rose)">
+        </div>
+        <div class="breaks-wrap">
+          <label>Breaks (optional)</label>
+          <div class="breaks-list" id="postBreaksList"></div>
+          <button class="add-break-btn" id="postAddBreakBtn" type="button">+ Add break</button>
+        </div>
+        <button class="gen-btn" id="ppGenerateBtn" type="button" style="--accent:var(--rose)">Generate post-production schedule</button>
+      </div>
+    </div>
+
     <div class="strip strip-release" style="--accent:var(--teal)">
-      <div class="strip-label"><span class="swatch"></span>Track B — Release</div>
+      <div class="strip-label"><span class="swatch"></span>Track E — Release</div>
       <div class="field">
         <label>Start date</label>
         <input type="date" id="rStart" style="--accent:var(--teal)">
@@ -1123,25 +1248,6 @@
         <button class="add-break-btn" id="releaseAddBreakBtn" type="button">+ Add break</button>
       </div>
       <button class="gen-btn" id="rGenerateBtn" type="button" style="--accent:var(--teal)">Generate release schedule</button>
-    </div>
-
-    <div class="strip strip-production" style="--accent:var(--violet)">
-      <div class="strip-label"><span class="swatch"></span>Track C — Production</div>
-      <div class="prod-times">
-        <div class="field">
-          <label>Recording time / episode (min)</label>
-          <input type="number" id="recTime" value="90" min="0" step="5" style="--accent:var(--violet)">
-        </div>
-        <div class="field">
-          <label>Editing time / episode (min)</label>
-          <input type="number" id="editTime" value="150" min="0" step="5" style="--accent:var(--violet)">
-        </div>
-      </div>
-      <div class="runs-col">
-        <label>Production runs</label>
-        <div class="runs-list" id="runsList"></div>
-        <button class="add-run-btn" id="addRunBtn" type="button">+ Add production run</button>
-      </div>
     </div>
   </div>
 
@@ -1350,51 +1456,76 @@ function addWorkDays(start, totalMinutes){
   return current;
 }
 
-// ---- Pace mode state (writing & release tracks) ----
-// DOM ids use short prefixes (wDayGrid, rPaceField); state keys are full track names.
-const TRACK_DOM = { writing: 'w', release: 'r' };
+// ---- Pace / schedule state ----
+// DOM ids use short prefixes (wDayGrid, ePaceField, pStart, ppPace); state keys are full track names.
+const BASE_EPISODE_TRACKS = ['writing', 'editing', 'release'];
+const RUNS_TRACKS = ['production', 'post'];
+const TRACK_DOM = { writing: 'w', editing: 'e', release: 'r', production: 'p', post: 'pp' };
+const TRACK_LABEL = { writing: 'Writing', editing: 'Editing', release: 'Release', production: 'Production', post: 'Post-production' };
+const TRACK_ACCENT = {
+  writing: 'var(--amber)',
+  editing: 'var(--sky)',
+  release: 'var(--teal)',
+  production: 'var(--violet)',
+  post: 'var(--rose)'
+};
+const TRACK_GRID_ROWS = { writing: 2, editing: 3, production: 4, post: 5, release: 6 };
+
+const scheduleMode = { production: 'runs', post: 'runs' }; // 'runs' | 'pace'
+
+function activeEpisodeTracks(){
+  return BASE_EPISODE_TRACKS.concat(RUNS_TRACKS.filter(k => scheduleMode[k] === 'pace'));
+}
+function allScheduleKeys(){
+  return BASE_EPISODE_TRACKS.concat(RUNS_TRACKS);
+}
 
 function defaultDayConfig(){
   return [0,1,2,3,4,5,6].map(d => ({ day: d, enabled: d>=1 && d<=5, count: 1 }));
 }
 const paceState = {
   writing: { mode: 'pace', dayConfig: defaultDayConfig() },
-  release: { mode: 'pace', dayConfig: defaultDayConfig() }
+  editing: { mode: 'pace', dayConfig: defaultDayConfig() },
+  release: { mode: 'pace', dayConfig: defaultDayConfig() },
+  production: { mode: 'pace', dayConfig: defaultDayConfig() },
+  post: { mode: 'pace', dayConfig: defaultDayConfig() }
 };
 
 // Stored episode schedules — Generate rebuilds; drag mutates; render only draws these.
 const scheduleState = {
   writing: { episodes: [] },
-  release: { episodes: [] }
+  editing: { episodes: [] },
+  release: { episodes: [] },
+  production: { episodes: [] },
+  post: { episodes: [] }
 };
 
-const TRACK_LABEL = { writing: 'Writing', release: 'Release' };
-const SCHEDULE_STORAGE_KEY = 'pf-schedule-v1';
+const SCHEDULE_STORAGE_KEY = 'pf-schedule-v3';
+const SCHEDULE_STORAGE_KEY_LEGACY = 'pf-schedule-v2';
 
 function persistSchedule(){
   try{
-    const payload = {
-      writing: scheduleState.writing.episodes.map(e => toISODate(e.date)),
-      release: scheduleState.release.episodes.map(e => toISODate(e.date))
-    };
+    const payload = {};
+    allScheduleKeys().forEach(key => {
+      payload[key] = scheduleState[key].episodes.map(e => toISODate(e.date));
+    });
     sessionStorage.setItem(SCHEDULE_STORAGE_KEY, JSON.stringify(payload));
   }catch(e){}
 }
 
 function restoreScheduleFromSession(){
   try{
-    const raw = sessionStorage.getItem(SCHEDULE_STORAGE_KEY);
+    let raw = sessionStorage.getItem(SCHEDULE_STORAGE_KEY);
+    if(!raw) raw = sessionStorage.getItem(SCHEDULE_STORAGE_KEY_LEGACY);
     if(!raw) return false;
     const payload = JSON.parse(raw);
     let ok = false;
-    if(payload.writing && payload.writing.length){
-      hydrateTrackFromDates('writing', payload.writing);
-      ok = true;
-    }
-    if(payload.release && payload.release.length){
-      hydrateTrackFromDates('release', payload.release);
-      ok = true;
-    }
+    allScheduleKeys().forEach(key => {
+      if(payload[key] && payload[key].length){
+        hydrateTrackFromDates(key, payload[key]);
+        ok = true;
+      }
+    });
     return ok;
   }catch(e){
     return false;
@@ -1408,7 +1539,7 @@ function getParsedBreaks(key, warnings){
     const s = parseLocalDate(b.start);
     const e = parseLocalDate(b.end);
     if(s > e){
-      if(warnings) warnings.push(`A break on ${key === 'writing' ? 'Track A' : 'Track B'} has an end date before its start date, so it was ignored.`);
+      if(warnings) warnings.push(`A break on ${TRACK_LABEL[key]} has an end date before its start date, so it was ignored.`);
       return;
     }
     parsed.push({ start: s, end: e });
@@ -1460,7 +1591,7 @@ function generateTrack(key, opts){
 }
 
 function syncScheduleToTotal(total){
-  ['writing', 'release'].forEach(key => {
+  allScheduleKeys().forEach(key => {
     const eps = scheduleState[key].episodes;
     if(eps.length > total){
       scheduleState[key].episodes = eps.filter(e => e.episode <= total);
@@ -1601,13 +1732,14 @@ function destroyDragGhost(){
   dragGhost = null;
 }
 
-function hitTestProdDropTarget(clientX, clientY){
+function hitTestProdDropTarget(clientX, clientY, trackKey){
   const stack = document.elementsFromPoint(clientX, clientY);
   for(let i = 0; i < stack.length; i++){
-    const hit = prodDropTargets.find(t => t.el === stack[i]);
+    const hit = prodDropTargets.find(t => t.el === stack[i] && t.trackKey === trackKey);
     if(hit) return hit;
   }
   return prodDropTargets.find(t => {
+    if(t.trackKey !== trackKey) return false;
     const r = t.el.getBoundingClientRect();
     return clientX >= r.left && clientX <= r.right && clientY >= r.top && clientY <= r.bottom;
   }) || null;
@@ -1642,8 +1774,8 @@ function hitTestDropTarget(clientX, clientY, trackKey, mode){
 
 function updateDropHighlight(clientX, clientY){
   if(!dragPayload) return;
-  const hit = dragPayload.kind === 'production'
-    ? hitTestProdDropTarget(clientX, clientY)
+  const hit = dragPayload.kind === 'runs'
+    ? hitTestProdDropTarget(clientX, clientY, dragPayload.trackKey)
     : hitTestDropTarget(clientX, clientY, dragPayload.trackKey, paceState[dragPayload.trackKey].mode);
   if(activeDropTarget && (!hit || activeDropTarget.el !== hit.el)){
     activeDropTarget.el.classList.remove('drop-target');
@@ -1657,8 +1789,8 @@ function updateDropHighlight(clientX, clientY){
 
 function commitDropFromPointer(){
   if(!dragPayload || !activeDropTarget) return;
-  if(dragPayload.kind === 'production'){
-    applyProductionRunMove(dragPayload.runId, activeDropTarget.dayDate);
+  if(dragPayload.kind === 'runs'){
+    applyRunMove(dragPayload.trackKey, dragPayload.runId, activeDropTarget.dayDate);
     return;
   }
   const { trackKey, episode } = dragPayload;
@@ -1694,8 +1826,7 @@ function endPointerDrag(){
 }
 
 function dragAccentForPayload(payload){
-  if(payload.kind === 'production') return 'var(--violet)';
-  return payload.trackKey === 'writing' ? 'var(--amber)' : 'var(--teal)';
+  return TRACK_ACCENT[payload.trackKey];
 }
 
 function onPointerDragMove(e){
@@ -1755,15 +1886,17 @@ function makeChipDraggable(chip, trackKey, episode){
   });
 }
 
-function makeProdBarDraggable(bar, runId, label){
+function makeProdBarDraggable(bar, runsKey, runId, label){
   bar.draggable = false;
   bar.dataset.runId = String(runId);
+  bar.dataset.runsKey = runsKey;
   bar.addEventListener('pointerdown', e => {
     if(e.button !== 0) return;
     e.preventDefault();
     hideTooltip();
     dragPayload = {
-      kind: 'production',
+      kind: 'runs',
+      trackKey: runsKey,
       runId,
       chip: bar,
       label,
@@ -1779,7 +1912,7 @@ function makeProdBarDraggable(bar, runId, label){
 
 function setupWeekDropTarget(cell, trackKey, weekEndDate){
   cell.dataset.dropTrack = trackKey;
-  cell.style.setProperty('--accent', trackKey === 'writing' ? 'var(--amber)' : 'var(--teal)');
+  cell.style.setProperty('--accent', TRACK_ACCENT[trackKey]);
   weekDropTargets.push({
     el: cell,
     trackKey,
@@ -1791,7 +1924,7 @@ function setupWeekDropTarget(cell, trackKey, weekEndDate){
 
 function setupDayDropTarget(zone, trackKey, dayDate){
   zone.dataset.dropTrack = trackKey;
-  zone.style.setProperty('--accent', trackKey === 'writing' ? 'var(--amber)' : 'var(--teal)');
+  zone.style.setProperty('--accent', TRACK_ACCENT[trackKey]);
   dayDropTargets.push({
     el: zone,
     trackKey,
@@ -1799,11 +1932,12 @@ function setupDayDropTarget(zone, trackKey, dayDate){
   });
 }
 
-function setupProdDropTarget(zone, dayDate){
-  zone.dataset.dropTrack = 'production';
-  zone.style.setProperty('--accent', 'var(--violet)');
+function setupProdDropTarget(zone, runsKey, dayDate){
+  zone.dataset.dropTrack = runsKey;
+  zone.style.setProperty('--accent', TRACK_ACCENT[runsKey]);
   prodDropTargets.push({
     el: zone,
+    trackKey: runsKey,
     dayDate: startOfDay(dayDate)
   });
 }
@@ -1850,47 +1984,74 @@ function setPaceMode(key, mode){
   render();
 }
 document.querySelectorAll('#wPaceModeToggle .seg-btn').forEach(b => b.addEventListener('click', () => setPaceMode('writing', b.dataset.mode)));
+document.querySelectorAll('#ePaceModeToggle .seg-btn').forEach(b => b.addEventListener('click', () => setPaceMode('editing', b.dataset.mode)));
 document.querySelectorAll('#rPaceModeToggle .seg-btn').forEach(b => b.addEventListener('click', () => setPaceMode('release', b.dataset.mode)));
 
-// ---- Production runs state ----
-let runIdCounter = 0;
-let productionRuns = [];
+function applyScheduleModeUI(key, mode){
+  scheduleMode[key] = mode;
+  const prefix = TRACK_DOM[key];
+  document.querySelectorAll(`#${prefix}ScheduleModeToggle .seg-btn`).forEach(b => b.classList.toggle('active', b.dataset.mode === mode));
+  document.getElementById(prefix + 'RunsPanel').style.display = mode === 'runs' ? '' : 'none';
+  document.getElementById(prefix + 'SchedulePanel').style.display = mode === 'pace' ? '' : 'none';
+}
+function setScheduleMode(key, mode){
+  applyScheduleModeUI(key, mode);
+  if(mode === 'pace' && !scheduleState[key].episodes.length){
+    generateTrack(key, { force: true });
+  }
+  render();
+}
+document.querySelectorAll('#pScheduleModeToggle .seg-btn').forEach(b => b.addEventListener('click', () => setScheduleMode('production', b.dataset.mode)));
+document.querySelectorAll('#ppScheduleModeToggle .seg-btn').forEach(b => b.addEventListener('click', () => setScheduleMode('post', b.dataset.mode)));
 
-function addRun(startStr, episodes){
-  runIdCounter++;
-  productionRuns.push({ id: runIdCounter, start: startStr, episodes: episodes });
+// ---- Runs state (production & post-production) ----
+const RUNS_DOM = {
+  production: { listId: 'runsList', addBtnId: 'addRunBtn', minutesId: 'recTime', label: 'Production' },
+  post: { listId: 'postRunsList', addBtnId: 'postAddRunBtn', minutesId: 'editTime', label: 'Post-production' }
+};
+let runsState = { production: [], post: [] };
+let runIdCounters = { production: 0, post: 0 };
+
+function addRun(key, startStr, episodes){
+  runIdCounters[key]++;
+  runsState[key].push({ id: runIdCounters[key], start: startStr, episodes: episodes });
 }
 
-function applyProductionRunMove(runId, newDate){
-  const run = productionRuns.find(r => r.id === runId);
+function applyRunMove(key, runId, newDate){
+  const run = runsState[key].find(r => r.id === runId);
   if(!run) return;
   const next = toISODate(startOfDay(newDate));
   if(run.start === next) return;
   run.start = next;
-  renderRunsList();
+  renderRunsList(key);
   render();
 }
 
-function remainingEpisodes(excludeId){
+function applyProductionRunMove(runId, newDate){
+  applyRunMove('production', runId, newDate);
+}
+
+function remainingEpisodes(key, excludeId){
   const total = parseInt(document.getElementById('totalEpisodes').value, 10) || 0;
-  const used = productionRuns.reduce((s,r) => r.id === excludeId ? s : s + (r.episodes||0), 0);
+  const used = runsState[key].reduce((s,r) => r.id === excludeId ? s : s + (r.episodes||0), 0);
   return Math.max(0, total - used);
 }
 
-function renderRunsList(){
+function renderRunsList(key){
+  const meta = RUNS_DOM[key];
   const total = parseInt(document.getElementById('totalEpisodes').value, 10) || 0;
-  const list = document.getElementById('runsList');
+  const list = document.getElementById(meta.listId);
   list.innerHTML = '';
 
-  if(!productionRuns.length){
+  if(!runsState[key].length){
     const empty = document.createElement('div');
     empty.className = 'runs-empty';
-    empty.textContent = 'No production runs yet — add one below.';
+    empty.textContent = `No ${meta.label.toLowerCase()} runs yet — add one below.`;
     list.appendChild(empty);
   }
 
-  productionRuns.forEach((run, i) => {
-    const othersSum = productionRuns.reduce((s,r) => r.id === run.id ? s : s + (r.episodes||0), 0);
+  runsState[key].forEach((run, i) => {
+    const othersSum = runsState[key].reduce((s,r) => r.id === run.id ? s : s + (r.episodes||0), 0);
     const maxForThis = Math.max(0, total - othersSum);
     if(run.episodes > maxForThis) run.episodes = maxForThis;
 
@@ -1913,7 +2074,7 @@ function renderRunsList(){
   list.querySelectorAll('input[type="date"]').forEach(inp => {
     inp.addEventListener('input', e => {
       const id = parseInt(e.target.dataset.id, 10);
-      const run = productionRuns.find(r => r.id === id);
+      const run = runsState[key].find(r => r.id === id);
       if(!run) return;
       run.start = e.target.value;
       render();
@@ -1922,37 +2083,47 @@ function renderRunsList(){
   list.querySelectorAll('.remove-run').forEach(btn => {
     btn.addEventListener('click', e => {
       const id = parseInt(e.currentTarget.dataset.id, 10);
-      productionRuns = productionRuns.filter(r => r.id !== id);
-      renderRunsList();
+      runsState[key] = runsState[key].filter(r => r.id !== id);
+      renderRunsList(key);
       render();
     });
   });
   list.querySelectorAll('.run-slider').forEach(sl => {
     sl.addEventListener('input', e => {
       const id = parseInt(e.target.dataset.id, 10);
-      const run = productionRuns.find(r => r.id === id);
+      const run = runsState[key].find(r => r.id === id);
       if(!run) return;
       run.episodes = parseInt(e.target.value, 10) || 0;
       const label = list.querySelector(`.run-slider-val[data-id="${id}"]`);
       if(label) label.textContent = run.episodes + ' ep' + (run.episodes===1?'':'s');
       render();
     });
-    sl.addEventListener('change', () => renderRunsList());
+    sl.addEventListener('change', () => renderRunsList(key));
   });
 }
 
 document.getElementById('addRunBtn').addEventListener('click', () => {
-  const last = productionRuns[productionRuns.length-1];
+  const last = runsState.production[runsState.production.length-1];
   const nextStart = last ? addDays(parseLocalDate(last.start), 14).toISOString().slice(0,10) : new Date().toISOString().slice(0,10);
-  addRun(nextStart, remainingEpisodes());
-  renderRunsList();
+  addRun('production', nextStart, remainingEpisodes('production'));
+  renderRunsList('production');
   render();
 });
-document.getElementById('totalEpisodes').addEventListener('input', () => renderRunsList());
+document.getElementById('postAddRunBtn').addEventListener('click', () => {
+  const last = runsState.post[runsState.post.length-1];
+  const nextStart = last ? addDays(parseLocalDate(last.start), 14).toISOString().slice(0,10) : new Date().toISOString().slice(0,10);
+  addRun('post', nextStart, remainingEpisodes('post'));
+  renderRunsList('post');
+  render();
+});
+document.getElementById('totalEpisodes').addEventListener('input', () => {
+  renderRunsList('production');
+  renderRunsList('post');
+});
 
-// ---- Breaks state (writing & release tracks) ----
+// ---- Breaks state ----
 let breakIdCounter = 0;
-const breaksState = { writing: [], release: [] };
+const breaksState = { writing: [], editing: [], release: [], production: [], post: [] };
 
 function addBreakBlock(key, startStr, endStr){
   breakIdCounter++;
@@ -2002,110 +2173,155 @@ document.getElementById('writingAddBreakBtn').addEventListener('click', () => {
   renderBreaksList('writing');
   render();
 });
+document.getElementById('editingAddBreakBtn').addEventListener('click', () => {
+  const d = new Date().toISOString().slice(0,10);
+  addBreakBlock('editing', d, d);
+  renderBreaksList('editing');
+  render();
+});
 document.getElementById('releaseAddBreakBtn').addEventListener('click', () => {
   const d = new Date().toISOString().slice(0,10);
   addBreakBlock('release', d, d);
   renderBreaksList('release');
   render();
 });
+document.getElementById('productionAddBreakBtn').addEventListener('click', () => {
+  const d = new Date().toISOString().slice(0,10);
+  addBreakBlock('production', d, d);
+  renderBreaksList('production');
+  render();
+});
+document.getElementById('postAddBreakBtn').addEventListener('click', () => {
+  const d = new Date().toISOString().slice(0,10);
+  addBreakBlock('post', d, d);
+  renderBreaksList('post');
+  render();
+});
 
 document.getElementById('wGenerateBtn').addEventListener('click', () => {
   if(generateTrack('writing')) render();
 });
+document.getElementById('eGenerateBtn').addEventListener('click', () => {
+  if(generateTrack('editing')) render();
+});
 document.getElementById('rGenerateBtn').addEventListener('click', () => {
   if(generateTrack('release')) render();
+});
+document.getElementById('pGenerateBtn').addEventListener('click', () => {
+  if(generateTrack('production')) render();
+});
+document.getElementById('ppGenerateBtn').addEventListener('click', () => {
+  if(generateTrack('post')) render();
 });
 
 function render(){
   const total = parseInt(document.getElementById('totalEpisodes').value, 10);
   const startEpNum = parseInt(document.getElementById('startEpNum').value, 10) || 1;
-  const wStartStr = document.getElementById('wStart').value;
-  const rStartStr = document.getElementById('rStart').value;
-  const wPaceVal = parseFloat(document.getElementById('wPace').value);
-  const rPaceVal = parseFloat(document.getElementById('rPace').value);
   const recTime = parseFloat(document.getElementById('recTime').value) || 0;
   const editTime = parseFloat(document.getElementById('editTime').value) || 0;
-  const wMode = paceState.writing.mode;
-  const rMode = paceState.release.mode;
+  const episodeTracks = activeEpisodeTracks();
+
+  const startStrs = {};
+  const paceVals = {};
+  const modes = {};
+  episodeTracks.forEach(key => {
+    const prefix = TRACK_DOM[key];
+    startStrs[key] = document.getElementById(prefix + 'Start').value;
+    paceVals[key] = parseFloat(document.getElementById(prefix + 'Pace').value);
+    modes[key] = paceState[key].mode;
+  });
 
   const warningEl = document.getElementById('warning');
   warningEl.style.display = 'none';
   let warnings = [];
 
-  if(!total || total < 1 || !wStartStr || !rStartStr){
+  const missingStarts = BASE_EPISODE_TRACKS.some(key => !startStrs[key]);
+  if(!total || total < 1 || missingStarts){
     document.getElementById('gantt').innerHTML = '';
-    document.getElementById('wFinish').textContent = '—';
-    document.getElementById('rFinish').textContent = '—';
-    document.getElementById('pFinish').textContent = '—';
     document.getElementById('totalWeeks').textContent = '—';
     return;
   }
 
   syncScheduleToTotal(total);
 
-  const wStart = parseLocalDate(wStartStr);
-  const rStart = parseLocalDate(rStartStr);
-
-  const wBreaks = getParsedBreaks('writing', warnings);
-  const rBreaks = getParsedBreaks('release', warnings);
-
-  if(wMode === 'pace' && (!wPaceVal || wPaceVal <= 0)) warnings.push('Track A pace must be greater than 0.');
-  if(rMode === 'pace' && (!rPaceVal || rPaceVal <= 0)) warnings.push('Track B pace must be greater than 0.');
-  if(wMode === 'days' && !paceState.writing.dayConfig.some(c => c.enabled && c.count > 0)){
-    warnings.push('Track A has no active days selected, so writing never progresses.');
-  }
-  if(rMode === 'days' && !paceState.release.dayConfig.some(c => c.enabled && c.count > 0)){
-    warnings.push('Track B has no active days selected, so release never progresses.');
-  }
-
-  const wEpisodes = annotateWeeks(scheduleState.writing.episodes, wStart);
-  const rEpisodes = annotateWeeks(scheduleState.release.episodes, rStart);
-  scheduleState.writing.episodes = wEpisodes;
-  scheduleState.release.episodes = rEpisodes;
-
-  if(wEpisodes.length < total){
-    warnings.push(`Writing schedule has ${wEpisodes.length} of ${total} episodes — Generate to fill the rest.`);
-  }
-  if(rEpisodes.length < total){
-    warnings.push(`Release schedule has ${rEpisodes.length} of ${total} episodes — Generate to fill the rest.`);
-  }
-
-  // ---- Production runs: sort by start date, number episodes sequentially ----
-  const validRuns = productionRuns
-    .filter(r => r.start && r.episodes > 0)
-    .map(r => ({...r, startDate: parseLocalDate(r.start)}))
-    .sort((a,b) => a.startDate - b.startDate);
-
-  let epCounter = 0;
-  validRuns.forEach(r => {
-    const minutesNeeded = r.episodes * (recTime + editTime);
-    r.finishDate = addWorkDays(r.startDate, minutesNeeded);
-    r.epStart = epCounter + 1;
-    r.epEnd = epCounter + r.episodes;
-    epCounter += r.episodes;
+  const trackStarts = {};
+  const trackBreaks = {};
+  const trackEpisodes = {};
+  episodeTracks.forEach(key => {
+    if(!startStrs[key]){
+      trackStarts[key] = null;
+      trackBreaks[key] = [];
+      trackEpisodes[key] = [];
+      warnings.push(`${TRACK_LABEL[key]} needs a start date before its schedule can be shown.`);
+      return;
+    }
+    trackStarts[key] = parseLocalDate(startStrs[key]);
+    trackBreaks[key] = getParsedBreaks(key, warnings);
+    if(modes[key] === 'pace' && (!paceVals[key] || paceVals[key] <= 0)){
+      warnings.push(`${TRACK_LABEL[key]} pace must be greater than 0.`);
+    }
+    if(modes[key] === 'days' && !paceState[key].dayConfig.some(c => c.enabled && c.count > 0)){
+      warnings.push(`${TRACK_LABEL[key]} has no active days selected, so it never progresses.`);
+    }
+    const eps = annotateWeeks(scheduleState[key].episodes, trackStarts[key]);
+    scheduleState[key].episodes = eps;
+    trackEpisodes[key] = eps;
+    if(eps.length < total){
+      warnings.push(`${TRACK_LABEL[key]} schedule has ${eps.length} of ${total} episodes — Generate to fill the rest.`);
+    }
   });
 
-  const producedTotal = validRuns.reduce((s,r) => s + r.episodes, 0);
-  if(validRuns.length && producedTotal !== total){
-    warnings.push(`Production runs total ${producedTotal} episode${producedTotal===1?'':'s'}, program calls for ${total}.`);
+  function processRuns(key, minutesPerEp){
+    const validRuns = runsState[key]
+      .filter(r => r.start && r.episodes > 0)
+      .map(r => ({...r, startDate: parseLocalDate(r.start)}))
+      .sort((a,b) => a.startDate - b.startDate);
+
+    let epCounter = 0;
+    validRuns.forEach(r => {
+      const minutesNeeded = r.episodes * minutesPerEp;
+      r.finishDate = addWorkDays(r.startDate, minutesNeeded);
+      r.epStart = epCounter + 1;
+      r.epEnd = epCounter + r.episodes;
+      epCounter += r.episodes;
+    });
+
+    const producedTotal = validRuns.reduce((s,r) => s + r.episodes, 0);
+    if(validRuns.length && producedTotal !== total){
+      warnings.push(`${RUNS_DOM[key].label} runs total ${producedTotal} episode${producedTotal===1?'':'s'}, program calls for ${total}.`);
+    }
+
+    const lanes = [];
+    validRuns.forEach(r => {
+      let laneIdx = lanes.findIndex(endDate => endDate < r.startDate);
+      if(laneIdx === -1){ laneIdx = lanes.length; lanes.push(r.finishDate); }
+      else { lanes[laneIdx] = r.finishDate; }
+      r.lane = laneIdx;
+    });
+    return { validRuns, numLanes: Math.max(1, lanes.length), producedTotal };
   }
 
-  // lane assignment for overlapping runs
-  const lanes = [];
-  validRuns.forEach(r => {
-    let laneIdx = lanes.findIndex(endDate => endDate < r.startDate);
-    if(laneIdx === -1){ laneIdx = lanes.length; lanes.push(r.finishDate); }
-    else { lanes[laneIdx] = r.finishDate; }
-    r.lane = laneIdx;
-  });
-  const numLanes = Math.max(1, lanes.length);
+  const prod = scheduleMode.production === 'runs'
+    ? processRuns('production', recTime)
+    : { validRuns: [], numLanes: 1, producedTotal: 0 };
+  const post = scheduleMode.post === 'runs'
+    ? processRuns('post', editTime)
+    : { validRuns: [], numLanes: 1, producedTotal: 0 };
 
   // ---- Global calendar span ----
-  const allStarts = [wStart, rStart, ...validRuns.map(r => r.startDate)];
+  const allStarts = [
+    ...episodeTracks.filter(key => trackStarts[key]).map(key => trackStarts[key]),
+    ...prod.validRuns.map(r => r.startDate),
+    ...post.validRuns.map(r => r.startDate)
+  ];
   const allEnds = [
-    wEpisodes.length ? wEpisodes[wEpisodes.length-1].date : wStart,
-    rEpisodes.length ? rEpisodes[rEpisodes.length-1].date : rStart,
-    ...validRuns.map(r => r.finishDate)
+    ...episodeTracks.map(key => {
+      const eps = trackEpisodes[key];
+      if(eps.length) return eps[eps.length-1].date;
+      return trackStarts[key];
+    }).filter(Boolean),
+    ...prod.validRuns.map(r => r.finishDate),
+    ...post.validRuns.map(r => r.finishDate)
   ];
   const globalStartRaw = new Date(Math.min(...allStarts.map(d => d.getTime())));
   const weekCountMode = document.getElementById('weekCountMode').value;
@@ -2134,8 +2350,10 @@ function render(){
     });
     return map;
   }
-  const wMap = wMode === 'pace' ? groupByGlobalWeek(wEpisodes) : {};
-  const rMap = rMode === 'pace' ? groupByGlobalWeek(rEpisodes) : {};
+  const weekMaps = {};
+  episodeTracks.forEach(key => {
+    weekMaps[key] = modes[key] === 'pace' ? groupByGlobalWeek(trackEpisodes[key]) : {};
+  });
 
   // Weeks with ≥1 episode on a track (used for gap styling between first and last)
   function episodeWeekSet(episodes){
@@ -2152,31 +2370,37 @@ function render(){
     epWeeks.forEach(i => { if(i < min) min = i; if(i > max) max = i; });
     return weekIdx > min && weekIdx < max;
   }
-  const wEpWeeks = episodeWeekSet(wEpisodes);
-  const rEpWeeks = episodeWeekSet(rEpisodes);
+  const epWeeks = {};
+  episodeTracks.forEach(key => { epWeeks[key] = episodeWeekSet(trackEpisodes[key]); });
 
   // ---- Summary ----
-  document.getElementById('wFinish').textContent = wEpisodes.length
-    ? fmtDateFull(wEpisodes[wEpisodes.length-1].date) + ' (Wk ' + wEpisodes[wEpisodes.length-1].week + ')' : '—';
-  document.getElementById('rFinish').textContent = rEpisodes.length
-    ? fmtDateFull(rEpisodes[rEpisodes.length-1].date) + ' (Wk ' + rEpisodes[rEpisodes.length-1].week + ')' : '—';
-  document.getElementById('pFinish').textContent = validRuns.length
-    ? fmtDateFull(new Date(Math.max(...validRuns.map(r => r.finishDate.getTime())))) : '—';
+  function finishText(eps){
+    return eps.length
+      ? 'Finishes ' + fmtDateFull(eps[eps.length-1].date)
+      : 'Finishes —';
+  }
+  function runsFinishText(validRuns){
+    if(!validRuns.length) return 'Finishes —';
+    const finish = new Date(Math.max(...validRuns.map(r => r.finishDate.getTime())));
+    return 'Finishes ' + fmtDateFull(finish);
+  }
   document.getElementById('totalWeeks').textContent = numWeeks;
 
   // ---- Build grid ----
+  // Rows: 1 header | 2 Writing | 3 Editing | 4 Production | 5 Post | 6 Release
   resetDropTargetLists();
   const pxPerWeek = PX_PER_WEEK_LEVELS[zoomIndex];
   const pxPerDay = pxPerWeek/7;
-  const labelColW = 170;
-  const prodRowH = Math.max(54, numLanes*32 + 12);
+  const labelColW = 200;
+  const prodRowH = scheduleMode.production === 'runs' ? Math.max(54, prod.numLanes*32 + 12) : null;
+  const postRowH = scheduleMode.post === 'runs' ? Math.max(54, post.numLanes*32 + 12) : null;
   const dayView = showDayView();
   const headerRowH = dayView ? 50 : 56;
 
   const gantt = document.getElementById('gantt');
   gantt.innerHTML = '';
   gantt.style.gridTemplateColumns = `${labelColW}px repeat(${numWeeks}, ${pxPerWeek}px)`;
-  gantt.style.gridTemplateRows = `${headerRowH}px auto auto ${prodRowH}px`;
+  gantt.style.gridTemplateRows = `${headerRowH}px auto auto ${prodRowH ? prodRowH + 'px' : 'auto'} ${postRowH ? postRowH + 'px' : 'auto'} auto`;
 
   const corner = document.createElement('div');
   corner.className = 'row-label corner';
@@ -2195,8 +2419,6 @@ function render(){
       const slots = Array.from({length:7}).map((_,d) => {
         const dayDate = addDays(wkStart, d);
         const wknd = isWeekend(dayDate);
-        // Same rounding scheme used for day-chip/bar left-edges: cumulative round(d*pxPerDay)
-        // deltas, so header tick boundaries land on the identical pixel as any overlay content.
         const slotW = Math.round((d+1)*pxPerDay) - Math.round(d*pxPerDay);
         return `<div class="day-slot${wknd?' weekend':''}" style="width:${slotW}px"><span class="dow">${dayDate.toLocaleDateString('en-US',{weekday:'narrow'})}</span><span class="dnum">${dayDate.getDate()}</span></div>`;
       }).join('');
@@ -2208,101 +2430,87 @@ function render(){
     gantt.appendChild(cell);
   }
 
-  const wLabel = document.createElement('div');
-  wLabel.className = 'row-label';
-  wLabel.style.gridColumn = '1';
-  wLabel.style.gridRow = '2';
-  {
-    const sub = wMode === 'pace'
-      ? `${wPaceVal || 0} ep/wk from ${fmtDate(wStart)}`
-      : `${paceState.writing.dayConfig.filter(c=>c.enabled).map(c=>DAY_NAMES_SHORT[c.day]).join(',') || 'no days set'} from ${fmtDate(wStart)}`;
-    wLabel.innerHTML = `<div class="rl-name" style="color:var(--amber)">Writing</div><div class="rl-sub" title="${sub}">${sub}</div>`;
+  function addEpisodeTrackLabel(trackKey){
+    const label = document.createElement('div');
+    label.className = 'row-label';
+    label.style.gridColumn = '1';
+    label.style.gridRow = String(TRACK_GRID_ROWS[trackKey]);
+    const start = trackStarts[trackKey];
+    const sub = !start
+      ? 'set a start date'
+      : (modes[trackKey] === 'pace'
+        ? `${paceVals[trackKey] || 0} ep/wk from ${fmtDate(start)}`
+        : `${paceState[trackKey].dayConfig.filter(c=>c.enabled).map(c=>DAY_NAMES_SHORT[c.day]).join(',') || 'no days set'} from ${fmtDate(start)}`);
+    const finish = finishText(trackEpisodes[trackKey] || []);
+    label.innerHTML = `<div class="rl-name" style="color:${TRACK_ACCENT[trackKey]}">${TRACK_LABEL[trackKey]}</div><div class="rl-sub" title="${sub}">${sub}</div><div class="rl-finish">${finish}</div>`;
+    gantt.appendChild(label);
   }
-  gantt.appendChild(wLabel);
-
-  const rLabel = document.createElement('div');
-  rLabel.className = 'row-label';
-  rLabel.style.gridColumn = '1';
-  rLabel.style.gridRow = '3';
-  {
-    const sub = rMode === 'pace'
-      ? `${rPaceVal || 0} ep/wk from ${fmtDate(rStart)}`
-      : `${paceState.release.dayConfig.filter(c=>c.enabled).map(c=>DAY_NAMES_SHORT[c.day]).join(',') || 'no days set'} from ${fmtDate(rStart)}`;
-    rLabel.innerHTML = `<div class="rl-name" style="color:var(--teal)">Release</div><div class="rl-sub" title="${sub}">${sub}</div>`;
+  function addRunsTrackLabel(runsKey, minutes, unitLabel, validRuns){
+    const label = document.createElement('div');
+    label.className = 'row-label';
+    label.style.gridColumn = '1';
+    label.style.gridRow = String(TRACK_GRID_ROWS[runsKey]);
+    const sub = `${minutes} min/ep ${unitLabel} · 8h day`;
+    const finish = runsFinishText(validRuns);
+    label.innerHTML = `<div class="rl-name" style="color:${TRACK_ACCENT[runsKey]}">${RUNS_DOM[runsKey].label}</div><div class="rl-sub" title="${sub}">${sub}</div><div class="rl-finish">${finish}</div>`;
+    gantt.appendChild(label);
   }
-  gantt.appendChild(rLabel);
+  BASE_EPISODE_TRACKS.forEach(addEpisodeTrackLabel);
+  if(scheduleMode.production === 'pace') addEpisodeTrackLabel('production');
+  else addRunsTrackLabel('production', recTime, 'rec', prod.validRuns);
+  if(scheduleMode.post === 'pace') addEpisodeTrackLabel('post');
+  else addRunsTrackLabel('post', editTime, 'edit', post.validRuns);
 
-  const pLabel = document.createElement('div');
-  pLabel.className = 'row-label';
-  pLabel.style.gridColumn = '1';
-  pLabel.style.gridRow = '4';
-  pLabel.innerHTML = `<div class="rl-name" style="color:var(--violet)">Production</div><div class="rl-sub">${recTime+editTime} min/ep · 8h day</div>`;
-  gantt.appendChild(pLabel);
+  function appendEpisodeWeekCell(trackKey, i, wkStart, wkEnd){
+    const gridRow = TRACK_GRID_ROWS[trackKey];
+    const isBreak = weekOverlapsBreak(wkStart, wkEnd, trackBreaks[trackKey] || []) || isGapWeek(i, epWeeks[trackKey] || new Set());
+    const cell = document.createElement('div');
+    cell.className = 'cell track-cell' + (isBreak ? ' break-cell' : '');
+    cell.style.gridColumn = String(i+2);
+    cell.style.gridRow = String(gridRow);
+    cell.style.setProperty('--accent', TRACK_ACCENT[trackKey]);
+    {
+      const layers = [];
+      if(isBreak) layers.push('repeating-linear-gradient(135deg, rgba(255,255,255,0.035) 0 6px, transparent 6px 12px)');
+      if(dayView) layers.push(weekendGradient(wkStart));
+      layers.push(`linear-gradient(180deg, color-mix(in srgb, ${TRACK_ACCENT[trackKey]} 8%, transparent), transparent)`);
+      cell.style.backgroundImage = layers.join(', ');
+    }
+    if(modes[trackKey] === 'pace'){
+      (weekMaps[trackKey][i]||[]).forEach(ep=>{
+        const chip = document.createElement('div');
+        chip.className = 'chip ' + trackKey;
+        const label = 'EP ' + (startEpNum + ep - 1);
+        chip.textContent = label;
+        attachTooltip(chip, label + ' · drag to reschedule');
+        makeChipDraggable(chip, trackKey, ep);
+        cell.appendChild(chip);
+      });
+      setupWeekDropTarget(cell, trackKey, wkEnd);
+    }
+    gantt.appendChild(cell);
+  }
 
   for(let i=0;i<numWeeks;i++){
     const wkStart = addDays(globalStart, i*7);
     const wkEnd = addDays(globalStart, i*7+6);
 
-    const wIsBreak = weekOverlapsBreak(wkStart, wkEnd, wBreaks) || isGapWeek(i, wEpWeeks);
-    const wCell = document.createElement('div');
-    wCell.className = 'cell track-cell' + (wIsBreak ? ' break-cell' : '');
-    wCell.style.gridColumn = String(i+2);
-    wCell.style.gridRow = '2';
-    wCell.style.setProperty('--accent', 'var(--amber)');
-    {
-      const layers = [];
-      if(wIsBreak) layers.push('repeating-linear-gradient(135deg, rgba(255,255,255,0.035) 0 6px, transparent 6px 12px)');
-      if(dayView) layers.push(weekendGradient(wkStart));
-      layers.push('linear-gradient(180deg, rgba(232,163,61,0.03), transparent)');
-      wCell.style.backgroundImage = layers.join(', ');
-    }
-    if(wMode === 'pace'){
-      (wMap[i]||[]).forEach(ep=>{
-        const chip = document.createElement('div');
-        chip.className = 'chip writing';
-        const label = 'EP ' + (startEpNum + ep - 1);
-        chip.textContent = label;
-        attachTooltip(chip, label + ' · drag to reschedule');
-        makeChipDraggable(chip, 'writing', ep);
-        wCell.appendChild(chip);
-      });
-      setupWeekDropTarget(wCell, 'writing', wkEnd);
-    }
-    gantt.appendChild(wCell);
+    BASE_EPISODE_TRACKS.forEach(trackKey => {
+      appendEpisodeWeekCell(trackKey, i, wkStart, wkEnd);
+    });
 
-    const rIsBreak = weekOverlapsBreak(wkStart, wkEnd, rBreaks) || isGapWeek(i, rEpWeeks);
-    const rCell = document.createElement('div');
-    rCell.className = 'cell track-cell' + (rIsBreak ? ' break-cell' : '');
-    rCell.style.gridColumn = String(i+2);
-    rCell.style.gridRow = '3';
-    rCell.style.setProperty('--accent', 'var(--teal)');
-    {
-      const layers = [];
-      if(rIsBreak) layers.push('repeating-linear-gradient(135deg, rgba(255,255,255,0.035) 0 6px, transparent 6px 12px)');
-      if(dayView) layers.push(weekendGradient(wkStart));
-      layers.push('linear-gradient(180deg, rgba(73,183,168,0.03), transparent)');
-      rCell.style.backgroundImage = layers.join(', ');
-    }
-    if(rMode === 'pace'){
-      (rMap[i]||[]).forEach(ep=>{
-        const chip = document.createElement('div');
-        chip.className = 'chip release';
-        const label = 'EP ' + (startEpNum + ep - 1);
-        chip.textContent = label;
-        attachTooltip(chip, label + ' · drag to reschedule');
-        makeChipDraggable(chip, 'release', ep);
-        rCell.appendChild(chip);
-      });
-      setupWeekDropTarget(rCell, 'release', wkEnd);
-    }
-    gantt.appendChild(rCell);
-
-    const pCell = document.createElement('div');
-    pCell.className = 'cell';
-    pCell.style.gridColumn = String(i+2);
-    pCell.style.gridRow = '4';
-    if(dayView) pCell.style.backgroundImage = weekendGradient(wkStart);
-    gantt.appendChild(pCell);
+    RUNS_TRACKS.forEach(runsKey => {
+      if(scheduleMode[runsKey] === 'pace'){
+        appendEpisodeWeekCell(runsKey, i, wkStart, wkEnd);
+        return;
+      }
+      const pCell = document.createElement('div');
+      pCell.className = 'cell';
+      pCell.style.gridColumn = String(i+2);
+      pCell.style.gridRow = String(TRACK_GRID_ROWS[runsKey]);
+      if(dayView) pCell.style.backgroundImage = weekendGradient(wkStart);
+      gantt.appendChild(pCell);
+    });
   }
 
   // Day-precision overlays for tracks in "specific days" mode — one chip per episode for dragging
@@ -2311,7 +2519,7 @@ function render(){
     overlay.className = 'day-overlay';
     overlay.style.gridColumn = `2 / ${numWeeks+2}`;
     overlay.style.gridRow = String(gridRow);
-    overlay.style.setProperty('--accent', trackKey === 'writing' ? 'var(--amber)' : 'var(--teal)');
+    overlay.style.setProperty('--accent', TRACK_ACCENT[trackKey]);
 
     const totalDays = numWeeks * 7;
     for(let d = 0; d < totalDays; d++){
@@ -2350,48 +2558,54 @@ function render(){
     });
     return overlay;
   }
-  if(wMode === 'days') gantt.appendChild(buildDayOverlay(2, wEpisodes, 'writing', 'writing'));
-  if(rMode === 'days') gantt.appendChild(buildDayOverlay(3, rEpisodes, 'release', 'release'));
-
-  // production overlay row (bars span across the week cells, positioned to exact days)
-  const prodOverlay = document.createElement('div');
-  prodOverlay.className = 'production-row';
-  prodOverlay.style.gridColumn = `2 / ${numWeeks+2}`;
-  prodOverlay.style.gridRow = '4';
-  prodOverlay.style.setProperty('--accent', 'var(--violet)');
-  {
-    const totalDays = numWeeks * 7;
-    for(let d = 0; d < totalDays; d++){
-      const dayDate = addDays(globalStart, d);
-      const left = Math.round(d * pxPerDay);
-      const rightEdge = Math.round((d + 1) * pxPerDay);
-      const zone = document.createElement('div');
-      zone.className = 'prod-drop-zone';
-      zone.style.left = left + 'px';
-      zone.style.width = Math.max(1, rightEdge - left) + 'px';
-      setupProdDropTarget(zone, dayDate);
-      prodOverlay.appendChild(zone);
+  BASE_EPISODE_TRACKS.forEach(trackKey => {
+    if(modes[trackKey] === 'days'){
+      gantt.appendChild(buildDayOverlay(TRACK_GRID_ROWS[trackKey], trackEpisodes[trackKey], trackKey, trackKey));
     }
-  }
-  validRuns.forEach(r => {
-    if(r.startDate > lastDate) return;
-    const leftDays = (r.startDate - globalStart) / 86400000;
-    const spanDays = Math.max(1, (r.finishDate - r.startDate) / 86400000 + 1);
-    const bar = document.createElement('div');
-    bar.className = 'prod-bar';
-    const leftPx = Math.round(leftDays*pxPerDay);
-    const rightPx = Math.round((leftDays+spanDays)*pxPerDay);
-    bar.style.left = leftPx + 'px';
-    bar.style.width = Math.max(4, (rightPx - leftPx) - 4) + 'px';
-    bar.style.top = (6 + r.lane*32) + 'px';
-    const epLabel = r.epStart === r.epEnd ? `EP ${startEpNum + r.epStart - 1}` : `EP ${startEpNum + r.epStart - 1}–${startEpNum + r.epEnd - 1}`;
-    const fullText = `${epLabel} → ${fmtDate(r.finishDate)}`;
-    bar.innerHTML = `<span class="pb-text">${fullText}</span>`;
-    attachTooltip(bar, `${epLabel} · starts ${fmtDateFull(r.startDate)} · finishes ${fmtDateFull(r.finishDate)} · drag to reschedule`);
-    makeProdBarDraggable(bar, r.id, epLabel);
-    prodOverlay.appendChild(bar);
   });
-  gantt.appendChild(prodOverlay);
+
+  function buildRunsOverlay(runsKey, validRuns){
+    const overlay = document.createElement('div');
+    overlay.className = 'production-row';
+    overlay.style.gridColumn = `2 / ${numWeeks+2}`;
+    overlay.style.gridRow = String(TRACK_GRID_ROWS[runsKey]);
+    overlay.style.setProperty('--accent', TRACK_ACCENT[runsKey]);
+    {
+      const totalDays = numWeeks * 7;
+      for(let d = 0; d < totalDays; d++){
+        const dayDate = addDays(globalStart, d);
+        const left = Math.round(d * pxPerDay);
+        const rightEdge = Math.round((d + 1) * pxPerDay);
+        const zone = document.createElement('div');
+        zone.className = 'prod-drop-zone';
+        zone.style.left = left + 'px';
+        zone.style.width = Math.max(1, rightEdge - left) + 'px';
+        setupProdDropTarget(zone, runsKey, dayDate);
+        overlay.appendChild(zone);
+      }
+    }
+    validRuns.forEach(r => {
+      if(r.startDate > lastDate) return;
+      const leftDays = (r.startDate - globalStart) / 86400000;
+      const spanDays = Math.max(1, (r.finishDate - r.startDate) / 86400000 + 1);
+      const bar = document.createElement('div');
+      bar.className = 'prod-bar';
+      const leftPx = Math.round(leftDays*pxPerDay);
+      const rightPx = Math.round((leftDays+spanDays)*pxPerDay);
+      bar.style.left = leftPx + 'px';
+      bar.style.width = Math.max(4, (rightPx - leftPx) - 4) + 'px';
+      bar.style.top = (6 + r.lane*32) + 'px';
+      const epLabel = r.epStart === r.epEnd ? `EP ${startEpNum + r.epStart - 1}` : `EP ${startEpNum + r.epStart - 1}–${startEpNum + r.epEnd - 1}`;
+      const fullText = `${epLabel} → ${fmtDate(r.finishDate)}`;
+      bar.innerHTML = `<span class="pb-text">${fullText}</span>`;
+      attachTooltip(bar, `${epLabel} · starts ${fmtDateFull(r.startDate)} · finishes ${fmtDateFull(r.finishDate)} · drag to reschedule`);
+      makeProdBarDraggable(bar, runsKey, r.id, epLabel);
+      overlay.appendChild(bar);
+    });
+    return overlay;
+  }
+  if(scheduleMode.production === 'runs') gantt.appendChild(buildRunsOverlay('production', prod.validRuns));
+  if(scheduleMode.post === 'runs') gantt.appendChild(buildRunsOverlay('post', post.validRuns));
 
   // today playhead
   const today = new Date();
@@ -2455,20 +2669,37 @@ function buildShareURL(){
   p.set('wMode', paceState.writing.mode);
   p.set('wPace', document.getElementById('wPace').value);
   if(paceState.writing.mode === 'days') p.set('wDays', encodeDayConfig(paceState.writing.dayConfig));
+  p.set('eStart', document.getElementById('eStart').value);
+  p.set('eMode', paceState.editing.mode);
+  p.set('ePace', document.getElementById('ePace').value);
+  if(paceState.editing.mode === 'days') p.set('eDays', encodeDayConfig(paceState.editing.dayConfig));
   p.set('rStart', document.getElementById('rStart').value);
   p.set('rMode', paceState.release.mode);
   p.set('rPace', document.getElementById('rPace').value);
   if(paceState.release.mode === 'days') p.set('rDays', encodeDayConfig(paceState.release.dayConfig));
   p.set('rec', document.getElementById('recTime').value);
   p.set('edit', document.getElementById('editTime').value);
+  p.set('pSched', scheduleMode.production);
+  p.set('ppSched', scheduleMode.post);
+  p.set('pStart', document.getElementById('pStart').value);
+  p.set('pPace', document.getElementById('pPace').value);
+  p.set('ppStart', document.getElementById('ppStart').value);
+  p.set('ppPace', document.getElementById('ppPace').value);
   p.set('wcMode', document.getElementById('weekCountMode').value);
   p.set('wcStart', document.getElementById('weekStartDay').value);
   p.set('zoom', String(zoomIndex));
   if(breaksState.writing.length) p.set('wBreaks', encodeList(breaksState.writing.map(b => `${b.start}:${b.end}`)));
+  if(breaksState.editing.length) p.set('eBreaks', encodeList(breaksState.editing.map(b => `${b.start}:${b.end}`)));
   if(breaksState.release.length) p.set('rBreaks', encodeList(breaksState.release.map(b => `${b.start}:${b.end}`)));
-  if(productionRuns.length) p.set('runs', encodeList(productionRuns.map(r => `${r.start}:${r.episodes}`)));
+  if(breaksState.production.length) p.set('pBreaks', encodeList(breaksState.production.map(b => `${b.start}:${b.end}`)));
+  if(breaksState.post.length) p.set('ppBreaks', encodeList(breaksState.post.map(b => `${b.start}:${b.end}`)));
+  if(runsState.production.length) p.set('runs', encodeList(runsState.production.map(r => `${r.start}:${r.episodes}`)));
+  if(runsState.post.length) p.set('postRuns', encodeList(runsState.post.map(r => `${r.start}:${r.episodes}`)));
   if(scheduleState.writing.episodes.length) p.set('wEps', encodeDates(scheduleState.writing.episodes));
+  if(scheduleState.editing.episodes.length) p.set('eEps', encodeDates(scheduleState.editing.episodes));
   if(scheduleState.release.episodes.length) p.set('rEps', encodeDates(scheduleState.release.episodes));
+  if(scheduleState.production.episodes.length) p.set('pEps', encodeDates(scheduleState.production.episodes));
+  if(scheduleState.post.episodes.length) p.set('ppEps', encodeDates(scheduleState.post.episodes));
   const notes = document.getElementById('notesArea').value;
   if(notes) p.set('notes', notes);
   return base + '?' + p.toString();
@@ -2518,10 +2749,16 @@ function clearAllSettings(){
   document.getElementById('startEpNum').value = 1;
   document.getElementById('wStart').value = toISODate(today);
   document.getElementById('wPace').value = 2;
+  document.getElementById('eStart').value = toISODate(today);
+  document.getElementById('ePace').value = 2;
   document.getElementById('rStart').value = toISODate(addDays(today, 28));
   document.getElementById('rPace').value = 1;
   document.getElementById('recTime').value = 90;
   document.getElementById('editTime').value = 150;
+  document.getElementById('pStart').value = toISODate(today);
+  document.getElementById('pPace').value = 2;
+  document.getElementById('ppStart').value = toISODate(today);
+  document.getElementById('ppPace').value = 2;
   document.getElementById('notesArea').value = '';
   document.getElementById('weekCountMode').value = 'earliest';
   document.getElementById('weekStartDay').value = '1';
@@ -2529,32 +2766,35 @@ function clearAllSettings(){
   zoomIndex = 1;
   updateZoomUI();
 
-  paceState.writing.mode = 'pace';
-  paceState.writing.dayConfig = defaultDayConfig();
-  paceState.release.mode = 'pace';
-  paceState.release.dayConfig = defaultDayConfig();
-  document.querySelectorAll('#wPaceModeToggle .seg-btn').forEach(b => b.classList.toggle('active', b.dataset.mode === 'pace'));
-  document.querySelectorAll('#rPaceModeToggle .seg-btn').forEach(b => b.classList.toggle('active', b.dataset.mode === 'pace'));
-  document.getElementById('wPaceField').style.display = '';
-  document.getElementById('wDayGrid').style.display = 'none';
-  document.getElementById('rPaceField').style.display = '';
-  document.getElementById('rDayGrid').style.display = 'none';
-  renderDayGrid('writing');
-  renderDayGrid('release');
+  BASE_EPISODE_TRACKS.forEach(key => {
+    paceState[key].mode = 'pace';
+    paceState[key].dayConfig = defaultDayConfig();
+    const prefix = TRACK_DOM[key];
+    document.querySelectorAll(`#${prefix}PaceModeToggle .seg-btn`).forEach(b => b.classList.toggle('active', b.dataset.mode === 'pace'));
+    document.getElementById(prefix + 'PaceField').style.display = '';
+    document.getElementById(prefix + 'DayGrid').style.display = 'none';
+    renderDayGrid(key);
+    breaksState[key] = [];
+    renderBreaksList(key);
+    scheduleState[key].episodes = [];
+  });
 
-  breaksState.writing = [];
-  breaksState.release = [];
-  renderBreaksList('writing');
-  renderBreaksList('release');
+  RUNS_TRACKS.forEach(key => {
+    applyScheduleModeUI(key, 'runs');
+    paceState[key].mode = 'pace';
+    paceState[key].dayConfig = defaultDayConfig();
+    breaksState[key] = [];
+    renderBreaksList(key);
+    scheduleState[key].episodes = [];
+    runsState[key] = [];
+    renderRunsList(key);
+  });
 
-  productionRuns = [];
-  renderRunsList();
-
-  scheduleState.writing.episodes = [];
-  scheduleState.release.episodes = [];
-  try{ sessionStorage.removeItem(SCHEDULE_STORAGE_KEY); }catch(e){}
-  generateTrack('writing', { force: true });
-  generateTrack('release', { force: true });
+  try{
+    sessionStorage.removeItem(SCHEDULE_STORAGE_KEY);
+    sessionStorage.removeItem(SCHEDULE_STORAGE_KEY_LEGACY);
+  }catch(e){}
+  BASE_EPISODE_TRACKS.forEach(key => generateTrack(key, { force: true }));
 
   const box = document.getElementById('shareUrlBox');
   box.style.display = 'none';
@@ -2612,33 +2852,51 @@ document.getElementById('totalEpisodes').value = urlParams.get('total') || docum
 document.getElementById('startEpNum').value = urlParams.get('startEp') || document.getElementById('startEpNum').value;
 document.getElementById('wStart').value = urlParams.get('wStart') || today.toISOString().slice(0,10);
 document.getElementById('wPace').value = urlParams.get('wPace') || document.getElementById('wPace').value;
+document.getElementById('eStart').value = urlParams.get('eStart') || today.toISOString().slice(0,10);
+document.getElementById('ePace').value = urlParams.get('ePace') || document.getElementById('ePace').value;
 document.getElementById('rStart').value = urlParams.get('rStart') || addDays(today, 28).toISOString().slice(0,10);
 document.getElementById('rPace').value = urlParams.get('rPace') || document.getElementById('rPace').value;
 document.getElementById('recTime').value = urlParams.get('rec') || document.getElementById('recTime').value;
 document.getElementById('editTime').value = urlParams.get('edit') || document.getElementById('editTime').value;
+document.getElementById('pStart').value = urlParams.get('pStart') || today.toISOString().slice(0,10);
+document.getElementById('pPace').value = urlParams.get('pPace') || document.getElementById('pPace').value;
+document.getElementById('ppStart').value = urlParams.get('ppStart') || today.toISOString().slice(0,10);
+document.getElementById('ppPace').value = urlParams.get('ppPace') || document.getElementById('ppPace').value;
 
 if(urlParams.has('wMode')) paceState.writing.mode = urlParams.get('wMode');
 if(urlParams.has('wDays')) applyDayConfigFromParam('writing', urlParams.get('wDays'));
+if(urlParams.has('eMode')) paceState.editing.mode = urlParams.get('eMode');
+if(urlParams.has('eDays')) applyDayConfigFromParam('editing', urlParams.get('eDays'));
 if(urlParams.has('rMode')) paceState.release.mode = urlParams.get('rMode');
 if(urlParams.has('rDays')) applyDayConfigFromParam('release', urlParams.get('rDays'));
-renderDayGrid('writing');
-renderDayGrid('release');
-document.querySelectorAll('#wPaceModeToggle .seg-btn').forEach(b => b.classList.toggle('active', b.dataset.mode === paceState.writing.mode));
-document.querySelectorAll('#rPaceModeToggle .seg-btn').forEach(b => b.classList.toggle('active', b.dataset.mode === paceState.release.mode));
-document.getElementById('wPaceField').style.display = paceState.writing.mode === 'pace' ? '' : 'none';
-document.getElementById('wDayGrid').style.display = paceState.writing.mode === 'days' ? 'grid' : 'none';
-document.getElementById('rPaceField').style.display = paceState.release.mode === 'pace' ? '' : 'none';
-document.getElementById('rDayGrid').style.display = paceState.release.mode === 'days' ? 'grid' : 'none';
+BASE_EPISODE_TRACKS.forEach(key => {
+  const prefix = TRACK_DOM[key];
+  renderDayGrid(key);
+  document.querySelectorAll(`#${prefix}PaceModeToggle .seg-btn`).forEach(b => b.classList.toggle('active', b.dataset.mode === paceState[key].mode));
+  document.getElementById(prefix + 'PaceField').style.display = paceState[key].mode === 'pace' ? '' : 'none';
+  document.getElementById(prefix + 'DayGrid').style.display = paceState[key].mode === 'days' ? 'grid' : 'none';
+});
+
+const pSchedParam = urlParams.get('pSched');
+const ppSchedParam = urlParams.get('ppSched');
+applyScheduleModeUI('production', (pSchedParam === 'pace' || pSchedParam === 'runs') ? pSchedParam : 'runs');
+applyScheduleModeUI('post', (ppSchedParam === 'pace' || ppSchedParam === 'runs') ? ppSchedParam : 'runs');
 
 if(urlParams.has('runs')){
-  decodeList(urlParams.get('runs')).forEach(([s, ep]) => { if(s && ep) addRun(s, parseInt(ep, 10)); });
+  decodeList(urlParams.get('runs')).forEach(([s, ep]) => { if(s && ep) addRun('production', s, parseInt(ep, 10)); });
 }
-renderRunsList();
+if(urlParams.has('postRuns')){
+  decodeList(urlParams.get('postRuns')).forEach(([s, ep]) => { if(s && ep) addRun('post', s, parseInt(ep, 10)); });
+}
+renderRunsList('production');
+renderRunsList('post');
 
 if(urlParams.has('wBreaks')) decodeList(urlParams.get('wBreaks')).forEach(([s, e]) => { if(s && e) addBreakBlock('writing', s, e); });
+if(urlParams.has('eBreaks')) decodeList(urlParams.get('eBreaks')).forEach(([s, e]) => { if(s && e) addBreakBlock('editing', s, e); });
 if(urlParams.has('rBreaks')) decodeList(urlParams.get('rBreaks')).forEach(([s, e]) => { if(s && e) addBreakBlock('release', s, e); });
-renderBreaksList('writing');
-renderBreaksList('release');
+if(urlParams.has('pBreaks')) decodeList(urlParams.get('pBreaks')).forEach(([s, e]) => { if(s && e) addBreakBlock('production', s, e); });
+if(urlParams.has('ppBreaks')) decodeList(urlParams.get('ppBreaks')).forEach(([s, e]) => { if(s && e) addBreakBlock('post', s, e); });
+allScheduleKeys().forEach(key => renderBreaksList(key));
 
 if(urlParams.has('wcMode')) document.getElementById('weekCountMode').value = urlParams.get('wcMode');
 if(urlParams.has('wcStart')) document.getElementById('weekStartDay').value = urlParams.get('wcStart');
@@ -2658,24 +2916,35 @@ if(getBaseURL() === null){
   document.getElementById('shareHint').textContent = 'Opens this exact configuration when pasted into a new tab.';
 }
 
-['totalEpisodes','startEpNum','wStart','wPace','rStart','rPace','recTime','editTime'].forEach(id=>{
+['totalEpisodes','startEpNum','wStart','wPace','eStart','ePace','rStart','rPace','pStart','pPace','ppStart','ppPace','recTime','editTime'].forEach(id=>{
   document.getElementById(id).addEventListener('input', render);
 });
 
 // Hydrate stored schedules from URL, session, or generate fresh defaults
-const wEpsParam = urlParams.has('wEps') ? decodeDates(urlParams.get('wEps')) : null;
-const rEpsParam = urlParams.has('rEps') ? decodeDates(urlParams.get('rEps')) : null;
+const epsParams = {
+  writing: urlParams.has('wEps') ? decodeDates(urlParams.get('wEps')) : null,
+  editing: urlParams.has('eEps') ? decodeDates(urlParams.get('eEps')) : null,
+  release: urlParams.has('rEps') ? decodeDates(urlParams.get('rEps')) : null,
+  production: urlParams.has('pEps') ? decodeDates(urlParams.get('pEps')) : null,
+  post: urlParams.has('ppEps') ? decodeDates(urlParams.get('ppEps')) : null
+};
 restoreScheduleFromSession();
-if(wEpsParam && wEpsParam.length){
-  hydrateTrackFromDates('writing', wEpsParam);
-} else if(!scheduleState.writing.episodes.length){
-  generateTrack('writing', { force: true });
-}
-if(rEpsParam && rEpsParam.length){
-  hydrateTrackFromDates('release', rEpsParam);
-} else if(!scheduleState.release.episodes.length){
-  generateTrack('release', { force: true });
-}
+BASE_EPISODE_TRACKS.forEach(key => {
+  const param = epsParams[key];
+  if(param && param.length){
+    hydrateTrackFromDates(key, param);
+  } else if(!scheduleState[key].episodes.length){
+    generateTrack(key, { force: true });
+  }
+});
+RUNS_TRACKS.forEach(key => {
+  const param = epsParams[key];
+  if(param && param.length){
+    hydrateTrackFromDates(key, param);
+  } else if(scheduleMode[key] === 'pace' && !scheduleState[key].episodes.length){
+    generateTrack(key, { force: true });
+  }
+});
 persistSchedule();
 
 render();
