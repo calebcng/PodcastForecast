@@ -1957,6 +1957,7 @@ const scheduleState = {
 const SCHEDULE_STORAGE_KEY = 'pf-schedule-v4';
 const SCHEDULE_STORAGE_KEY_V3 = 'pf-schedule-v3';
 const SCHEDULE_STORAGE_KEY_LEGACY = 'pf-schedule-v2';
+let urlParams = new URLSearchParams();
 
 function persistSchedule(){
   try{
@@ -4028,6 +4029,271 @@ function decodeTeamsParam(str){
   });
 }
 
+function daysBetweenIso(a, b){
+  return Math.round((parseLocalDate(a) - parseLocalDate(b)) / 86400000);
+}
+
+function compactTeam(t){
+  const o = { name: t.name, start: t.start || '', mode: t.mode, pace: t.pace };
+  if(t.mode === 'days') o.days = encodeDayConfig(t.dayConfig);
+  const assigns = (t.assignments || []).map(a => `${a.chunkId}:${a.from}-${a.to}`).join(',');
+  if(assigns) o.assigns = assigns;
+  const breaks = (t.breaks || []).map(b => `${b.start}~${b.end}`).join(',');
+  if(breaks) o.breaks = breaks;
+  return o;
+}
+
+function encodeCompactTeam(t){
+  return [
+    encodeURIComponent(t.name || ''),
+    t.start || '',
+    t.mode || 'pace',
+    t.pace != null ? t.pace : 2,
+    t.days || '',
+    t.assigns || '',
+    t.breaks || ''
+  ].join(';');
+}
+
+function earliestEpisodeIso(){
+  let min = null;
+  allScheduleKeys().forEach(key => {
+    (scheduleState[key].episodes || []).forEach(e => {
+      const iso = toISODate(e.date);
+      if(!min || iso < min) min = iso;
+    });
+  });
+  return min;
+}
+
+function encodeTrackRle(episodes, epoch){
+  if(!episodes || !episodes.length || !epoch) return '';
+  const sorted = episodes.slice().sort((a, b) => a.episode - b.episode);
+  const parts = [];
+  let i = 0;
+  while(i < sorted.length){
+    const startEp = sorted[i].episode;
+    const off = daysBetweenIso(toISODate(sorted[i].date), epoch);
+    let count = 1;
+    while(
+      i + count < sorted.length &&
+      sorted[i + count].episode === startEp + count &&
+      daysBetweenIso(toISODate(sorted[i + count].date), epoch) === off
+    ){
+      count++;
+    }
+    parts.push(count > 1 ? `${startEp}:${off}*${count}` : `${startEp}:${off}`);
+    i += count;
+  }
+  return parts.join(',');
+}
+
+function decodeTrackRle(str, epoch){
+  if(!str || !epoch) return [];
+  const out = [];
+  str.split(',').filter(Boolean).forEach(part => {
+    const star = part.lastIndexOf('*');
+    let token = part;
+    let count = 1;
+    if(star !== -1){
+      count = parseInt(part.slice(star + 1), 10) || 1;
+      token = part.slice(0, star);
+    }
+    const cut = token.indexOf(':');
+    if(cut === -1) return;
+    const ep = parseInt(token.slice(0, cut), 10);
+    const off = parseInt(token.slice(cut + 1), 10);
+    if(!ep || isNaN(off)) return;
+    const iso = toISODate(addDays(parseLocalDate(epoch), off));
+    for(let n = 0; n < count; n++) out.push((ep + n) + ':' + iso);
+  });
+  return out;
+}
+
+function collectCompactState(){
+  const state = {
+    title: document.getElementById('pageTitle').value,
+    total: document.getElementById('totalEpisodes').value,
+    startEp: document.getElementById('startEpNum').value,
+    rStart: document.getElementById('rStart').value,
+    rMode: paceState.release.mode,
+    rPace: document.getElementById('rPace').value,
+    rec: document.getElementById('recTime').value,
+    edit: document.getElementById('editTime').value,
+    pSched: scheduleMode.production,
+    ppSched: scheduleMode.post,
+    pStart: document.getElementById('pStart').value,
+    pPace: document.getElementById('pPace').value,
+    ppStart: document.getElementById('ppStart').value,
+    ppPace: document.getElementById('ppPace').value,
+    wcMode: document.getElementById('weekCountMode').value,
+    wcStart: document.getElementById('weekStartDay').value,
+    zoom: String(zoomIndex)
+  };
+  if(chunksState.length){
+    state.chunks = chunksState.map(c => ({ name: c.name, from: c.from, to: c.to }));
+  }
+  if(teamsState.writing.length) state.wTeams = teamsState.writing.map(compactTeam);
+  if(teamsState.editing.length) state.eTeams = teamsState.editing.map(compactTeam);
+  if(paceState.release.mode === 'days') state.rDays = encodeDayConfig(paceState.release.dayConfig);
+  if(breaksState.release.length) state.rBreaks = encodeList(breaksState.release.map(b => `${b.start}:${b.end}`));
+  if(breaksState.production.length) state.pBreaks = encodeList(breaksState.production.map(b => `${b.start}:${b.end}`));
+  if(breaksState.post.length) state.ppBreaks = encodeList(breaksState.post.map(b => `${b.start}:${b.end}`));
+  if(runsState.production.length) state.runs = encodeList(runsState.production.map(r => `${r.start}:${r.episodes}`));
+  if(runsState.post.length) state.postRuns = encodeList(runsState.post.map(r => `${r.start}:${r.episodes}`));
+  const epoch = earliestEpisodeIso();
+  if(epoch){
+    state.epoch = epoch;
+    if(scheduleState.writing.episodes.length) state.wEps = encodeTrackRle(scheduleState.writing.episodes, epoch);
+    if(scheduleState.editing.episodes.length) state.eEps = encodeTrackRle(scheduleState.editing.episodes, epoch);
+    if(scheduleState.release.episodes.length) state.rEps = encodeTrackRle(scheduleState.release.episodes, epoch);
+    if(scheduleState.production.episodes.length) state.pEps = encodeTrackRle(scheduleState.production.episodes, epoch);
+    if(scheduleState.post.episodes.length) state.ppEps = encodeTrackRle(scheduleState.post.episodes, epoch);
+  }
+  const notes = document.getElementById('notesArea').value;
+  if(notes) state.notes = notes;
+  return state;
+}
+
+function compactStateToParams(state){
+  const p = new URLSearchParams();
+  if(!state || typeof state !== 'object') return p;
+  const setIf = (key, val) => { if(val != null && val !== '') p.set(key, String(val)); };
+  setIf('title', state.title);
+  setIf('total', state.total);
+  setIf('startEp', state.startEp);
+  if(state.chunks && state.chunks.length){
+    p.set('chunks', state.chunks.map(c => `${encodeURIComponent(c.name)};${c.from}-${c.to}`).join('|'));
+  }
+  if(state.wTeams && state.wTeams.length){
+    p.set('wTeams', state.wTeams.map(encodeCompactTeam).join('|'));
+    const first = state.wTeams[0];
+    setIf('wStart', first.start);
+    setIf('wMode', first.mode);
+    setIf('wPace', first.pace);
+    if(first.mode === 'days' && first.days) p.set('wDays', first.days);
+  }
+  if(state.eTeams && state.eTeams.length){
+    p.set('eTeams', state.eTeams.map(encodeCompactTeam).join('|'));
+    const first = state.eTeams[0];
+    setIf('eStart', first.start);
+    setIf('eMode', first.mode);
+    setIf('ePace', first.pace);
+    if(first.mode === 'days' && first.days) p.set('eDays', first.days);
+  }
+  setIf('rStart', state.rStart);
+  setIf('rMode', state.rMode);
+  setIf('rPace', state.rPace);
+  setIf('rDays', state.rDays);
+  setIf('rec', state.rec);
+  setIf('edit', state.edit);
+  setIf('pSched', state.pSched);
+  setIf('ppSched', state.ppSched);
+  setIf('pStart', state.pStart);
+  setIf('pPace', state.pPace);
+  setIf('ppStart', state.ppStart);
+  setIf('ppPace', state.ppPace);
+  setIf('wcMode', state.wcMode);
+  setIf('wcStart', state.wcStart);
+  setIf('zoom', state.zoom);
+  setIf('rBreaks', state.rBreaks);
+  setIf('pBreaks', state.pBreaks);
+  setIf('ppBreaks', state.ppBreaks);
+  setIf('runs', state.runs);
+  setIf('postRuns', state.postRuns);
+  const epoch = state.epoch;
+  const expandEps = (key, raw) => {
+    if(!raw) return;
+    if(epoch && !/\d{4}-\d{2}-\d{2}/.test(raw)){
+      const pairs = decodeTrackRle(raw, epoch);
+      if(pairs.length){ p.set(key, pairs.join('|')); return; }
+    }
+    p.set(key, raw);
+  };
+  expandEps('wEps', state.wEps);
+  expandEps('eEps', state.eEps);
+  expandEps('rEps', state.rEps);
+  expandEps('pEps', state.pEps);
+  expandEps('ppEps', state.ppEps);
+  setIf('notes', state.notes);
+  return p;
+}
+
+function bytesToB64url(bytes){
+  let bin = '';
+  const chunk = 0x8000;
+  for(let i = 0; i < bytes.length; i += chunk){
+    bin += String.fromCharCode.apply(null, Array.from(bytes.subarray(i, i + chunk)));
+  }
+  return btoa(bin).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+}
+
+function b64urlToBytes(str){
+  const pad = str.length % 4 === 0 ? '' : '='.repeat(4 - (str.length % 4));
+  const bin = atob(str.replace(/-/g, '+').replace(/_/g, '/') + pad);
+  const bytes = new Uint8Array(bin.length);
+  for(let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+  return bytes;
+}
+
+async function deflateRaw(bytes){
+  const stream = new Blob([bytes]).stream().pipeThrough(new CompressionStream('deflate-raw'));
+  return new Uint8Array(await new Response(stream).arrayBuffer());
+}
+
+async function inflateRaw(bytes){
+  const stream = new Blob([bytes]).stream().pipeThrough(new DecompressionStream('deflate-raw'));
+  return new Uint8Array(await new Response(stream).arrayBuffer());
+}
+
+async function encodeSharePayload(obj){
+  const raw = new TextEncoder().encode(JSON.stringify(obj));
+  if(typeof CompressionStream === 'function'){
+    try{
+      return 'd1.' + bytesToB64url(await deflateRaw(raw));
+    }catch(e){}
+  }
+  return 'j1.' + bytesToB64url(raw);
+}
+
+async function decodeSharePayload(token){
+  const dot = token.indexOf('.');
+  if(dot === -1) return null;
+  const ver = token.slice(0, dot);
+  const body = token.slice(dot + 1);
+  if(!body) return null;
+  let bytes = b64urlToBytes(body);
+  if(ver === 'd1'){
+    if(typeof DecompressionStream !== 'function') return null;
+    bytes = await inflateRaw(bytes);
+  } else if(ver !== 'j1'){
+    return null;
+  }
+  const state = JSON.parse(new TextDecoder().decode(bytes));
+  return compactStateToParams(state);
+}
+
+function shareTokenFromHash(){
+  const h = window.location.hash || '';
+  if(h.length < 4 || h.slice(0, 3) !== '#s=') return null;
+  try{
+    return decodeURIComponent(h.slice(3));
+  }catch(e){
+    return h.slice(3);
+  }
+}
+
+async function loadShareParams(){
+  const token = shareTokenFromHash();
+  if(token){
+    try{
+      const params = await decodeSharePayload(token);
+      if(params && [...params.keys()].length) return params;
+    }catch(e){}
+  }
+  return new URLSearchParams(window.location.search);
+}
+
 // Returns a real, navigable base URL (origin+path), or null if we're in a context
 // (sandboxed preview, blob:, about:, data:) where a pasteable link can't be built.
 function getBaseURL(){
@@ -4037,58 +4303,11 @@ function getBaseURL(){
   return window.location.origin + window.location.pathname;
 }
 
-function buildShareURL(){
+async function buildShareURL(){
   const base = getBaseURL();
   if(base === null) return null;
-  const p = new URLSearchParams();
-  p.set('title', document.getElementById('pageTitle').value);
-  p.set('total', document.getElementById('totalEpisodes').value);
-  p.set('startEp', document.getElementById('startEpNum').value);
-  if(chunksState.length) p.set('chunks', encodeChunksParam());
-  if(teamsState.writing.length) p.set('wTeams', encodeTeamsParam('writing'));
-  if(teamsState.editing.length) p.set('eTeams', encodeTeamsParam('editing'));
-  const firstW = teamsState.writing[0];
-  const firstE = teamsState.editing[0];
-  if(firstW){
-    p.set('wStart', firstW.start || '');
-    p.set('wMode', firstW.mode);
-    p.set('wPace', String(firstW.pace));
-    if(firstW.mode === 'days') p.set('wDays', encodeDayConfig(firstW.dayConfig));
-  }
-  if(firstE){
-    p.set('eStart', firstE.start || '');
-    p.set('eMode', firstE.mode);
-    p.set('ePace', String(firstE.pace));
-    if(firstE.mode === 'days') p.set('eDays', encodeDayConfig(firstE.dayConfig));
-  }
-  p.set('rStart', document.getElementById('rStart').value);
-  p.set('rMode', paceState.release.mode);
-  p.set('rPace', document.getElementById('rPace').value);
-  if(paceState.release.mode === 'days') p.set('rDays', encodeDayConfig(paceState.release.dayConfig));
-  p.set('rec', document.getElementById('recTime').value);
-  p.set('edit', document.getElementById('editTime').value);
-  p.set('pSched', scheduleMode.production);
-  p.set('ppSched', scheduleMode.post);
-  p.set('pStart', document.getElementById('pStart').value);
-  p.set('pPace', document.getElementById('pPace').value);
-  p.set('ppStart', document.getElementById('ppStart').value);
-  p.set('ppPace', document.getElementById('ppPace').value);
-  p.set('wcMode', document.getElementById('weekCountMode').value);
-  p.set('wcStart', document.getElementById('weekStartDay').value);
-  p.set('zoom', String(zoomIndex));
-  if(breaksState.release.length) p.set('rBreaks', encodeList(breaksState.release.map(b => `${b.start}:${b.end}`)));
-  if(breaksState.production.length) p.set('pBreaks', encodeList(breaksState.production.map(b => `${b.start}:${b.end}`)));
-  if(breaksState.post.length) p.set('ppBreaks', encodeList(breaksState.post.map(b => `${b.start}:${b.end}`)));
-  if(runsState.production.length) p.set('runs', encodeList(runsState.production.map(r => `${r.start}:${r.episodes}`)));
-  if(runsState.post.length) p.set('postRuns', encodeList(runsState.post.map(r => `${r.start}:${r.episodes}`)));
-  if(scheduleState.writing.episodes.length) p.set('wEps', encodeEpisodePairs(scheduleState.writing.episodes));
-  if(scheduleState.editing.episodes.length) p.set('eEps', encodeEpisodePairs(scheduleState.editing.episodes));
-  if(scheduleState.release.episodes.length) p.set('rEps', encodeDates(scheduleState.release.episodes));
-  if(scheduleState.production.episodes.length) p.set('pEps', encodeDates(scheduleState.production.episodes));
-  if(scheduleState.post.episodes.length) p.set('ppEps', encodeDates(scheduleState.post.episodes));
-  const notes = document.getElementById('notesArea').value;
-  if(notes) p.set('notes', notes);
-  return base + '?' + p.toString();
+  const token = await encodeSharePayload(collectCompactState());
+  return base + '#s=' + token;
 }
 
 function showCopied(){
@@ -4099,8 +4318,7 @@ function showCopied(){
   setTimeout(() => { btn.textContent = original; btn.classList.remove('copied'); }, 2200);
 }
 
-document.getElementById('shareBtn').addEventListener('click', () => {
-  const url = buildShareURL();
+function presentShareUrl(url){
   const box = document.getElementById('shareUrlBox');
   if(url === null){
     box.style.display = 'block';
@@ -4120,6 +4338,10 @@ document.getElementById('shareBtn').addEventListener('click', () => {
   } else {
     try{ document.execCommand('copy'); showCopied(); }catch(e){ /* box stays visible & selected for manual copy */ }
   }
+}
+
+document.getElementById('shareBtn').addEventListener('click', () => {
+  Promise.resolve(buildShareURL()).then(presentShareUrl).catch(() => presentShareUrl(null));
 });
 
 function clearAllSettings(){
@@ -4242,30 +4464,7 @@ themeToggle.addEventListener('click', () => {
 })();
 
 // ---- init defaults ----
-const urlParams = new URLSearchParams(window.location.search);
 const today = new Date();
-
-if(urlParams.has('title')) titleInput.value = urlParams.get('title');
-document.title = titleInput.value || 'Production Schedule';
-syncTitleHeight();
-
-document.getElementById('totalEpisodes').value = urlParams.get('total') || document.getElementById('totalEpisodes').value;
-document.getElementById('startEpNum').value = urlParams.get('startEp') || document.getElementById('startEpNum').value;
-document.getElementById('rStart').value = urlParams.get('rStart') || addDays(today, 28).toISOString().slice(0,10);
-document.getElementById('rPace').value = urlParams.get('rPace') || document.getElementById('rPace').value;
-document.getElementById('recTime').value = urlParams.get('rec') || document.getElementById('recTime').value;
-document.getElementById('editTime').value = urlParams.get('edit') || document.getElementById('editTime').value;
-document.getElementById('pStart').value = urlParams.get('pStart') || today.toISOString().slice(0,10);
-document.getElementById('pPace').value = urlParams.get('pPace') || document.getElementById('pPace').value;
-document.getElementById('ppStart').value = urlParams.get('ppStart') || today.toISOString().slice(0,10);
-document.getElementById('ppPace').value = urlParams.get('ppPace') || document.getElementById('ppPace').value;
-
-if(urlParams.has('rMode')) paceState.release.mode = urlParams.get('rMode');
-if(urlParams.has('rDays')) applyDayConfigFromParam('release', urlParams.get('rDays'));
-renderDayGrid('release');
-document.querySelectorAll('#rPaceModeToggle .seg-btn').forEach(b => b.classList.toggle('active', b.dataset.mode === paceState.release.mode));
-document.getElementById('rPaceField').style.display = paceState.release.mode === 'pace' ? '' : 'none';
-document.getElementById('rDayGrid').style.display = paceState.release.mode === 'days' ? 'grid' : 'none';
 
 function defaultTeamExtrasFromUrl(prefix, modeKey, daysKey, startFallback, paceFallback){
   const extras = {
@@ -4282,22 +4481,6 @@ function defaultTeamExtrasFromUrl(prefix, modeKey, daysKey, startFallback, paceF
   return extras;
 }
 
-seedDefaultChunksAndTeams({
-  teams: {
-    writing: defaultTeamExtrasFromUrl('w', 'wMode', 'wDays', toISODate(today), 2),
-    editing: defaultTeamExtrasFromUrl('e', 'eMode', 'eDays', toISODate(today), 2)
-  }
-});
-
-if(urlParams.has('chunks')){
-  const decoded = decodeChunksParam(urlParams.get('chunks'));
-  if(decoded.length){
-    chunkIdCounter = 0;
-    chunksState = [];
-    decoded.forEach(c => addChunk(c.name, c.from, c.to));
-  }
-}
-
 function applyDecodedTeams(key, paramName){
   if(!urlParams.has(paramName)) return;
   const decoded = decodeTeamsParam(urlParams.get(paramName));
@@ -4312,93 +4495,137 @@ function applyDecodedTeams(key, paramName){
   applyHydratedTeams(key, withIds);
 }
 
-applyDecodedTeams('writing', 'wTeams');
-applyDecodedTeams('editing', 'eTeams');
-if(!urlParams.has('wTeams') && teamsState.writing[0]){
-  teamsState.writing[0].assignments = chunksState.map(c => ({ chunkId: c.id, from: c.from, to: c.to }));
-}
-if(!urlParams.has('eTeams') && teamsState.editing[0]){
-  teamsState.editing[0].assignments = chunksState.map(c => ({ chunkId: c.id, from: c.from, to: c.to }));
-}
-clampAssignmentsToChunks();
-renderChunksList();
-renderTeamsList('writing');
-renderTeamsList('editing');
+async function bootFromShareParams(){
+  urlParams = await loadShareParams();
 
-const pSchedParam = urlParams.get('pSched');
-const ppSchedParam = urlParams.get('ppSched');
-applyScheduleModeUI('production', (pSchedParam === 'pace' || pSchedParam === 'runs') ? pSchedParam : 'runs');
-applyScheduleModeUI('post', (ppSchedParam === 'pace' || ppSchedParam === 'runs') ? ppSchedParam : 'runs');
+  if(urlParams.has('title')) titleInput.value = urlParams.get('title');
+  document.title = titleInput.value || 'Production Schedule';
+  syncTitleHeight();
 
-if(urlParams.has('runs')){
-  decodeList(urlParams.get('runs')).forEach(([s, ep]) => { if(s && ep) addRun('production', s, parseInt(ep, 10)); });
-}
-if(urlParams.has('postRuns')){
-  decodeList(urlParams.get('postRuns')).forEach(([s, ep]) => { if(s && ep) addRun('post', s, parseInt(ep, 10)); });
-}
-renderRunsList('production');
-renderRunsList('post');
+  document.getElementById('totalEpisodes').value = urlParams.get('total') || document.getElementById('totalEpisodes').value;
+  document.getElementById('startEpNum').value = urlParams.get('startEp') || document.getElementById('startEpNum').value;
+  document.getElementById('rStart').value = urlParams.get('rStart') || addDays(today, 28).toISOString().slice(0,10);
+  document.getElementById('rPace').value = urlParams.get('rPace') || document.getElementById('rPace').value;
+  document.getElementById('recTime').value = urlParams.get('rec') || document.getElementById('recTime').value;
+  document.getElementById('editTime').value = urlParams.get('edit') || document.getElementById('editTime').value;
+  document.getElementById('pStart').value = urlParams.get('pStart') || today.toISOString().slice(0,10);
+  document.getElementById('pPace').value = urlParams.get('pPace') || document.getElementById('pPace').value;
+  document.getElementById('ppStart').value = urlParams.get('ppStart') || today.toISOString().slice(0,10);
+  document.getElementById('ppPace').value = urlParams.get('ppPace') || document.getElementById('ppPace').value;
 
-if(urlParams.has('rBreaks')) decodeList(urlParams.get('rBreaks')).forEach(([s, e]) => { if(s && e) addBreakBlock('release', s, e); });
-if(urlParams.has('pBreaks')) decodeList(urlParams.get('pBreaks')).forEach(([s, e]) => { if(s && e) addBreakBlock('production', s, e); });
-if(urlParams.has('ppBreaks')) decodeList(urlParams.get('ppBreaks')).forEach(([s, e]) => { if(s && e) addBreakBlock('post', s, e); });
-allScheduleKeys().forEach(key => renderBreaksList(key));
+  if(urlParams.has('rMode')) paceState.release.mode = urlParams.get('rMode');
+  if(urlParams.has('rDays')) applyDayConfigFromParam('release', urlParams.get('rDays'));
+  renderDayGrid('release');
+  document.querySelectorAll('#rPaceModeToggle .seg-btn').forEach(b => b.classList.toggle('active', b.dataset.mode === paceState.release.mode));
+  document.getElementById('rPaceField').style.display = paceState.release.mode === 'pace' ? '' : 'none';
+  document.getElementById('rDayGrid').style.display = paceState.release.mode === 'days' ? 'grid' : 'none';
 
-if(urlParams.has('wcMode')) document.getElementById('weekCountMode').value = urlParams.get('wcMode');
-if(urlParams.has('wcStart')) document.getElementById('weekStartDay').value = urlParams.get('wcStart');
-document.getElementById('weekStartDay').disabled = document.getElementById('weekCountMode').value !== 'weekstart';
+  seedDefaultChunksAndTeams({
+    teams: {
+      writing: defaultTeamExtrasFromUrl('w', 'wMode', 'wDays', toISODate(today), 2),
+      editing: defaultTeamExtrasFromUrl('e', 'eMode', 'eDays', toISODate(today), 2)
+    }
+  });
 
-if(urlParams.has('zoom')){
-  const z = parseInt(urlParams.get('zoom'), 10);
-  if(!isNaN(z) && z >= 0 && z < PX_PER_WEEK_LEVELS.length) zoomIndex = z;
-}
-updateZoomUI();
+  if(urlParams.has('chunks')){
+    const decoded = decodeChunksParam(urlParams.get('chunks'));
+    if(decoded.length){
+      chunkIdCounter = 0;
+      chunksState = [];
+      decoded.forEach(c => addChunk(c.name, c.from, c.to));
+    }
+  }
 
-if(urlParams.has('notes')) document.getElementById('notesArea').value = urlParams.get('notes');
-
-if(getBaseURL() === null){
-  document.getElementById('shareHint').textContent = "This in-chat preview can't produce a real link — save this file or host it, then the button will copy a working URL.";
-} else {
-  document.getElementById('shareHint').textContent = 'Opens this exact configuration when pasted into a new tab.';
-}
-
-['totalEpisodes','startEpNum','rStart','rPace','pStart','pPace','ppStart','ppPace','recTime','editTime'].forEach(id=>{
-  document.getElementById(id).addEventListener('input', render);
-});
-
-// Hydrate stored schedules from URL, session, or generate fresh defaults
-const epsParams = {
-  writing: urlParams.has('wEps') ? decodeDates(urlParams.get('wEps')) : null,
-  editing: urlParams.has('eEps') ? decodeDates(urlParams.get('eEps')) : null,
-  release: urlParams.has('rEps') ? decodeDates(urlParams.get('rEps')) : null,
-  production: urlParams.has('pEps') ? decodeDates(urlParams.get('pEps')) : null,
-  post: urlParams.has('ppEps') ? decodeDates(urlParams.get('ppEps')) : null
-};
-if(!urlParams.has('chunks') && !urlParams.has('wTeams') && !urlParams.has('eTeams')){
-  restoreScheduleFromSession();
+  applyDecodedTeams('writing', 'wTeams');
+  applyDecodedTeams('editing', 'eTeams');
+  if(!urlParams.has('wTeams') && teamsState.writing[0]){
+    teamsState.writing[0].assignments = chunksState.map(c => ({ chunkId: c.id, from: c.from, to: c.to }));
+  }
+  if(!urlParams.has('eTeams') && teamsState.editing[0]){
+    teamsState.editing[0].assignments = chunksState.map(c => ({ chunkId: c.id, from: c.from, to: c.to }));
+  }
+  clampAssignmentsToChunks();
   renderChunksList();
   renderTeamsList('writing');
   renderTeamsList('editing');
-}
-BASE_EPISODE_TRACKS.forEach(key => {
-  const param = epsParams[key];
-  if(param && param.length){
-    hydrateTrackFromDates(key, param);
-  } else if(!scheduleState[key].episodes.length){
-    generateTrack(key, { force: true });
-  }
-});
-RUNS_TRACKS.forEach(key => {
-  const param = epsParams[key];
-  if(param && param.length){
-    hydrateTrackFromDates(key, param);
-  } else if(scheduleMode[key] === 'pace' && !scheduleState[key].episodes.length){
-    generateTrack(key, { force: true });
-  }
-});
-persistSchedule();
 
-render();
+  const pSchedParam = urlParams.get('pSched');
+  const ppSchedParam = urlParams.get('ppSched');
+  applyScheduleModeUI('production', (pSchedParam === 'pace' || pSchedParam === 'runs') ? pSchedParam : 'runs');
+  applyScheduleModeUI('post', (ppSchedParam === 'pace' || ppSchedParam === 'runs') ? ppSchedParam : 'runs');
+
+  if(urlParams.has('runs')){
+    decodeList(urlParams.get('runs')).forEach(([s, ep]) => { if(s && ep) addRun('production', s, parseInt(ep, 10)); });
+  }
+  if(urlParams.has('postRuns')){
+    decodeList(urlParams.get('postRuns')).forEach(([s, ep]) => { if(s && ep) addRun('post', s, parseInt(ep, 10)); });
+  }
+  renderRunsList('production');
+  renderRunsList('post');
+
+  if(urlParams.has('rBreaks')) decodeList(urlParams.get('rBreaks')).forEach(([s, e]) => { if(s && e) addBreakBlock('release', s, e); });
+  if(urlParams.has('pBreaks')) decodeList(urlParams.get('pBreaks')).forEach(([s, e]) => { if(s && e) addBreakBlock('production', s, e); });
+  if(urlParams.has('ppBreaks')) decodeList(urlParams.get('ppBreaks')).forEach(([s, e]) => { if(s && e) addBreakBlock('post', s, e); });
+  allScheduleKeys().forEach(key => renderBreaksList(key));
+
+  if(urlParams.has('wcMode')) document.getElementById('weekCountMode').value = urlParams.get('wcMode');
+  if(urlParams.has('wcStart')) document.getElementById('weekStartDay').value = urlParams.get('wcStart');
+  document.getElementById('weekStartDay').disabled = document.getElementById('weekCountMode').value !== 'weekstart';
+
+  if(urlParams.has('zoom')){
+    const z = parseInt(urlParams.get('zoom'), 10);
+    if(!isNaN(z) && z >= 0 && z < PX_PER_WEEK_LEVELS.length) zoomIndex = z;
+  }
+  updateZoomUI();
+
+  if(urlParams.has('notes')) document.getElementById('notesArea').value = urlParams.get('notes');
+
+  if(getBaseURL() === null){
+    document.getElementById('shareHint').textContent = "This in-chat preview can't produce a real link — save this file or host it, then the button will copy a working URL.";
+  } else {
+    document.getElementById('shareHint').textContent = 'Opens this exact configuration when pasted into a new tab.';
+  }
+
+  ['totalEpisodes','startEpNum','rStart','rPace','pStart','pPace','ppStart','ppPace','recTime','editTime'].forEach(id=>{
+    document.getElementById(id).addEventListener('input', render);
+  });
+
+  const epsParams = {
+    writing: urlParams.has('wEps') ? decodeDates(urlParams.get('wEps')) : null,
+    editing: urlParams.has('eEps') ? decodeDates(urlParams.get('eEps')) : null,
+    release: urlParams.has('rEps') ? decodeDates(urlParams.get('rEps')) : null,
+    production: urlParams.has('pEps') ? decodeDates(urlParams.get('pEps')) : null,
+    post: urlParams.has('ppEps') ? decodeDates(urlParams.get('ppEps')) : null
+  };
+  if(!urlParams.has('chunks') && !urlParams.has('wTeams') && !urlParams.has('eTeams')){
+    restoreScheduleFromSession();
+    renderChunksList();
+    renderTeamsList('writing');
+    renderTeamsList('editing');
+  }
+  BASE_EPISODE_TRACKS.forEach(key => {
+    const param = epsParams[key];
+    if(param && param.length){
+      hydrateTrackFromDates(key, param);
+    } else if(!scheduleState[key].episodes.length){
+      generateTrack(key, { force: true });
+    }
+  });
+  RUNS_TRACKS.forEach(key => {
+    const param = epsParams[key];
+    if(param && param.length){
+      hydrateTrackFromDates(key, param);
+    } else if(scheduleMode[key] === 'pace' && !scheduleState[key].episodes.length){
+      generateTrack(key, { force: true });
+    }
+  });
+  persistSchedule();
+  render();
+}
+
+bootFromShareParams().catch(err => {
+  console.error(err);
+});
 </script>
 </body>
 </html>
