@@ -1304,6 +1304,7 @@
         <option value="ask">Ask each time</option>
         <option value="all">Always readjust all</option>
         <option value="chunk">Always readjust chunk</option>
+        <option value="following">Always readjust following in chunk</option>
         <option value="ignore">Only move this episode</option>
       </select>
     </div>
@@ -1484,6 +1485,7 @@
     <div class="modal-actions">
       <button type="button" class="modal-btn ghost" id="moveModalCancel">Cancel</button>
       <button type="button" class="modal-btn" id="moveModalOnly">Only move this episode</button>
+      <button type="button" class="modal-btn" id="moveModalFollowing">Readjust following</button>
       <button type="button" class="modal-btn" id="moveModalChunk">Readjust chunk</button>
       <button type="button" class="modal-btn primary" id="moveModalReadjust">Readjust all</button>
     </div>
@@ -2259,14 +2261,28 @@ function syncScheduleToTotal(total){
 
 function readjustScope(opts){
   const value = opts && opts.readjust;
-  if(value === 'chunk') return 'chunk';
-  if(value === 'all' || value === true) return 'all';
+  if(value === 'chunk' || value === 'following' || value === 'all') return value;
+  if(value === true) return 'all';
   return null;
+}
+
+function calendarDayDelta(from, to){
+  return Math.round((startOfDay(to) - startOfDay(from)) / 86400000);
+}
+
+function shiftScheduledEpisode(e, dayDelta, trackStart){
+  const date = addDays(startOfDay(e.date), dayDelta);
+  return {
+    episode: e.episode,
+    date: date,
+    week: episodeWeekFromStart(date, trackStart),
+    teamId: e.teamId
+  };
 }
 
 function followingWorkForMove(workOrder, idx, episodeNum, scope){
   const following = workOrder.slice(idx + 1);
-  if(scope !== 'chunk') return { following: following, later: [] };
+  if(scope === 'all') return { following: following, later: [] };
   const chunk = chunkForEpisode(episodeNum);
   if(!chunk) return { following: following, later: [] };
   const inChunk = [];
@@ -2285,7 +2301,9 @@ function applyEpisodeMove(trackKey, episodeNum, newDate, opts){
   const item = eps.find(e => e.episode === episodeNum);
   if(!item) return;
   const snapped = startOfDay(newDate);
-  if(sameCalendarDay(item.date, snapped) && !scope) return;
+  const oldDate = startOfDay(item.date);
+  if(sameCalendarDay(oldDate, snapped) && !scope) return;
+  const deltaDays = calendarDayDelta(oldDate, snapped);
 
   if(isTeamTrack(trackKey)){
     const team = getTeam(trackKey, item.teamId);
@@ -2303,6 +2321,21 @@ function applyEpisodeMove(trackKey, episodeNum, newDate, opts){
       persistSchedule();
       return;
     }
+    const chunk = chunkForEpisode(episodeNum);
+
+    if(scope === 'chunk' && chunk){
+      scheduleState[trackKey].episodes = eps.map(e => {
+        if(e.teamId !== team.id) return e;
+        if(e.episode === episodeNum){
+          return { episode: e.episode, date: new Date(snapped), week: episodeWeekFromStart(snapped, trackStart), teamId: team.id };
+        }
+        if(e.episode < chunk.from || e.episode > chunk.to) return e;
+        return shiftScheduledEpisode(e, deltaDays, trackStart);
+      });
+      persistSchedule();
+      return;
+    }
+
     const split = followingWorkForMove(workOrder, idx, episodeNum, scope);
     const followingWork = split.following;
     const teamKept = workOrder.slice(0, idx + 1).map(ep => {
@@ -2357,7 +2390,20 @@ function applyEpisodeMove(trackKey, episodeNum, newDate, opts){
 
   const total = programTotal();
   const chunk = chunkForEpisode(episodeNum);
-  const last = scope === 'chunk' && chunk ? Math.min(chunk.to, total || chunk.to) : total;
+
+  if(scope === 'chunk' && chunk){
+    scheduleState[trackKey].episodes = eps.map(e => {
+      if(e.episode === episodeNum){
+        return { episode: e.episode, date: new Date(snapped), week: episodeWeekFromStart(snapped, trackStart), teamId: e.teamId };
+      }
+      if(e.episode < chunk.from || e.episode > chunk.to) return e;
+      return shiftScheduledEpisode(e, deltaDays, trackStart);
+    });
+    persistSchedule();
+    return;
+  }
+
+  const last = scope === 'following' && chunk ? Math.min(chunk.to, total || chunk.to) : total;
   const remaining = last - episodeNum;
   const kept = eps.filter(e => e.episode <= episodeNum).map(e => ({
     episode: e.episode,
@@ -2406,7 +2452,7 @@ function openMoveModal(payload){
   const startEpNum = parseInt(document.getElementById('startEpNum').value, 10) || 1;
   const label = 'EP ' + (startEpNum + payload.episodeNum - 1);
   document.getElementById('moveModalBody').textContent =
-    `You're moving ${label} on ${TRACK_LABEL[payload.trackKey]} to ${fmtDateFull(payload.newDate)}. Readjust following episodes in this chunk, or all following episodes, to match the set pace?`;
+    `You're moving ${label} on ${TRACK_LABEL[payload.trackKey]} to ${fmtDateFull(payload.newDate)}. Readjust following episodes in this chunk, slide the whole chunk, or readjust all following episodes?`;
   document.getElementById('moveModal').classList.add('open');
 }
 
@@ -2426,6 +2472,7 @@ function resolveMoveModal(choice){
 
 document.getElementById('moveModalCancel').addEventListener('click', () => resolveMoveModal('cancel'));
 document.getElementById('moveModalOnly').addEventListener('click', () => resolveMoveModal('only'));
+document.getElementById('moveModalFollowing').addEventListener('click', () => resolveMoveModal('following'));
 document.getElementById('moveModalChunk').addEventListener('click', () => resolveMoveModal('chunk'));
 document.getElementById('moveModalReadjust').addEventListener('click', () => resolveMoveModal('all'));
 document.getElementById('moveModal').addEventListener('click', e => {
@@ -2438,7 +2485,7 @@ document.addEventListener('keydown', e => {
 });
 
 const READJUST_PREF_KEY = 'pf-readjust';
-const READJUST_PREF_VALUES = ['ask', 'all', 'chunk', 'ignore'];
+const READJUST_PREF_VALUES = ['ask', 'all', 'chunk', 'following', 'ignore'];
 
 function normalizeReadjustPref(value){
   if(value === 'always') return 'all';
@@ -2464,7 +2511,7 @@ function applyReadjustPref(value){
 
 function decideEpisodeMove(trackKey, episodeNum, newDate){
   const pref = getReadjustPref();
-  if(pref === 'all' || pref === 'chunk'){
+  if(pref === 'all' || pref === 'chunk' || pref === 'following'){
     applyEpisodeMove(trackKey, episodeNum, newDate, { readjust: pref });
     render();
     return;
