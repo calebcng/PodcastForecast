@@ -1074,7 +1074,7 @@
     border:1px solid var(--border);
     border-radius:10px;
     padding:20px 22px;
-    max-width:420px;
+    max-width:480px;
     width:100%;
     box-shadow:0 16px 40px rgba(0,0,0,0.45);
   }
@@ -1302,7 +1302,8 @@
       <span class="tg-label">On drag</span>
       <select id="readjustPref" aria-label="What to do with following episodes when dragging">
         <option value="ask">Ask each time</option>
-        <option value="always">Always reschedule following</option>
+        <option value="all">Always readjust all</option>
+        <option value="chunk">Always readjust chunk</option>
         <option value="ignore">Only move this episode</option>
       </select>
     </div>
@@ -1483,7 +1484,8 @@
     <div class="modal-actions">
       <button type="button" class="modal-btn ghost" id="moveModalCancel">Cancel</button>
       <button type="button" class="modal-btn" id="moveModalOnly">Only move this episode</button>
-      <button type="button" class="modal-btn primary" id="moveModalReadjust">Readjust following</button>
+      <button type="button" class="modal-btn" id="moveModalChunk">Readjust chunk</button>
+      <button type="button" class="modal-btn primary" id="moveModalReadjust">Readjust all</button>
     </div>
   </div>
 </div>
@@ -1958,6 +1960,8 @@ function persistSchedule(){
   try{
     const payload = {
       version: 4,
+      total: programTotal(),
+      startEp: displayStartEp(),
       chunks: chunksState.map(c => ({ id: c.id, name: c.name, from: c.from, to: c.to })),
       teams: {},
       episodes: {}
@@ -2005,6 +2009,14 @@ function applyHydratedTeams(key, teams){
 }
 
 function restoreV4Payload(payload){
+  if(payload.total != null && !urlParams.has('total')){
+    const n = parseInt(payload.total, 10);
+    if(n > 0) document.getElementById('totalEpisodes').value = n;
+  }
+  if(payload.startEp != null && !urlParams.has('startEp')){
+    const n = parseInt(payload.startEp, 10);
+    if(n > 0) document.getElementById('startEpNum').value = n;
+  }
   if(payload.chunks && payload.chunks.length){
     chunksState = payload.chunks.map(c => ({ id: c.id, name: c.name, from: c.from, to: c.to }));
     chunkIdCounter = chunksState.reduce((m, c) => Math.max(m, c.id), 0);
@@ -2245,14 +2257,35 @@ function syncScheduleToTotal(total){
   });
 }
 
+function readjustScope(opts){
+  const value = opts && opts.readjust;
+  if(value === 'chunk') return 'chunk';
+  if(value === 'all' || value === true) return 'all';
+  return null;
+}
+
+function followingWorkForMove(workOrder, idx, episodeNum, scope){
+  const following = workOrder.slice(idx + 1);
+  if(scope !== 'chunk') return { following: following, later: [] };
+  const chunk = chunkForEpisode(episodeNum);
+  if(!chunk) return { following: following, later: [] };
+  const inChunk = [];
+  const later = [];
+  following.forEach(ep => {
+    if(ep >= chunk.from && ep <= chunk.to) inChunk.push(ep);
+    else later.push(ep);
+  });
+  return { following: inChunk, later: later };
+}
+
 function applyEpisodeMove(trackKey, episodeNum, newDate, opts){
   opts = opts || {};
-  const readjust = !!opts.readjust;
+  const scope = readjustScope(opts);
   const eps = scheduleState[trackKey].episodes;
   const item = eps.find(e => e.episode === episodeNum);
   if(!item) return;
   const snapped = startOfDay(newDate);
-  if(sameCalendarDay(item.date, snapped) && !readjust) return;
+  if(sameCalendarDay(item.date, snapped) && !scope) return;
 
   if(isTeamTrack(trackKey)){
     const team = getTeam(trackKey, item.teamId);
@@ -2260,7 +2293,7 @@ function applyEpisodeMove(trackKey, episodeNum, newDate, opts){
     const trackStart = parseLocalDate(team.start);
     item.date = snapped;
     item.week = episodeWeekFromStart(snapped, trackStart);
-    if(!readjust){
+    if(!scope){
       persistSchedule();
       return;
     }
@@ -2270,7 +2303,8 @@ function applyEpisodeMove(trackKey, episodeNum, newDate, opts){
       persistSchedule();
       return;
     }
-    const followingWork = workOrder.slice(idx + 1);
+    const split = followingWorkForMove(workOrder, idx, episodeNum, scope);
+    const followingWork = split.following;
     const teamKept = workOrder.slice(0, idx + 1).map(ep => {
       const existing = eps.find(e => e.episode === ep && e.teamId === team.id);
       if(ep === episodeNum){
@@ -2278,8 +2312,12 @@ function applyEpisodeMove(trackKey, episodeNum, newDate, opts){
       }
       return existing ? { episode: existing.episode, date: new Date(existing.date), week: existing.week, teamId: team.id } : null;
     }).filter(Boolean);
+    const laterKept = split.later.map(ep => {
+      const existing = eps.find(e => e.episode === ep && e.teamId === team.id);
+      return existing ? { episode: existing.episode, date: new Date(existing.date), week: existing.week, teamId: team.id } : null;
+    }).filter(Boolean);
     if(!followingWork.length){
-      scheduleState[trackKey].episodes = eps.filter(e => e.teamId !== team.id).concat(teamKept);
+      scheduleState[trackKey].episodes = eps.filter(e => e.teamId !== team.id).concat(teamKept, laterKept);
       persistSchedule();
       return;
     }
@@ -2302,7 +2340,7 @@ function applyEpisodeMove(trackKey, episodeNum, newDate, opts){
       week: episodeWeekFromStart(e.date, trackStart),
       teamId: team.id
     })).filter(Boolean);
-    scheduleState[trackKey].episodes = eps.filter(e => e.teamId !== team.id).concat(teamKept, restMapped);
+    scheduleState[trackKey].episodes = eps.filter(e => e.teamId !== team.id).concat(teamKept, restMapped, laterKept);
     persistSchedule();
     return;
   }
@@ -2312,20 +2350,27 @@ function applyEpisodeMove(trackKey, episodeNum, newDate, opts){
   item.date = snapped;
   item.week = episodeWeekFromStart(snapped, trackStart);
 
-  if(!readjust){
+  if(!scope){
     persistSchedule();
     return;
   }
 
   const total = programTotal();
-  const remaining = total - episodeNum;
+  const chunk = chunkForEpisode(episodeNum);
+  const last = scope === 'chunk' && chunk ? Math.min(chunk.to, total || chunk.to) : total;
+  const remaining = last - episodeNum;
   const kept = eps.filter(e => e.episode <= episodeNum).map(e => ({
     episode: e.episode,
     date: new Date(e.date),
     week: e.week
   }));
+  const later = eps.filter(e => e.episode > last).map(e => ({
+    episode: e.episode,
+    date: new Date(e.date),
+    week: e.week
+  }));
   if(remaining <= 0){
-    scheduleState[trackKey].episodes = kept;
+    scheduleState[trackKey].episodes = kept.concat(later);
     persistSchedule();
     return;
   }
@@ -2349,7 +2394,7 @@ function applyEpisodeMove(trackKey, episodeNum, newDate, opts){
     episode: episodeNum + 1 + i,
     date: new Date(e.date),
     week: episodeWeekFromStart(e.date, trackStart)
-  })));
+  })), later);
   persistSchedule();
 }
 
@@ -2361,7 +2406,7 @@ function openMoveModal(payload){
   const startEpNum = parseInt(document.getElementById('startEpNum').value, 10) || 1;
   const label = 'EP ' + (startEpNum + payload.episodeNum - 1);
   document.getElementById('moveModalBody').textContent =
-    `You're moving ${label} on ${TRACK_LABEL[payload.trackKey]} to ${fmtDateFull(payload.newDate)}. Also readjust the following episodes to match the set pace?`;
+    `You're moving ${label} on ${TRACK_LABEL[payload.trackKey]} to ${fmtDateFull(payload.newDate)}. Readjust following episodes in this chunk, or all following episodes, to match the set pace?`;
   document.getElementById('moveModal').classList.add('open');
 }
 
@@ -2375,13 +2420,14 @@ function resolveMoveModal(choice){
   const { trackKey, episodeNum, newDate } = pendingMove;
   closeMoveModal();
   if(choice === 'cancel') return;
-  applyEpisodeMove(trackKey, episodeNum, newDate, { readjust: choice === 'readjust' });
+  applyEpisodeMove(trackKey, episodeNum, newDate, { readjust: choice === 'only' ? false : choice });
   render();
 }
 
 document.getElementById('moveModalCancel').addEventListener('click', () => resolveMoveModal('cancel'));
 document.getElementById('moveModalOnly').addEventListener('click', () => resolveMoveModal('only'));
-document.getElementById('moveModalReadjust').addEventListener('click', () => resolveMoveModal('readjust'));
+document.getElementById('moveModalChunk').addEventListener('click', () => resolveMoveModal('chunk'));
+document.getElementById('moveModalReadjust').addEventListener('click', () => resolveMoveModal('all'));
 document.getElementById('moveModal').addEventListener('click', e => {
   if(e.target.id === 'moveModal') resolveMoveModal('cancel');
 });
@@ -2392,9 +2438,10 @@ document.addEventListener('keydown', e => {
 });
 
 const READJUST_PREF_KEY = 'pf-readjust';
-const READJUST_PREF_VALUES = ['ask', 'always', 'ignore'];
+const READJUST_PREF_VALUES = ['ask', 'all', 'chunk', 'ignore'];
 
 function normalizeReadjustPref(value){
+  if(value === 'always') return 'all';
   return READJUST_PREF_VALUES.indexOf(value) !== -1 ? value : 'ask';
 }
 
@@ -2417,8 +2464,8 @@ function applyReadjustPref(value){
 
 function decideEpisodeMove(trackKey, episodeNum, newDate){
   const pref = getReadjustPref();
-  if(pref === 'always'){
-    applyEpisodeMove(trackKey, episodeNum, newDate, { readjust: true });
+  if(pref === 'all' || pref === 'chunk'){
+    applyEpisodeMove(trackKey, episodeNum, newDate, { readjust: pref });
     render();
     return;
   }
@@ -2869,11 +2916,13 @@ document.getElementById('totalEpisodes').addEventListener('input', () => {
   renderTeamsList('editing');
   renderRunsList('production');
   renderRunsList('post');
+  persistSchedule();
 });
 document.getElementById('startEpNum').addEventListener('input', () => {
   renderChunksList();
   renderTeamsList('writing');
   renderTeamsList('editing');
+  persistSchedule();
 });
 
 // ---- Breaks state ----
