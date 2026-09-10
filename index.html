@@ -142,17 +142,14 @@
 
   /* ---------- Console (controls) ---------- */
   .console{
-    display:grid;
-    grid-template-columns:repeat(auto-fit, minmax(280px, 1fr));
+    display:flex;
+    flex-direction:column;
     gap:1px;
     background:var(--border);
     border:1px solid var(--border);
     border-radius:10px;
     overflow:hidden;
     margin-bottom:20px;
-  }
-  .console-program{
-    grid-template-columns:1fr;
   }
   .strip-program{
     display:flex;
@@ -170,6 +167,224 @@
     min-width:0;
     margin-bottom:0;
   }
+  .program-chunks{
+    flex:1 1 100%;
+    min-width:0;
+    margin-top:4px;
+    --accent:var(--text-dim);
+  }
+  .program-chunks > label{
+    display:block;
+    font-size:11px;
+    color:var(--text-dim);
+    margin-bottom:7px;
+    letter-spacing:0.02em;
+  }
+  .strip-teams,
+  .strip-runs,
+  .strip-production,
+  .strip-release{
+    display:flex;
+    flex-direction:row;
+    align-items:flex-start;
+    gap:14px;
+    min-width:0;
+  }
+  .strip-aside{
+    display:flex;
+    flex-direction:column;
+    gap:10px;
+    flex:0 0 17.5rem;
+    width:17.5rem;
+    min-width:17.5rem;
+  }
+  .strip-col{
+    display:flex;
+    flex-direction:column;
+    gap:10px;
+    flex:1 1 16rem;
+    min-width:0;
+  }
+  .strip-col-grow{
+    flex:1 1 22rem;
+  }
+  .strip-aside .strip-label{
+    margin-bottom:0;
+    padding-top:0;
+  }
+  .strip-aside .field,
+  .strip-col .field{
+    margin-bottom:0;
+    max-width:none;
+    width:100%;
+  }
+  .strip-aside .prod-times,
+  .strip-aside .schedule-panel,
+  .strip-aside .breaks-wrap,
+  .strip-col .prod-times,
+  .strip-col .schedule-panel,
+  .strip-col .breaks-wrap{
+    display:flex;
+    flex-direction:column;
+    gap:10px;
+    width:100%;
+    min-width:0;
+    margin-top:0;
+  }
+  .strip-aside .day-pace-grid,
+  .strip-col .day-pace-grid{
+    margin-top:0;
+  }
+  .strip-aside .add-run-btn,
+  .strip-aside .gen-btn,
+  .strip-col .add-run-btn,
+  .strip-col .gen-btn,
+  .strip-col .add-break-btn{
+    margin-top:0;
+    width:100%;
+  }
+  .teams-list{
+    display:flex;
+    flex-direction:row;
+    align-items:stretch;
+    gap:10px;
+    flex:1 1 auto;
+    min-width:0;
+    margin-bottom:0;
+    overflow-x:auto;
+    overflow-y:hidden;
+    padding-bottom:4px;
+    -webkit-overflow-scrolling:touch;
+  }
+  .team-card{
+    display:flex;
+    flex-direction:column;
+    gap:8px;
+    background:var(--panel-2);
+    border:1px solid var(--border);
+    border-radius:8px;
+    padding:10px;
+    flex:0 0 300px;
+    width:300px;
+    min-width:300px;
+  }
+  .team-card-top{
+    display:flex;
+    gap:8px;
+    align-items:center;
+  }
+  .team-card-top input[type="text"]{
+    flex:1;
+    min-width:0;
+    background:var(--panel);
+    border:1px solid var(--border);
+    color:var(--text);
+    font-family:'IBM Plex Mono',monospace;
+    font-size:13px;
+    padding:6px 8px;
+    border-radius:5px;
+    outline:none;
+  }
+  .team-card-top input[type="text"]:focus{border-color:var(--accent);}
+  .chunk-picker{display:flex;flex-direction:column;gap:6px;}
+  .chunk-picker > label{
+    font-size:11px;
+    color:var(--text-dim);
+    letter-spacing:0.02em;
+  }
+  .assign-row{
+    display:flex;
+    flex-wrap:wrap;
+    gap:6px 8px;
+    align-items:center;
+    background:var(--panel);
+    border:1px solid var(--border);
+    border-radius:6px;
+    padding:6px 8px;
+  }
+  .assign-row label.chunk-check{
+    display:flex;
+    align-items:center;
+    gap:6px;
+    font-family:'IBM Plex Mono',monospace;
+    font-size:11px;
+    color:var(--text);
+    cursor:pointer;
+    flex:1 1 140px;
+    min-width:0;
+  }
+  .assign-row .split-fields{
+    display:flex;
+    align-items:center;
+    gap:4px;
+    flex:0 0 auto;
+  }
+  .assign-row .split-fields input{
+    width:64px;
+    background:var(--panel-2);
+    border:1px solid var(--border);
+    color:var(--text);
+    font-family:'IBM Plex Mono',monospace;
+    font-size:12px;
+    padding:4px 6px;
+    border-radius:5px;
+    outline:none;
+  }
+  .assign-row .split-fields input:focus{border-color:var(--accent);}
+  .assign-row .split-fields span{
+    font-size:11px;
+    color:var(--text-faint);
+    font-family:'IBM Plex Mono',monospace;
+  }
+  .assign-row .chunk-gen-btn{
+    flex:0 0 auto;
+    background:transparent;
+    border:1px solid var(--accent);
+    color:var(--accent);
+    border-radius:5px;
+    font-family:'IBM Plex Mono',monospace;
+    font-size:10px;
+    padding:4px 7px;
+    cursor:pointer;
+    letter-spacing:0.02em;
+  }
+  .assign-row .chunk-gen-btn:hover{filter:brightness(1.08);}
+  .team-actions{display:flex;flex-direction:column;gap:6px;}
+  .assign-remaining-btn{
+    background:transparent;
+    border:1px dashed var(--border);
+    color:var(--text-dim);
+    border-radius:6px;
+    font-family:'IBM Plex Mono',monospace;
+    font-size:11px;
+    padding:6px 8px;
+    cursor:pointer;
+    width:100%;
+    letter-spacing:0.02em;
+  }
+  .assign-remaining-btn:hover{border-color:var(--accent);color:var(--accent);}
+  .chunk-row{
+    display:grid;
+    grid-template-columns:1fr 72px 72px 26px;
+    gap:6px;
+    align-items:center;
+    background:var(--panel-2);
+    border:1px solid var(--border);
+    border-radius:6px;
+    padding:8px;
+  }
+  .chunk-row input{
+    width:100%;
+    background:var(--panel);
+    border:1px solid var(--border);
+    color:var(--text);
+    font-family:'IBM Plex Mono',monospace;
+    font-size:12px;
+    padding:6px 7px;
+    border-radius:5px;
+    outline:none;
+  }
+  .chunk-row input:focus{border-color:var(--text-dim);}
   .strip{
     background:var(--panel);
     padding:16px 18px 18px;
@@ -182,16 +397,10 @@
     height:3px;
     background:var(--accent, var(--text-faint));
   }
-  .strip-runs,
-  .strip-production{
+  .strip-runs .runs-col{
     display:flex;
     flex-direction:column;
-    min-width:0;
-  }
-  .prod-times{
-    display:flex;
-    flex-direction:column;
-    gap:0;
+    flex:1 1 auto;
     min-width:0;
   }
   .strip-label{
@@ -847,6 +1056,7 @@
     letter-spacing:0.02em;
   }
   .gen-btn:hover{filter:brightness(1.08);}
+  .team-card .team-gen-btn{margin-top:4px;}
 
   .modal-backdrop{
     position:fixed;
@@ -1020,8 +1230,19 @@
   }
 
   @media (max-width:820px){
-    .console{grid-template-columns:1fr;}
+    .strip-teams,
+    .strip-runs,
+    .strip-release{
+      flex-wrap:wrap;
+    }
+    .strip-aside,
+    .strip-col{
+      flex:1 1 100%;
+      width:auto;
+      min-width:0;
+    }
     .strip-program .strip-label{
+      flex:1 1 100%;
       width:100%;
       padding-bottom:0;
       margin-bottom:4px;
@@ -1054,6 +1275,11 @@
       <div class="field">
         <label>Start counting from episode #</label>
         <input type="number" id="startEpNum" value="1" min="1" step="1">
+      </div>
+      <div class="program-chunks">
+        <label>Episode chunks</label>
+        <div class="runs-list" id="chunksList"></div>
+        <button class="add-run-btn" id="addChunkBtn" type="button">+ Add chunk</button>
       </div>
     </div>
   </div>
@@ -1104,158 +1330,139 @@
   </div>
 
   <div class="console">
-    <div class="strip strip-writing" style="--accent:var(--amber)">
-      <div class="strip-label"><span class="swatch"></span>Track A — Writing</div>
-      <div class="field">
-        <label>Start date</label>
-        <input type="date" id="wStart" style="--accent:var(--amber)">
+    <div class="strip strip-writing strip-teams" style="--accent:var(--amber)">
+      <div class="strip-aside">
+        <div class="strip-label"><span class="swatch"></span>Track A — Writing</div>
+        <button class="add-run-btn" id="writingAddTeamBtn" type="button">+ Add writing team</button>
+        <button class="gen-btn" id="wGenerateBtn" type="button" style="--accent:var(--amber)">Generate all writing schedules</button>
       </div>
-      <div class="field">
-        <label>Pace mode</label>
-        <div class="seg-toggle" id="wPaceModeToggle">
-          <button type="button" class="seg-btn active" data-mode="pace">Episodes/week</button>
-          <button type="button" class="seg-btn" data-mode="days">Specific days</button>
-        </div>
-      </div>
-      <div class="field" id="wPaceField">
-        <label>Pace (episodes / week)</label>
-        <input type="number" id="wPace" value="2" min="0.1" step="0.1" style="--accent:var(--amber)">
-      </div>
-      <div class="day-pace-grid" id="wDayGrid" style="display:none;"></div>
-      <div class="breaks-wrap">
-        <label>Breaks (optional)</label>
-        <div class="breaks-list" id="writingBreaksList"></div>
-        <button class="add-break-btn" id="writingAddBreakBtn" type="button">+ Add break</button>
-      </div>
-      <button class="gen-btn" id="wGenerateBtn" type="button" style="--accent:var(--amber)">Generate writing schedule</button>
+      <div class="teams-list" id="writingTeamsList"></div>
     </div>
 
-    <div class="strip strip-editing" style="--accent:var(--sky)">
-      <div class="strip-label"><span class="swatch"></span>Track B — Editing</div>
-      <div class="field">
-        <label>Start date</label>
-        <input type="date" id="eStart" style="--accent:var(--sky)">
+    <div class="strip strip-editing strip-teams" style="--accent:var(--sky)">
+      <div class="strip-aside">
+        <div class="strip-label"><span class="swatch"></span>Track B — Editing</div>
+        <button class="add-run-btn" id="editingAddTeamBtn" type="button">+ Add editing team</button>
+        <button class="gen-btn" id="eGenerateBtn" type="button" style="--accent:var(--sky)">Generate all editing schedules</button>
       </div>
-      <div class="field">
-        <label>Pace mode</label>
-        <div class="seg-toggle" id="ePaceModeToggle">
-          <button type="button" class="seg-btn active" data-mode="pace">Episodes/week</button>
-          <button type="button" class="seg-btn" data-mode="days">Specific days</button>
-        </div>
-      </div>
-      <div class="field" id="ePaceField">
-        <label>Pace (episodes / week)</label>
-        <input type="number" id="ePace" value="2" min="0.1" step="0.1" style="--accent:var(--sky)">
-      </div>
-      <div class="day-pace-grid" id="eDayGrid" style="display:none;"></div>
-      <div class="breaks-wrap">
-        <label>Breaks (optional)</label>
-        <div class="breaks-list" id="editingBreaksList"></div>
-        <button class="add-break-btn" id="editingAddBreakBtn" type="button">+ Add break</button>
-      </div>
-      <button class="gen-btn" id="eGenerateBtn" type="button" style="--accent:var(--sky)">Generate editing schedule</button>
+      <div class="teams-list" id="editingTeamsList"></div>
     </div>
 
     <div class="strip strip-runs" style="--accent:var(--violet)">
-      <div class="strip-label"><span class="swatch"></span>Track C — Production</div>
-      <div class="prod-times">
+      <div class="strip-aside">
+        <div class="strip-label"><span class="swatch"></span>Track C — Production</div>
+      </div>
+      <div class="strip-col">
+        <div class="prod-times">
+          <div class="field">
+            <label>Recording time / episode (min)</label>
+            <input type="number" id="recTime" value="90" min="0" step="5" style="--accent:var(--violet)">
+          </div>
+        </div>
         <div class="field">
-          <label>Recording time / episode (min)</label>
-          <input type="number" id="recTime" value="90" min="0" step="5" style="--accent:var(--violet)">
+          <label>Schedule mode</label>
+          <div class="seg-toggle" id="pScheduleModeToggle">
+            <button type="button" class="seg-btn active" data-mode="runs">Runs</button>
+            <button type="button" class="seg-btn" data-mode="pace">Episodes/week</button>
+          </div>
         </div>
-      </div>
-      <div class="field">
-        <label>Schedule mode</label>
-        <div class="seg-toggle" id="pScheduleModeToggle">
-          <button type="button" class="seg-btn active" data-mode="runs">Runs</button>
-          <button type="button" class="seg-btn" data-mode="pace">Episodes/week</button>
-        </div>
-      </div>
-      <div class="runs-col" id="pRunsPanel">
-        <label>Production runs</label>
-        <div class="runs-list" id="runsList"></div>
         <button class="add-run-btn" id="addRunBtn" type="button">+ Add production run</button>
+        <div class="schedule-panel" id="pSchedulePanel" style="display:none;">
+          <div class="field">
+            <label>Start date</label>
+            <input type="date" id="pStart" style="--accent:var(--violet)">
+          </div>
+          <div class="field">
+            <label>Pace (episodes / week)</label>
+            <input type="number" id="pPace" value="2" min="0.1" step="0.1" style="--accent:var(--violet)">
+          </div>
+          <button class="gen-btn" id="pGenerateBtn" type="button" style="--accent:var(--violet)">Generate production schedule</button>
+        </div>
       </div>
-      <div id="pSchedulePanel" style="display:none;">
-        <div class="field">
-          <label>Start date</label>
-          <input type="date" id="pStart" style="--accent:var(--violet)">
+      <div class="strip-col strip-col-grow">
+        <div class="runs-col" id="pRunsPanel">
+          <label>Production runs</label>
+          <div class="runs-list" id="runsList"></div>
         </div>
-        <div class="field">
-          <label>Pace (episodes / week)</label>
-          <input type="number" id="pPace" value="2" min="0.1" step="0.1" style="--accent:var(--violet)">
-        </div>
-        <div class="breaks-wrap">
-          <label>Breaks (optional)</label>
-          <div class="breaks-list" id="productionBreaksList"></div>
+        <div class="breaks-wrap" id="pBreaksPanel" style="display:none;">
           <button class="add-break-btn" id="productionAddBreakBtn" type="button">+ Add break</button>
+          <div class="breaks-list" id="productionBreaksList"></div>
         </div>
-        <button class="gen-btn" id="pGenerateBtn" type="button" style="--accent:var(--violet)">Generate production schedule</button>
       </div>
     </div>
 
     <div class="strip strip-runs" style="--accent:var(--rose)">
-      <div class="strip-label"><span class="swatch"></span>Track D — Post-production</div>
-      <div class="prod-times">
+      <div class="strip-aside">
+        <div class="strip-label"><span class="swatch"></span>Track D — Post-production</div>
+        <div class="prod-times">
+          <div class="field">
+            <label>Editing time / episode (min)</label>
+            <input type="number" id="editTime" value="150" min="0" step="5" style="--accent:var(--rose)">
+          </div>
+        </div>
+      </div>
+      <div class="strip-col">
         <div class="field">
-          <label>Editing time / episode (min)</label>
-          <input type="number" id="editTime" value="150" min="0" step="5" style="--accent:var(--rose)">
+          <label>Schedule mode</label>
+          <div class="seg-toggle" id="ppScheduleModeToggle">
+            <button type="button" class="seg-btn active" data-mode="runs">Runs</button>
+            <button type="button" class="seg-btn" data-mode="pace">Episodes/week</button>
+          </div>
         </div>
-      </div>
-      <div class="field">
-        <label>Schedule mode</label>
-        <div class="seg-toggle" id="ppScheduleModeToggle">
-          <button type="button" class="seg-btn active" data-mode="runs">Runs</button>
-          <button type="button" class="seg-btn" data-mode="pace">Episodes/week</button>
-        </div>
-      </div>
-      <div class="runs-col" id="ppRunsPanel">
-        <label>Post-production runs</label>
-        <div class="runs-list" id="postRunsList"></div>
         <button class="add-run-btn" id="postAddRunBtn" type="button">+ Add post-production run</button>
+        <div class="schedule-panel" id="ppSchedulePanel" style="display:none;">
+          <div class="field">
+            <label>Start date</label>
+            <input type="date" id="ppStart" style="--accent:var(--rose)">
+          </div>
+          <div class="field">
+            <label>Pace (episodes / week)</label>
+            <input type="number" id="ppPace" value="2" min="0.1" step="0.1" style="--accent:var(--rose)">
+          </div>
+          <button class="gen-btn" id="ppGenerateBtn" type="button" style="--accent:var(--rose)">Generate post-production schedule</button>
+        </div>
       </div>
-      <div id="ppSchedulePanel" style="display:none;">
-        <div class="field">
-          <label>Start date</label>
-          <input type="date" id="ppStart" style="--accent:var(--rose)">
+      <div class="strip-col strip-col-grow">
+        <div class="runs-col" id="ppRunsPanel">
+          <label>Post-production runs</label>
+          <div class="runs-list" id="postRunsList"></div>
         </div>
-        <div class="field">
-          <label>Pace (episodes / week)</label>
-          <input type="number" id="ppPace" value="2" min="0.1" step="0.1" style="--accent:var(--rose)">
-        </div>
-        <div class="breaks-wrap">
-          <label>Breaks (optional)</label>
-          <div class="breaks-list" id="postBreaksList"></div>
+        <div class="breaks-wrap" id="ppBreaksPanel" style="display:none;">
           <button class="add-break-btn" id="postAddBreakBtn" type="button">+ Add break</button>
+          <div class="breaks-list" id="postBreaksList"></div>
         </div>
-        <button class="gen-btn" id="ppGenerateBtn" type="button" style="--accent:var(--rose)">Generate post-production schedule</button>
       </div>
     </div>
 
     <div class="strip strip-release" style="--accent:var(--teal)">
-      <div class="strip-label"><span class="swatch"></span>Track E — Release</div>
-      <div class="field">
-        <label>Start date</label>
-        <input type="date" id="rStart" style="--accent:var(--teal)">
+      <div class="strip-aside">
+        <div class="strip-label"><span class="swatch"></span>Track E — Release</div>
+        <button class="gen-btn" id="rGenerateBtn" type="button" style="--accent:var(--teal)">Generate release schedule</button>
       </div>
-      <div class="field">
-        <label>Pace mode</label>
-        <div class="seg-toggle" id="rPaceModeToggle">
-          <button type="button" class="seg-btn active" data-mode="pace">Episodes/week</button>
-          <button type="button" class="seg-btn" data-mode="days">Specific days</button>
+      <div class="strip-col">
+        <div class="field">
+          <label>Start date</label>
+          <input type="date" id="rStart" style="--accent:var(--teal)">
+        </div>
+        <div class="field">
+          <label>Pace mode</label>
+          <div class="seg-toggle" id="rPaceModeToggle">
+            <button type="button" class="seg-btn active" data-mode="pace">Episodes/week</button>
+            <button type="button" class="seg-btn" data-mode="days">Specific days</button>
+          </div>
+        </div>
+        <div class="field" id="rPaceField">
+          <label>Pace (episodes / week)</label>
+          <input type="number" id="rPace" value="1" min="0.1" step="0.1" style="--accent:var(--teal)">
+        </div>
+        <div class="day-pace-grid" id="rDayGrid" style="display:none;"></div>
+      </div>
+      <div class="strip-col strip-col-grow">
+        <div class="breaks-wrap">
+          <button class="add-break-btn" id="releaseAddBreakBtn" type="button">+ Add break</button>
+          <div class="breaks-list" id="releaseBreaksList"></div>
         </div>
       </div>
-      <div class="field" id="rPaceField">
-        <label>Pace (episodes / week)</label>
-        <input type="number" id="rPace" value="1" min="0.1" step="0.1" style="--accent:var(--teal)">
-      </div>
-      <div class="day-pace-grid" id="rDayGrid" style="display:none;"></div>
-      <div class="breaks-wrap">
-        <label>Breaks (optional)</label>
-        <div class="breaks-list" id="releaseBreaksList"></div>
-        <button class="add-break-btn" id="releaseAddBreakBtn" type="button">+ Add break</button>
-      </div>
-      <button class="gen-btn" id="rGenerateBtn" type="button" style="--accent:var(--teal)">Generate release schedule</button>
     </div>
   </div>
 
@@ -1477,10 +1684,11 @@ const TRACK_ACCENT = {
   production: 'var(--violet)',
   post: 'var(--rose)'
 };
-const TRACK_GRID_ROWS = { writing: 2, editing: 3, production: 4, post: 5, release: 6 };
+const TEAM_TRACKS = ['writing', 'editing'];
 
 const scheduleMode = { production: 'runs', post: 'runs' }; // 'runs' | 'pace'
 
+function isTeamTrack(key){ return TEAM_TRACKS.indexOf(key) !== -1; }
 function activeEpisodeTracks(){
   return BASE_EPISODE_TRACKS.concat(RUNS_TRACKS.filter(k => scheduleMode[k] === 'pace'));
 }
@@ -1491,6 +1699,14 @@ function allScheduleKeys(){
 function defaultDayConfig(){
   return [0,1,2,3,4,5,6].map(d => ({ day: d, enabled: d>=1 && d<=5, count: 1 }));
 }
+function programTotal(){ return parseInt(document.getElementById('totalEpisodes').value, 10) || 0; }
+function displayStartEp(){ return parseInt(document.getElementById('startEpNum').value, 10) || 1; }
+function toDisplayEp(ep){ return displayStartEp() + ep - 1; }
+function toProgramEp(display){ return display - displayStartEp() + 1; }
+function escapeHtml(s){
+  return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+
 const paceState = {
   writing: { mode: 'pace', dayConfig: defaultDayConfig() },
   editing: { mode: 'pace', dayConfig: defaultDayConfig() },
@@ -1498,6 +1714,232 @@ const paceState = {
   production: { mode: 'pace', dayConfig: defaultDayConfig() },
   post: { mode: 'pace', dayConfig: defaultDayConfig() }
 };
+
+let chunkIdCounter = 0;
+let teamIdCounters = { writing: 0, editing: 0 };
+let teamBreakIdCounter = 0;
+let chunksState = [];
+const teamsState = { writing: [], editing: [] };
+
+function getChunk(id){ return chunksState.find(c => c.id === id); }
+
+function addChunk(name, from, to){
+  chunkIdCounter++;
+  const chunk = { id: chunkIdCounter, name: name || ('Chunk ' + chunkIdCounter), from: from, to: to };
+  chunksState.push(chunk);
+  return chunk;
+}
+
+function makeTeam(trackKey, extras){
+  extras = extras || {};
+  teamIdCounters[trackKey]++;
+  const first = chunksState[0];
+  return {
+    id: teamIdCounters[trackKey],
+    name: extras.name || ('Team ' + teamIdCounters[trackKey]),
+    start: extras.start || toISODate(new Date()),
+    mode: extras.mode || 'pace',
+    pace: extras.pace != null ? extras.pace : 2,
+    dayConfig: extras.dayConfig ? extras.dayConfig.map(c => ({...c})) : defaultDayConfig(),
+    breaks: extras.breaks ? extras.breaks.map(b => ({...b})) : [],
+    assignments: extras.assignments ? extras.assignments.map(a => ({...a})) : (first ? [{ chunkId: first.id, from: first.from, to: first.to }] : [])
+  };
+}
+
+function resetTeamCounters(){
+  chunkIdCounter = 0;
+  teamIdCounters = { writing: 0, editing: 0 };
+  chunksState = [];
+  teamsState.writing = [];
+  teamsState.editing = [];
+}
+
+function seedDefaultChunksAndTeams(opts){
+  opts = opts || {};
+  resetTeamCounters();
+  const total = programTotal() || 20;
+  addChunk('Chunk 1', 1, total);
+  TEAM_TRACKS.forEach(key => {
+    const extras = (opts.teams && opts.teams[key]) || {};
+    teamsState[key].push(makeTeam(key, extras));
+  });
+}
+
+function flattenChunkAssignment(team, chunkId){
+  const total = programTotal();
+  const order = [];
+  team.assignments.filter(a => a.chunkId === chunkId).forEach(a => {
+    const from = Math.max(1, a.from);
+    const to = Math.min(total || a.to, a.to);
+    if(from > to) return;
+    for(let ep = from; ep <= to; ep++){
+      if(order.indexOf(ep) === -1) order.push(ep);
+    }
+  });
+  return order;
+}
+
+function flattenAssignments(team){
+  const order = [];
+  chunksState.forEach(chunk => {
+    flattenChunkAssignment(team, chunk.id).forEach(ep => {
+      if(order.indexOf(ep) === -1) order.push(ep);
+    });
+  });
+  return order;
+}
+
+function ownedEpisodesOnTrack(trackKey, excludeTeamId){
+  const map = new Map();
+  teamsState[trackKey].forEach(team => {
+    if(excludeTeamId != null && team.id === excludeTeamId) return;
+    flattenAssignments(team).forEach(ep => {
+      if(!map.has(ep)) map.set(ep, team.id);
+    });
+  });
+  return map;
+}
+
+function leftoverRanges(trackKey, clipFrom, clipTo, excludeTeamId){
+  const total = programTotal();
+  const from = clipFrom != null ? clipFrom : 1;
+  const to = clipTo != null ? clipTo : total;
+  const owned = ownedEpisodesOnTrack(trackKey, excludeTeamId);
+  const ranges = [];
+  let start = null;
+  for(let ep = from; ep <= to; ep++){
+    if(!owned.has(ep)){
+      if(start == null) start = ep;
+    } else if(start != null){
+      ranges.push({ from: start, to: ep - 1 });
+      start = null;
+    }
+  }
+  if(start != null) ranges.push({ from: start, to: to });
+  return ranges;
+}
+
+function teamsOnChunk(trackKey, chunkId){
+  return teamsState[trackKey].filter(t => t.assignments.some(a => a.chunkId === chunkId));
+}
+
+function isChunkShared(trackKey, chunkId){
+  return teamsOnChunk(trackKey, chunkId).length > 1;
+}
+
+function chunkForEpisode(ep){
+  return chunksState.find(c => ep >= c.from && ep <= c.to) || null;
+}
+
+function clampAssignmentsToChunks(){
+  const total = programTotal();
+  chunksState.forEach(c => {
+    if(c.from < 1) c.from = 1;
+    if(total && c.to > total) c.to = total;
+    if(c.from > c.to) c.to = c.from;
+  });
+  TEAM_TRACKS.forEach(key => {
+    teamsState[key].forEach(team => {
+      team.assignments = team.assignments.filter(a => getChunk(a.chunkId));
+      team.assignments.forEach(a => {
+        const c = getChunk(a.chunkId);
+        a.from = Math.max(c.from, a.from);
+        a.to = Math.min(c.to, a.to);
+      });
+      team.assignments = team.assignments.filter(a => a.from <= a.to);
+    });
+  });
+}
+
+function assignChunkToTeam(trackKey, team, chunkId){
+  if(team.assignments.some(a => a.chunkId === chunkId)) return;
+  const chunk = getChunk(chunkId);
+  if(!chunk) return;
+  const others = teamsOnChunk(trackKey, chunkId);
+  if(!others.length){
+    team.assignments.push({ chunkId, from: chunk.from, to: chunk.to });
+    return;
+  }
+  const leftover = leftoverRanges(trackKey, chunk.from, chunk.to);
+  if(leftover.length){
+    team.assignments.push({ chunkId, from: leftover[0].from, to: leftover[0].to });
+    return;
+  }
+  const existing = others[0].assignments.find(a => a.chunkId === chunkId);
+  if(existing && existing.to > existing.from){
+    const mid = existing.from + Math.floor((existing.to - existing.from + 1) / 2) - 1;
+    if(mid >= existing.from && mid < existing.to){
+      const newFrom = mid + 1;
+      const newTo = existing.to;
+      existing.to = mid;
+      team.assignments.push({ chunkId, from: newFrom, to: newTo });
+    }
+  }
+}
+
+function unassignChunkFromTeam(team, chunkId){
+  team.assignments = team.assignments.filter(a => a.chunkId !== chunkId);
+}
+
+function assignRemainingToTeam(trackKey, team){
+  const selected = team.assignments.map(a => a.chunkId);
+  if(selected.length){
+    for(let i = 0; i < selected.length; i++){
+      const chunk = getChunk(selected[i]);
+      if(!chunk) continue;
+      const leftover = leftoverRanges(trackKey, chunk.from, chunk.to, team.id);
+      if(!leftover.length) continue;
+      const block = leftover[0];
+      const existing = team.assignments.find(a => a.chunkId === chunk.id);
+      if(existing && block.from <= existing.to + 1 && block.to >= existing.from - 1){
+        existing.from = Math.min(existing.from, block.from);
+        existing.to = Math.max(existing.to, block.to);
+      } else if(existing){
+        team.assignments.push({ chunkId: chunk.id, from: block.from, to: block.to });
+      }
+      return true;
+    }
+    return false;
+  }
+  const leftover = leftoverRanges(trackKey);
+  if(!leftover.length) return false;
+  const block = leftover[0];
+  const chunk = chunkForEpisode(block.from);
+  if(!chunk) return false;
+  const from = Math.max(block.from, chunk.from);
+  const to = Math.min(block.to, chunk.to);
+  if(from > to) return false;
+  team.assignments.push({ chunkId: chunk.id, from, to });
+  return true;
+}
+
+function formatEpRanges(eps){
+  if(!eps.length) return '';
+  const sorted = eps.slice().sort((a,b) => a - b);
+  const parts = [];
+  let a = sorted[0], b = sorted[0];
+  for(let i = 1; i < sorted.length; i++){
+    if(sorted[i] === b + 1){ b = sorted[i]; }
+    else {
+      parts.push(a === b ? String(toDisplayEp(a)) : toDisplayEp(a) + '–' + toDisplayEp(b));
+      a = b = sorted[i];
+    }
+  }
+  parts.push(a === b ? String(toDisplayEp(a)) : toDisplayEp(a) + '–' + toDisplayEp(b));
+  return 'EP ' + parts.join(', ');
+}
+
+function getTeam(trackKey, teamId){
+  return teamsState[trackKey].find(t => t.id === teamId) || null;
+}
+
+function trackPaceMode(trackKey, teamId){
+  if(isTeamTrack(trackKey)){
+    const team = getTeam(trackKey, teamId);
+    return team ? team.mode : 'pace';
+  }
+  return paceState[trackKey].mode;
+}
 
 // Stored episode schedules — Generate rebuilds; drag mutates; render only draws these.
 const scheduleState = {
@@ -1508,22 +1950,90 @@ const scheduleState = {
   post: { episodes: [] }
 };
 
-const SCHEDULE_STORAGE_KEY = 'pf-schedule-v3';
+const SCHEDULE_STORAGE_KEY = 'pf-schedule-v4';
+const SCHEDULE_STORAGE_KEY_V3 = 'pf-schedule-v3';
 const SCHEDULE_STORAGE_KEY_LEGACY = 'pf-schedule-v2';
 
 function persistSchedule(){
   try{
-    const payload = {};
+    const payload = {
+      version: 4,
+      chunks: chunksState.map(c => ({ id: c.id, name: c.name, from: c.from, to: c.to })),
+      teams: {},
+      episodes: {}
+    };
+    TEAM_TRACKS.forEach(key => {
+      payload.teams[key] = teamsState[key].map(t => ({
+        id: t.id,
+        name: t.name,
+        start: t.start,
+        mode: t.mode,
+        pace: t.pace,
+        dayConfig: t.dayConfig,
+        breaks: t.breaks,
+        assignments: t.assignments
+      }));
+    });
     allScheduleKeys().forEach(key => {
-      payload[key] = scheduleState[key].episodes.map(e => toISODate(e.date));
+      payload.episodes[key] = scheduleState[key].episodes.map(e => ({
+        episode: e.episode,
+        date: toISODate(e.date),
+        teamId: e.teamId
+      }));
     });
     sessionStorage.setItem(SCHEDULE_STORAGE_KEY, JSON.stringify(payload));
   }catch(e){}
 }
 
+function applyHydratedTeams(key, teams){
+  teamsState[key] = [];
+  let maxId = teamIdCounters[key];
+  teams.forEach(t => {
+    if(t.id > maxId) maxId = t.id;
+    teamsState[key].push({
+      id: t.id,
+      name: t.name || ('Team ' + t.id),
+      start: t.start || toISODate(new Date()),
+      mode: t.mode === 'days' ? 'days' : 'pace',
+      pace: t.pace != null ? t.pace : 2,
+      dayConfig: t.dayConfig && t.dayConfig.length ? t.dayConfig.map(c => ({...c})) : defaultDayConfig(),
+      breaks: (t.breaks || []).map(b => ({...b})),
+      assignments: (t.assignments || []).map(a => ({ chunkId: a.chunkId, from: a.from, to: a.to }))
+    });
+  });
+  teamIdCounters[key] = maxId;
+}
+
+function restoreV4Payload(payload){
+  if(payload.chunks && payload.chunks.length){
+    chunksState = payload.chunks.map(c => ({ id: c.id, name: c.name, from: c.from, to: c.to }));
+    chunkIdCounter = chunksState.reduce((m, c) => Math.max(m, c.id), 0);
+  }
+  if(payload.teams){
+    TEAM_TRACKS.forEach(key => {
+      if(payload.teams[key] && payload.teams[key].length) applyHydratedTeams(key, payload.teams[key]);
+    });
+  }
+  clampAssignmentsToChunks();
+  let ok = false;
+  allScheduleKeys().forEach(key => {
+    const list = payload.episodes && payload.episodes[key];
+    if(list && list.length){
+      hydrateTrackFromEntries(key, list);
+      ok = true;
+    }
+  });
+  return ok;
+}
+
 function restoreScheduleFromSession(){
   try{
-    let raw = sessionStorage.getItem(SCHEDULE_STORAGE_KEY);
+    const rawV4 = sessionStorage.getItem(SCHEDULE_STORAGE_KEY);
+    if(rawV4){
+      const payload = JSON.parse(rawV4);
+      if(payload && payload.version === 4) return restoreV4Payload(payload);
+    }
+    let raw = sessionStorage.getItem(SCHEDULE_STORAGE_KEY_V3);
     if(!raw) raw = sessionStorage.getItem(SCHEDULE_STORAGE_KEY_LEGACY);
     if(!raw) return false;
     const payload = JSON.parse(raw);
@@ -1540,14 +2050,14 @@ function restoreScheduleFromSession(){
   }
 }
 
-function getParsedBreaks(key, warnings){
+function parseBreaksList(breaks, warnings, label){
   const parsed = [];
-  breaksState[key].forEach(b => {
+  (breaks || []).forEach(b => {
     if(!b.start || !b.end) return;
     const s = parseLocalDate(b.start);
     const e = parseLocalDate(b.end);
     if(s > e){
-      if(warnings) warnings.push(`A break on ${TRACK_LABEL[key]} has an end date before its start date, so it was ignored.`);
+      if(warnings) warnings.push(`A break on ${label} has an end date before its start date, so it was ignored.`);
       return;
     }
     parsed.push({ start: s, end: e });
@@ -1555,8 +2065,49 @@ function getParsedBreaks(key, warnings){
   return parsed;
 }
 
+function getParsedBreaks(key, warnings){
+  return parseBreaksList(breaksState[key], warnings, TRACK_LABEL[key]);
+}
+
+function parseTeamBreaks(team, warnings, trackKey){
+  return parseBreaksList(team.breaks, warnings, TRACK_LABEL[trackKey] + ' (' + team.name + ')');
+}
+
+function scheduleWorkOrder(trackKey, team, order, start, warnings){
+  if(!order.length || !start) return [];
+  const breaks = parseTeamBreaks(team, warnings, trackKey);
+  let dates;
+  if(team.mode === 'pace'){
+    const pace = parseFloat(team.pace);
+    if(!pace || pace <= 0) return [];
+    dates = episodeDates(start, pace, order.length, breaks);
+  } else {
+    dates = episodeDatesByDays(start, team.dayConfig, order.length, breaks);
+  }
+  const trackStart = team.start ? parseLocalDate(team.start) : start;
+  return dates.map((d, i) => ({
+    episode: order[i],
+    date: new Date(d.date),
+    week: episodeWeekFromStart(d.date, trackStart),
+    teamId: team.id
+  }));
+}
+
+function computeTeamEpisodes(trackKey, team, warnings){
+  const order = flattenAssignments(team);
+  if(!order.length || !team.start) return [];
+  return scheduleWorkOrder(trackKey, team, order, parseLocalDate(team.start), warnings);
+}
+
 function computeTrackEpisodes(key){
-  const total = parseInt(document.getElementById('totalEpisodes').value, 10) || 0;
+  if(isTeamTrack(key)){
+    const all = [];
+    teamsState[key].forEach(team => {
+      computeTeamEpisodes(key, team).forEach(e => all.push(e));
+    });
+    return all;
+  }
+  const total = programTotal();
   const startStr = document.getElementById(TRACK_DOM[key] + 'Start').value;
   if(!total || !startStr) return [];
   const start = parseLocalDate(startStr);
@@ -1572,19 +2123,99 @@ function computeTrackEpisodes(key){
 
 function schedulesEqual(a, b){
   if(a.length !== b.length) return false;
-  return a.every((e, i) => e.episode === b[i].episode && sameCalendarDay(e.date, b[i].date));
+  const keyOf = e => e.episode + ':' + toISODate(e.date) + ':' + (e.teamId || '');
+  return a.map(keyOf).sort().join('|') === b.map(keyOf).sort().join('|');
 }
 
 function annotateWeeks(episodes, trackStart){
   return episodes.map(e => ({
     episode: e.episode,
     date: new Date(e.date),
-    week: episodeWeekFromStart(e.date, trackStart)
+    week: episodeWeekFromStart(e.date, trackStart),
+    teamId: e.teamId
   }));
+}
+
+function buildTeamSchedule(trackKey, team){
+  return computeTeamEpisodes(trackKey, team);
+}
+
+function earlierChunkEpisodes(team, chunkId){
+  const earlier = [];
+  for(let i = 0; i < chunksState.length; i++){
+    const chunk = chunksState[i];
+    if(chunk.id === chunkId) break;
+    flattenChunkAssignment(team, chunk.id).forEach(ep => earlier.push(ep));
+  }
+  return earlier;
+}
+
+function chunkGenerateStart(trackKey, team, chunkId){
+  const earlier = earlierChunkEpisodes(team, chunkId);
+  const scheduled = scheduleState[trackKey].episodes.filter(e => e.teamId === team.id && earlier.indexOf(e.episode) !== -1);
+  if(scheduled.length){
+    const last = new Date(Math.max(...scheduled.map(e => e.date.getTime())));
+    return addDays(startOfDay(last), 1);
+  }
+  return team.start ? parseLocalDate(team.start) : null;
+}
+
+function generateChunk(trackKey, teamId, chunkId, opts){
+  opts = opts || {};
+  const team = getTeam(trackKey, teamId);
+  const chunk = getChunk(chunkId);
+  if(!team || !chunk) return false;
+  const order = flattenChunkAssignment(team, chunkId);
+  const start = chunkGenerateStart(trackKey, team, chunkId);
+  if(!order.length || !start) return false;
+  const fresh = scheduleWorkOrder(trackKey, team, order, start);
+  if(!fresh.length) return false;
+  const existing = scheduleState[trackKey].episodes.filter(e => e.teamId === team.id && order.indexOf(e.episode) !== -1);
+  if(!opts.force && existing.length && !schedulesEqual(existing, fresh)){
+    const ok = window.confirm(`Replace ${team.name}'s ${TRACK_LABEL[trackKey]} dates for ${chunk.name}? Other chunks stay as they are.`);
+    if(!ok) return false;
+  }
+  const drop = {};
+  order.forEach(ep => { drop[ep] = true; });
+  scheduleState[trackKey].episodes = scheduleState[trackKey].episodes
+    .filter(e => !(e.teamId === team.id && drop[e.episode]))
+    .concat(fresh);
+  persistSchedule();
+  return true;
+}
+
+function generateTeam(trackKey, teamId, opts){
+  opts = opts || {};
+  const team = getTeam(trackKey, teamId);
+  if(!team) return false;
+  const fresh = buildTeamSchedule(trackKey, team);
+  const existing = scheduleState[trackKey].episodes.filter(e => e.teamId === team.id);
+  if(!opts.force && existing.length && !schedulesEqual(existing, fresh)){
+    const ok = window.confirm(`Replace the current ${TRACK_LABEL[trackKey]} schedule for ${team.name}? Manual placements will be lost.`);
+    if(!ok) return false;
+  }
+  scheduleState[trackKey].episodes = scheduleState[trackKey].episodes
+    .filter(e => e.teamId !== team.id)
+    .concat(fresh);
+  persistSchedule();
+  return true;
 }
 
 function generateTrack(key, opts){
   opts = opts || {};
+  if(isTeamTrack(key)){
+    const next = [];
+    teamsState[key].forEach(team => {
+      buildTeamSchedule(key, team).forEach(e => next.push(e));
+    });
+    if(!opts.force && scheduleState[key].episodes.length && !schedulesEqual(scheduleState[key].episodes, next)){
+      const ok = window.confirm(`Replace the current ${TRACK_LABEL[key]} schedule for all teams? Manual placements will be lost.`);
+      if(!ok) return false;
+    }
+    scheduleState[key].episodes = next;
+    persistSchedule();
+    return true;
+  }
   const fresh = computeTrackEpisodes(key);
   const startStr = document.getElementById(TRACK_DOM[key] + 'Start').value;
   const trackStart = startStr ? parseLocalDate(startStr) : new Date();
@@ -1598,12 +2229,19 @@ function generateTrack(key, opts){
   return true;
 }
 
+function reconcileTeamEpisodes(key){
+  const owned = new Map();
+  teamsState[key].forEach(t => flattenAssignments(t).forEach(ep => {
+    if(!owned.has(ep)) owned.set(ep, t.id);
+  }));
+  scheduleState[key].episodes = scheduleState[key].episodes.filter(e => owned.get(e.episode) === e.teamId);
+}
+
 function syncScheduleToTotal(total){
+  clampAssignmentsToChunks();
+  TEAM_TRACKS.forEach(reconcileTeamEpisodes);
   allScheduleKeys().forEach(key => {
-    const eps = scheduleState[key].episodes;
-    if(eps.length > total){
-      scheduleState[key].episodes = eps.filter(e => e.episode <= total);
-    }
+    scheduleState[key].episodes = scheduleState[key].episodes.filter(e => e.episode <= total);
   });
 }
 
@@ -1616,6 +2254,59 @@ function applyEpisodeMove(trackKey, episodeNum, newDate, opts){
   const snapped = startOfDay(newDate);
   if(sameCalendarDay(item.date, snapped) && !readjust) return;
 
+  if(isTeamTrack(trackKey)){
+    const team = getTeam(trackKey, item.teamId);
+    if(!team) return;
+    const trackStart = parseLocalDate(team.start);
+    item.date = snapped;
+    item.week = episodeWeekFromStart(snapped, trackStart);
+    if(!readjust){
+      persistSchedule();
+      return;
+    }
+    const workOrder = flattenAssignments(team);
+    const idx = workOrder.indexOf(episodeNum);
+    if(idx === -1){
+      persistSchedule();
+      return;
+    }
+    const followingWork = workOrder.slice(idx + 1);
+    const teamKept = workOrder.slice(0, idx + 1).map(ep => {
+      const existing = eps.find(e => e.episode === ep && e.teamId === team.id);
+      if(ep === episodeNum){
+        return { episode: ep, date: new Date(snapped), week: episodeWeekFromStart(snapped, trackStart), teamId: team.id };
+      }
+      return existing ? { episode: existing.episode, date: new Date(existing.date), week: existing.week, teamId: team.id } : null;
+    }).filter(Boolean);
+    if(!followingWork.length){
+      scheduleState[trackKey].episodes = eps.filter(e => e.teamId !== team.id).concat(teamKept);
+      persistSchedule();
+      return;
+    }
+    const breaks = parseTeamBreaks(team);
+    const wkStart = startOfDay(addDays(snapped, -6));
+    const usedInWeek = teamKept.filter(e => {
+      const d = startOfDay(e.date);
+      return d >= wkStart && d <= snapped;
+    }).length;
+    let rest;
+    if(team.mode === 'pace'){
+      const generated = episodeDates(wkStart, parseFloat(team.pace), usedInWeek + followingWork.length, breaks);
+      rest = generated.slice(usedInWeek);
+    } else {
+      rest = episodeDatesByDays(addDays(snapped, 1), team.dayConfig, followingWork.length, breaks);
+    }
+    const restMapped = rest.map((e, i) => followingWork[i] == null ? null : ({
+      episode: followingWork[i],
+      date: new Date(e.date),
+      week: episodeWeekFromStart(e.date, trackStart),
+      teamId: team.id
+    })).filter(Boolean);
+    scheduleState[trackKey].episodes = eps.filter(e => e.teamId !== team.id).concat(teamKept, restMapped);
+    persistSchedule();
+    return;
+  }
+
   const startStr = document.getElementById(TRACK_DOM[trackKey] + 'Start').value;
   const trackStart = parseLocalDate(startStr);
   item.date = snapped;
@@ -1626,7 +2317,7 @@ function applyEpisodeMove(trackKey, episodeNum, newDate, opts){
     return;
   }
 
-  const total = parseInt(document.getElementById('totalEpisodes').value, 10) || 0;
+  const total = programTotal();
   const remaining = total - episodeNum;
   const kept = eps.filter(e => e.episode <= episodeNum).map(e => ({
     episode: e.episode,
@@ -1649,9 +2340,6 @@ function applyEpisodeMove(trackKey, episodeNum, newDate, opts){
   let rest;
   if(mode === 'pace'){
     const paceVal = parseFloat(document.getElementById(TRACK_DOM[trackKey] + 'Pace').value);
-    // Pack remaining pace capacity into the drop week, then continue weekly.
-    // Generate usedInWeek + remaining slots from this week, then drop the slots
-    // already taken by kept episodes (including the moved one).
     const generated = episodeDates(wkStart, paceVal, usedInWeek + remaining, breaks);
     rest = generated.slice(usedInWeek);
   } else {
@@ -1787,28 +2475,33 @@ function hitTestProdDropTarget(clientX, clientY, trackKey){
   }) || null;
 }
 
-function hitTestDropTarget(clientX, clientY, trackKey, mode){
+function dropTargetMatches(t, trackKey, teamId){
+  if(t.trackKey !== trackKey) return false;
+  if(teamId == null) return t.teamId == null;
+  return t.teamId === teamId;
+}
+
+function hitTestDropTarget(clientX, clientY, trackKey, mode, teamId){
   const stack = document.elementsFromPoint(clientX, clientY);
   for(let i = 0; i < stack.length; i++){
     const el = stack[i];
     if(mode === 'pace'){
-      const hit = weekDropTargets.find(t => t.el === el && t.trackKey === trackKey);
+      const hit = weekDropTargets.find(t => t.el === el && dropTargetMatches(t, trackKey, teamId));
       if(hit) return hit;
     } else {
-      const hit = dayDropTargets.find(t => t.el === el && t.trackKey === trackKey);
+      const hit = dayDropTargets.find(t => t.el === el && dropTargetMatches(t, trackKey, teamId));
       if(hit) return hit;
     }
   }
-  // Fallback: bounding-box hit test (elementsFromPoint can miss overlay zones)
   if(mode === 'pace'){
     return weekDropTargets.find(t => {
-      if(t.trackKey !== trackKey) return false;
+      if(!dropTargetMatches(t, trackKey, teamId)) return false;
       const r = t.el.getBoundingClientRect();
       return clientX >= r.left && clientX <= r.right && clientY >= r.top && clientY <= r.bottom;
     }) || null;
   }
   return dayDropTargets.find(t => {
-    if(t.trackKey !== trackKey) return false;
+    if(!dropTargetMatches(t, trackKey, teamId)) return false;
     const r = t.el.getBoundingClientRect();
     return clientX >= r.left && clientX <= r.right && clientY >= r.top && clientY <= r.bottom;
   }) || null;
@@ -1818,7 +2511,7 @@ function updateDropHighlight(clientX, clientY){
   if(!dragPayload) return;
   const hit = dragPayload.kind === 'runs'
     ? hitTestProdDropTarget(clientX, clientY, dragPayload.trackKey)
-    : hitTestDropTarget(clientX, clientY, dragPayload.trackKey, paceState[dragPayload.trackKey].mode);
+    : hitTestDropTarget(clientX, clientY, dragPayload.trackKey, trackPaceMode(dragPayload.trackKey, dragPayload.teamId), dragPayload.teamId);
   if(activeDropTarget && (!hit || activeDropTarget.el !== hit.el)){
     activeDropTarget.el.classList.remove('drop-target');
     activeDropTarget = null;
@@ -1835,8 +2528,8 @@ function commitDropFromPointer(){
     applyRunMove(dragPayload.trackKey, dragPayload.runId, activeDropTarget.dayDate);
     return;
   }
-  const { trackKey, episode } = dragPayload;
-  const mode = paceState[trackKey].mode;
+  const { trackKey, episode, teamId } = dragPayload;
+  const mode = trackPaceMode(trackKey, teamId);
   if(mode === 'pace'){
     const { weekEndDate } = activeDropTarget;
     const item = scheduleState[trackKey].episodes.find(x => x.episode === episode);
@@ -1898,21 +2591,22 @@ function onPointerDragUp(e){
   endPointerDrag();
 }
 
-function makeChipDraggable(chip, trackKey, episode){
+function makeChipDraggable(chip, trackKey, episode, teamId){
   chip.draggable = false; // use pointer drag instead of HTML5
   chip.dataset.track = trackKey;
   chip.dataset.episode = String(episode);
+  if(teamId != null) chip.dataset.teamId = String(teamId);
   chip.addEventListener('pointerdown', e => {
     if(e.button !== 0) return;
     e.preventDefault();
     hideTooltip();
-    const startEpNum = parseInt(document.getElementById('startEpNum').value, 10) || 1;
     dragPayload = {
       kind: 'episode',
       trackKey,
       episode,
+      teamId: teamId != null ? teamId : null,
       chip,
-      label: 'EP ' + (startEpNum + episode - 1),
+      label: 'EP ' + toDisplayEp(episode),
       startX: e.clientX,
       startY: e.clientY,
       active: false
@@ -1947,24 +2641,26 @@ function makeProdBarDraggable(bar, runsKey, runId, label){
   });
 }
 
-function setupWeekDropTarget(cell, trackKey, weekEndDate){
+function setupWeekDropTarget(cell, trackKey, weekEndDate, teamId){
   cell.dataset.dropTrack = trackKey;
   cell.style.setProperty('--accent', TRACK_ACCENT[trackKey]);
   weekDropTargets.push({
     el: cell,
     trackKey,
+    teamId: teamId != null ? teamId : null,
     weekEndDate: startOfDay(weekEndDate),
     wkStart: startOfDay(addDays(weekEndDate, -6)),
     wkEnd: startOfDay(weekEndDate)
   });
 }
 
-function setupDayDropTarget(zone, trackKey, dayDate){
+function setupDayDropTarget(zone, trackKey, dayDate, teamId){
   zone.dataset.dropTrack = trackKey;
   zone.style.setProperty('--accent', TRACK_ACCENT[trackKey]);
   dayDropTargets.push({
     el: zone,
     trackKey,
+    teamId: teamId != null ? teamId : null,
     dayDate: startOfDay(dayDate)
   });
 }
@@ -1979,49 +2675,58 @@ function setupProdDropTarget(zone, runsKey, dayDate){
   });
 }
 
-function renderDayGrid(key){
-  const container = document.getElementById(TRACK_DOM[key] + 'DayGrid');
+function fillDayGrid(container, dayConfig, onToggle, onCount){
   container.innerHTML = '';
-  paceState[key].dayConfig.forEach(cfg => {
+  dayConfig.forEach(cfg => {
     const cell = document.createElement('div');
     cell.className = 'day-pace-cell' + (cfg.enabled ? ' enabled' : '');
     cell.innerHTML = `
-      <button type="button" class="dp-toggle" data-key="${key}" data-day="${cfg.day}">${DAY_NAMES_MINI[cfg.day]}</button>
-      <input type="number" min="0" step="1" value="${cfg.count}" data-key="${key}" data-day="${cfg.day}" ${cfg.enabled ? '' : 'disabled'}>
+      <button type="button" class="dp-toggle" data-day="${cfg.day}">${DAY_NAMES_MINI[cfg.day]}</button>
+      <input type="number" min="0" step="1" value="${cfg.count}" data-day="${cfg.day}" ${cfg.enabled ? '' : 'disabled'}>
     `;
     container.appendChild(cell);
   });
   container.querySelectorAll('.dp-toggle').forEach(btn => {
     btn.addEventListener('click', e => {
-      const k = e.currentTarget.dataset.key;
       const day = parseInt(e.currentTarget.dataset.day, 10);
-      const cfg = paceState[k].dayConfig.find(c => c.day === day);
-      cfg.enabled = !cfg.enabled;
-      renderDayGrid(k);
-      render();
+      onToggle(day);
     });
   });
   container.querySelectorAll('input').forEach(inp => {
     inp.addEventListener('input', e => {
-      const k = e.target.dataset.key;
       const day = parseInt(e.target.dataset.day, 10);
-      const cfg = paceState[k].dayConfig.find(c => c.day === day);
-      cfg.count = parseInt(e.target.value, 10) || 0;
-      render();
+      onCount(day, parseInt(e.target.value, 10) || 0);
     });
+  });
+}
+
+function renderDayGrid(key){
+  const container = document.getElementById(TRACK_DOM[key] + 'DayGrid');
+  if(!container) return;
+  fillDayGrid(container, paceState[key].dayConfig, day => {
+    const cfg = paceState[key].dayConfig.find(c => c.day === day);
+    cfg.enabled = !cfg.enabled;
+    renderDayGrid(key);
+    render();
+  }, (day, count) => {
+    const cfg = paceState[key].dayConfig.find(c => c.day === day);
+    cfg.count = count;
+    render();
   });
 }
 
 function setPaceMode(key, mode){
   paceState[key].mode = mode;
   const prefix = TRACK_DOM[key];
-  document.querySelectorAll(`#${prefix}PaceModeToggle .seg-btn`).forEach(b => b.classList.toggle('active', b.dataset.mode === mode));
-  document.getElementById(prefix + 'PaceField').style.display = mode === 'pace' ? '' : 'none';
-  document.getElementById(prefix + 'DayGrid').style.display = mode === 'days' ? 'grid' : 'none';
+  const toggle = document.getElementById(prefix + 'PaceModeToggle');
+  if(!toggle) return;
+  toggle.querySelectorAll('.seg-btn').forEach(b => b.classList.toggle('active', b.dataset.mode === mode));
+  const paceField = document.getElementById(prefix + 'PaceField');
+  const dayGrid = document.getElementById(prefix + 'DayGrid');
+  if(paceField) paceField.style.display = mode === 'pace' ? '' : 'none';
+  if(dayGrid) dayGrid.style.display = mode === 'days' ? 'grid' : 'none';
   render();
 }
-document.querySelectorAll('#wPaceModeToggle .seg-btn').forEach(b => b.addEventListener('click', () => setPaceMode('writing', b.dataset.mode)));
-document.querySelectorAll('#ePaceModeToggle .seg-btn').forEach(b => b.addEventListener('click', () => setPaceMode('editing', b.dataset.mode)));
 document.querySelectorAll('#rPaceModeToggle .seg-btn').forEach(b => b.addEventListener('click', () => setPaceMode('release', b.dataset.mode)));
 
 function applyScheduleModeUI(key, mode){
@@ -2030,6 +2735,10 @@ function applyScheduleModeUI(key, mode){
   document.querySelectorAll(`#${prefix}ScheduleModeToggle .seg-btn`).forEach(b => b.classList.toggle('active', b.dataset.mode === mode));
   document.getElementById(prefix + 'RunsPanel').style.display = mode === 'runs' ? '' : 'none';
   document.getElementById(prefix + 'SchedulePanel').style.display = mode === 'pace' ? '' : 'none';
+  const breaksPanel = document.getElementById(prefix + 'BreaksPanel');
+  if(breaksPanel) breaksPanel.style.display = mode === 'pace' ? '' : 'none';
+  const addRun = document.getElementById(RUNS_DOM[key].addBtnId);
+  if(addRun) addRun.style.display = mode === 'runs' ? '' : 'none';
 }
 function setScheduleMode(key, mode){
   applyScheduleModeUI(key, mode);
@@ -2154,8 +2863,17 @@ document.getElementById('postAddRunBtn').addEventListener('click', () => {
   render();
 });
 document.getElementById('totalEpisodes').addEventListener('input', () => {
+  clampAssignmentsToChunks();
+  renderChunksList();
+  renderTeamsList('writing');
+  renderTeamsList('editing');
   renderRunsList('production');
   renderRunsList('post');
+});
+document.getElementById('startEpNum').addEventListener('input', () => {
+  renderChunksList();
+  renderTeamsList('writing');
+  renderTeamsList('editing');
 });
 
 // ---- Breaks state ----
@@ -2169,6 +2887,7 @@ function addBreakBlock(key, startStr, endStr){
 
 function renderBreaksList(key){
   const list = document.getElementById(key + 'BreaksList');
+  if(!list) return;
   list.innerHTML = '';
   breaksState[key].forEach((b, i) => {
     const row = document.createElement('div');
@@ -2204,18 +2923,6 @@ function renderBreaksList(key){
   });
 }
 
-document.getElementById('writingAddBreakBtn').addEventListener('click', () => {
-  const d = new Date().toISOString().slice(0,10);
-  addBreakBlock('writing', d, d);
-  renderBreaksList('writing');
-  render();
-});
-document.getElementById('editingAddBreakBtn').addEventListener('click', () => {
-  const d = new Date().toISOString().slice(0,10);
-  addBreakBlock('editing', d, d);
-  renderBreaksList('editing');
-  render();
-});
 document.getElementById('releaseAddBreakBtn').addEventListener('click', () => {
   const d = new Date().toISOString().slice(0,10);
   addBreakBlock('release', d, d);
@@ -2235,6 +2942,302 @@ document.getElementById('postAddBreakBtn').addEventListener('click', () => {
   render();
 });
 
+function renderTeamBreaks(trackKey, team, list){
+  list.innerHTML = '';
+  team.breaks.forEach((b, i) => {
+    const row = document.createElement('div');
+    row.className = 'break-row';
+    row.innerHTML = `
+      <div class="run-tag">BREAK ${i+1}</div>
+      <input type="date" data-id="${b.id}" data-field="start" value="${b.start}">
+      <input type="date" data-id="${b.id}" data-field="end" value="${b.end}">
+      <button class="remove-run" data-id="${b.id}" title="Remove break">×</button>
+    `;
+    list.appendChild(row);
+  });
+  list.querySelectorAll('input').forEach(inp => {
+    inp.addEventListener('input', e => {
+      const id = parseInt(e.target.dataset.id, 10);
+      const field = e.target.dataset.field;
+      const b = team.breaks.find(x => x.id === id);
+      if(!b) return;
+      b[field] = e.target.value;
+      render();
+    });
+  });
+  list.querySelectorAll('.remove-run').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const id = parseInt(btn.dataset.id, 10);
+      team.breaks = team.breaks.filter(x => x.id !== id);
+      renderTeamsList(trackKey);
+      render();
+    });
+  });
+}
+
+function renderChunksList(){
+  const list = document.getElementById('chunksList');
+  if(!list) return;
+  list.innerHTML = '';
+  if(!chunksState.length){
+    const empty = document.createElement('div');
+    empty.className = 'runs-empty';
+    empty.textContent = 'No chunks yet — add one below.';
+    list.appendChild(empty);
+  }
+  chunksState.forEach((chunk, i) => {
+    const row = document.createElement('div');
+    row.className = 'chunk-row';
+    row.innerHTML = `
+      <input type="text" data-id="${chunk.id}" data-field="name" value="${escapeHtml(chunk.name)}" placeholder="Chunk ${i+1}" maxlength="40">
+      <input type="number" data-id="${chunk.id}" data-field="from" value="${toDisplayEp(chunk.from)}" min="1" step="1">
+      <input type="number" data-id="${chunk.id}" data-field="to" value="${toDisplayEp(chunk.to)}" min="1" step="1">
+      <button class="remove-run" data-id="${chunk.id}" title="Remove chunk" ${chunksState.length === 1 ? 'disabled' : ''}>×</button>
+    `;
+    list.appendChild(row);
+  });
+  list.querySelectorAll('input').forEach(inp => {
+    inp.addEventListener('input', e => {
+      const id = parseInt(e.target.dataset.id, 10);
+      const field = e.target.dataset.field;
+      const chunk = getChunk(id);
+      if(!chunk) return;
+      if(field === 'name') chunk.name = e.target.value;
+      else {
+        const program = toProgramEp(parseInt(e.target.value, 10) || displayStartEp());
+        chunk[field] = program;
+        clampAssignmentsToChunks();
+      }
+      renderTeamsList('writing');
+      renderTeamsList('editing');
+      render();
+    });
+  });
+  list.querySelectorAll('.remove-run').forEach(btn => {
+    btn.addEventListener('click', () => {
+      if(chunksState.length <= 1) return;
+      const id = parseInt(btn.dataset.id, 10);
+      chunksState = chunksState.filter(c => c.id !== id);
+      TEAM_TRACKS.forEach(key => {
+        teamsState[key].forEach(team => unassignChunkFromTeam(team, id));
+      });
+      renderChunksList();
+      renderTeamsList('writing');
+      renderTeamsList('editing');
+      render();
+    });
+  });
+}
+
+function renderTeamsList(trackKey){
+  const list = document.getElementById(trackKey + 'TeamsList');
+  if(!list) return;
+  const allBtn = document.getElementById(TRACK_DOM[trackKey] + 'GenerateBtn');
+  if(allBtn) allBtn.style.display = teamsState[trackKey].length > 1 ? '' : 'none';
+  list.innerHTML = '';
+  teamsState[trackKey].forEach(team => {
+    const card = document.createElement('div');
+    card.className = 'team-card';
+    const canRemove = teamsState[trackKey].length > 1;
+    const paceField = `<div class="field team-pace-field" ${team.mode === 'pace' ? '' : 'style="display:none;"'}><label>Pace (episodes / week)</label><input type="number" data-team="${team.id}" data-field="pace" value="${team.pace}" min="0.1" step="0.1"></div>`;
+    const assignRows = chunksState.map(chunk => {
+      const assigned = team.assignments.filter(a => a.chunkId === chunk.id);
+      const checked = assigned.length > 0;
+      const split = assigned[0] || { from: chunk.from, to: chunk.to };
+      return `
+        <div class="assign-row">
+          <label class="chunk-check">
+            <input type="checkbox" data-team="${team.id}" data-chunk="${chunk.id}" ${checked ? 'checked' : ''}>
+            ${escapeHtml(chunk.name)} · EP ${toDisplayEp(chunk.from)}–${toDisplayEp(chunk.to)}
+          </label>
+          ${checked ? `<div class="split-fields">
+            <input type="number" data-team="${team.id}" data-chunk="${chunk.id}" data-split="from" value="${toDisplayEp(split.from)}">
+            <span>–</span>
+            <input type="number" data-team="${team.id}" data-chunk="${chunk.id}" data-split="to" value="${toDisplayEp(split.to)}">
+          </div>
+          <button type="button" class="chunk-gen-btn" data-team="${team.id}" data-chunk="${chunk.id}">Generate</button>` : ''}
+        </div>`;
+    }).join('');
+    card.innerHTML = `
+      <div class="team-card-top">
+        <input type="text" data-team="${team.id}" data-field="name" value="${escapeHtml(team.name)}" maxlength="40">
+        <button class="remove-run" data-team="${team.id}" title="Remove team" ${canRemove ? '' : 'disabled'}>×</button>
+      </div>
+      <div class="field">
+        <label>Start date</label>
+        <input type="date" data-team="${team.id}" data-field="start" value="${team.start || ''}">
+      </div>
+      <div class="field">
+        <label>Pace mode</label>
+        <div class="seg-toggle" data-team="${team.id}">
+          <button type="button" class="seg-btn${team.mode === 'pace' ? ' active' : ''}" data-mode="pace">Episodes/week</button>
+          <button type="button" class="seg-btn${team.mode === 'days' ? ' active' : ''}" data-mode="days">Specific days</button>
+        </div>
+      </div>
+      ${paceField}
+      <div class="day-pace-grid" data-team="${team.id}" style="display:${team.mode === 'days' ? 'grid' : 'none'};"></div>
+      <div class="chunk-picker">
+        <label>Chunks</label>
+        ${assignRows || '<div class="runs-empty">Add a program chunk first.</div>'}
+      </div>
+      <div class="team-actions">
+        <button type="button" class="assign-remaining-btn" data-team="${team.id}">Assign remaining</button>
+      </div>
+      <div class="breaks-wrap">
+        <label>Breaks (optional)</label>
+        <div class="breaks-list" data-team="${team.id}"></div>
+        <button class="add-break-btn" type="button" data-team="${team.id}">+ Add break</button>
+      </div>
+      <button type="button" class="gen-btn team-gen-btn" data-team="${team.id}">Generate ${escapeHtml(team.name)} schedule</button>
+    `;
+    list.appendChild(card);
+    const dayGrid = card.querySelector('.day-pace-grid');
+    fillDayGrid(dayGrid, team.dayConfig, day => {
+      const cfg = team.dayConfig.find(c => c.day === day);
+      cfg.enabled = !cfg.enabled;
+      renderTeamsList(trackKey);
+      render();
+    }, (day, count) => {
+      const cfg = team.dayConfig.find(c => c.day === day);
+      cfg.count = count;
+      render();
+    });
+    renderTeamBreaks(trackKey, team, card.querySelector('.breaks-list'));
+  });
+
+  list.querySelectorAll('input[data-field="name"], input[data-field="start"], input[data-field="pace"]').forEach(inp => {
+    inp.addEventListener('input', e => {
+      const team = getTeam(trackKey, parseInt(e.target.dataset.team, 10));
+      if(!team) return;
+      const field = e.target.dataset.field;
+      if(field === 'pace') team.pace = parseFloat(e.target.value) || 0;
+      else team[field] = e.target.value;
+      render();
+    });
+  });
+  list.querySelectorAll('.seg-toggle .seg-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const team = getTeam(trackKey, parseInt(btn.parentElement.dataset.team, 10));
+      if(!team) return;
+      team.mode = btn.dataset.mode;
+      renderTeamsList(trackKey);
+      render();
+    });
+  });
+  list.querySelectorAll('input[type="checkbox"][data-chunk]').forEach(box => {
+    box.addEventListener('change', () => {
+      const team = getTeam(trackKey, parseInt(box.dataset.team, 10));
+      const chunkId = parseInt(box.dataset.chunk, 10);
+      if(!team) return;
+      if(box.checked) assignChunkToTeam(trackKey, team, chunkId);
+      else unassignChunkFromTeam(team, chunkId);
+      renderTeamsList(trackKey);
+      render();
+    });
+  });
+  list.querySelectorAll('input[data-split]').forEach(inp => {
+    inp.addEventListener('input', () => {
+      const team = getTeam(trackKey, parseInt(inp.dataset.team, 10));
+      const chunkId = parseInt(inp.dataset.chunk, 10);
+      if(!team) return;
+      const a = team.assignments.find(x => x.chunkId === chunkId);
+      if(!a) return;
+      a[inp.dataset.split] = toProgramEp(parseInt(inp.value, 10) || displayStartEp());
+      clampAssignmentsToChunks();
+      render();
+    });
+  });
+  list.querySelectorAll('.assign-remaining-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const team = getTeam(trackKey, parseInt(btn.dataset.team, 10));
+      if(!team) return;
+      if(assignRemainingToTeam(trackKey, team)){
+        renderTeamsList(trackKey);
+        render();
+      }
+    });
+  });
+  list.querySelectorAll('.add-break-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const team = getTeam(trackKey, parseInt(btn.dataset.team, 10));
+      if(!team) return;
+      teamBreakIdCounter++;
+      const d = toISODate(new Date());
+      team.breaks.push({ id: teamBreakIdCounter, start: d, end: d });
+      renderTeamsList(trackKey);
+      render();
+    });
+  });
+  list.querySelectorAll('.chunk-gen-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const teamId = parseInt(btn.dataset.team, 10);
+      const chunkId = parseInt(btn.dataset.chunk, 10);
+      if(generateChunk(trackKey, teamId, chunkId)) render();
+    });
+  });
+  list.querySelectorAll('.team-gen-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const teamId = parseInt(btn.dataset.team, 10);
+      if(generateTeam(trackKey, teamId)) render();
+    });
+  });
+  list.querySelectorAll('.remove-run[data-team]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      if(teamsState[trackKey].length <= 1) return;
+      const id = parseInt(btn.dataset.team, 10);
+      teamsState[trackKey] = teamsState[trackKey].filter(t => t.id !== id);
+      scheduleState[trackKey].episodes = scheduleState[trackKey].episodes.filter(e => e.teamId !== id);
+      renderTeamsList(trackKey);
+      persistSchedule();
+      render();
+    });
+  });
+}
+
+function addTeamToTrack(trackKey){
+  const last = teamsState[trackKey][teamsState[trackKey].length - 1];
+  const extras = last ? {
+    name: 'Team ' + (teamIdCounters[trackKey] + 1),
+    start: last.start,
+    mode: last.mode,
+    pace: last.pace,
+    dayConfig: last.dayConfig,
+    assignments: []
+  } : {};
+  teamsState[trackKey].push(makeTeam(trackKey, extras));
+  renderTeamsList(trackKey);
+  render();
+}
+
+document.getElementById('addChunkBtn').addEventListener('click', () => {
+  const total = programTotal() || 20;
+  const leftover = [];
+  const covered = new Set();
+  chunksState.forEach(c => {
+    for(let ep = c.from; ep <= c.to; ep++) covered.add(ep);
+  });
+  let start = null;
+  for(let ep = 1; ep <= total; ep++){
+    if(!covered.has(ep)){
+      if(start == null) start = ep;
+    } else if(start != null){
+      leftover.push({ from: start, to: ep - 1 });
+      start = null;
+    }
+  }
+  if(start != null) leftover.push({ from: start, to: total });
+  const last = chunksState[chunksState.length - 1];
+  const range = leftover[0]
+    || (last && last.to < total ? { from: last.to + 1, to: total } : { from: total, to: total });
+  addChunk('Chunk ' + (chunksState.length + 1), range.from, range.to);
+  renderChunksList();
+  renderTeamsList('writing');
+  renderTeamsList('editing');
+  render();
+});
+document.getElementById('writingAddTeamBtn').addEventListener('click', () => addTeamToTrack('writing'));
+document.getElementById('editingAddTeamBtn').addEventListener('click', () => addTeamToTrack('editing'));
+
 document.getElementById('wGenerateBtn').addEventListener('click', () => {
   if(generateTrack('writing')) render();
 });
@@ -2251,9 +3254,68 @@ document.getElementById('ppGenerateBtn').addEventListener('click', () => {
   if(generateTrack('post')) render();
 });
 
+function collectTeamWarnings(key, total, warnings){
+  const owned = new Map();
+  const overlap = [];
+  teamsState[key].forEach(team => {
+    if(!team.start) warnings.push(`${TRACK_LABEL[key]} (${team.name}) needs a start date.`);
+    if(team.mode === 'pace' && (!team.pace || team.pace <= 0)){
+      warnings.push(`${TRACK_LABEL[key]} (${team.name}) pace must be greater than 0.`);
+    }
+    if(team.mode === 'days' && !team.dayConfig.some(c => c.enabled && c.count > 0)){
+      warnings.push(`${TRACK_LABEL[key]} (${team.name}) has no active days selected, so it never progresses.`);
+    }
+    if(!team.assignments.length) warnings.push(`${TRACK_LABEL[key]} (${team.name}) has no episode chunks assigned.`);
+    team.assignments.forEach(a => {
+      const chunk = getChunk(a.chunkId);
+      if(!chunk) return;
+      if(a.from > a.to){
+        warnings.push(`A range on ${TRACK_LABEL[key]} (${team.name}) has an end before its start.`);
+        return;
+      }
+      if(a.from < chunk.from || a.to > chunk.to){
+        warnings.push(`${TRACK_LABEL[key]} (${team.name}) assignment is outside ${chunk.name}.`);
+      }
+      for(let ep = a.from; ep <= a.to; ep++){
+        if(ep < 1 || ep > total) continue;
+        if(owned.has(ep)) overlap.push(ep);
+        else owned.set(ep, team.name);
+      }
+    });
+  });
+  if(overlap.length){
+    warnings.push(`${TRACK_LABEL[key]} ranges overlap (${formatEpRanges([...new Set(overlap)])}).`);
+  }
+  const unassigned = [];
+  for(let ep = 1; ep <= total; ep++) if(!owned.has(ep)) unassigned.push(ep);
+  if(unassigned.length){
+    warnings.push(`${TRACK_LABEL[key]} has ${formatEpRanges(unassigned)} unassigned.`);
+  }
+}
+
+function buildGridLayout(){
+  let row = 2;
+  const layout = { lanes: { writing: [], editing: [] }, production: 0, post: 0, release: 0 };
+  TEAM_TRACKS.forEach(key => {
+    const teams = teamsState[key];
+    const multi = teams.length > 1;
+    if(!teams.length){
+      layout.lanes[key].push({ teamId: null, row: row++, multi: false });
+      return;
+    }
+    teams.forEach(t => {
+      layout.lanes[key].push({ teamId: t.id, row: row++, multi });
+    });
+  });
+  layout.production = row++;
+  layout.post = row++;
+  layout.release = row++;
+  return layout;
+}
+
 function render(){
-  const total = parseInt(document.getElementById('totalEpisodes').value, 10);
-  const startEpNum = parseInt(document.getElementById('startEpNum').value, 10) || 1;
+  const total = programTotal();
+  const startEpNum = displayStartEp();
   const recTime = parseFloat(document.getElementById('recTime').value) || 0;
   const editTime = parseFloat(document.getElementById('editTime').value) || 0;
   const episodeTracks = activeEpisodeTracks();
@@ -2262,6 +3324,13 @@ function render(){
   const paceVals = {};
   const modes = {};
   episodeTracks.forEach(key => {
+    if(isTeamTrack(key)){
+      const starts = teamsState[key].map(t => t.start).filter(Boolean);
+      startStrs[key] = starts[0] || '';
+      paceVals[key] = teamsState[key][0] ? parseFloat(teamsState[key][0].pace) : 0;
+      modes[key] = teamsState[key][0] ? teamsState[key][0].mode : 'pace';
+      return;
+    }
     const prefix = TRACK_DOM[key];
     startStrs[key] = document.getElementById(prefix + 'Start').value;
     paceVals[key] = parseFloat(document.getElementById(prefix + 'Pace').value);
@@ -2272,12 +3341,25 @@ function render(){
   warningEl.style.display = 'none';
   let warnings = [];
 
-  const missingStarts = BASE_EPISODE_TRACKS.some(key => !startStrs[key]);
-  if(!total || total < 1 || missingStarts){
+  const releaseStart = document.getElementById('rStart').value;
+  if(!total || total < 1 || !releaseStart){
     document.getElementById('gantt').innerHTML = '';
     document.getElementById('totalWeeks').textContent = '—';
     return;
   }
+
+  const chunkOverlap = new Map();
+  const overlappedEps = [];
+  chunksState.forEach(c => {
+    if(c.from > c.to) warnings.push(`${c.name} has an end before its start.`);
+    for(let ep = c.from; ep <= c.to; ep++){
+      if(chunkOverlap.has(ep)) overlappedEps.push(ep);
+      else chunkOverlap.set(ep, c.id);
+    }
+  });
+  if(overlappedEps.length) warnings.push(`Program chunks overlap (${formatEpRanges([...new Set(overlappedEps)])}).`);
+
+  TEAM_TRACKS.forEach(key => collectTeamWarnings(key, total, warnings));
 
   syncScheduleToTotal(total);
 
@@ -2285,6 +3367,29 @@ function render(){
   const trackBreaks = {};
   const trackEpisodes = {};
   episodeTracks.forEach(key => {
+    if(isTeamTrack(key)){
+      const starts = teamsState[key].filter(t => t.start).map(t => parseLocalDate(t.start));
+      trackStarts[key] = starts.length ? new Date(Math.min(...starts.map(d => d.getTime()))) : null;
+      trackBreaks[key] = [];
+      const eps = scheduleState[key].episodes.map(e => {
+        const team = getTeam(key, e.teamId);
+        const teamStart = team && team.start ? parseLocalDate(team.start) : (trackStarts[key] || new Date());
+        return {
+          episode: e.episode,
+          date: new Date(e.date),
+          week: episodeWeekFromStart(e.date, teamStart),
+          teamId: e.teamId
+        };
+      });
+      scheduleState[key].episodes = eps;
+      trackEpisodes[key] = eps;
+      const assigned = new Set();
+      teamsState[key].forEach(t => flattenAssignments(t).forEach(ep => assigned.add(ep)));
+      if(assigned.size && eps.length < assigned.size){
+        warnings.push(`${TRACK_LABEL[key]} schedule has ${eps.length} of ${assigned.size} assigned episodes — Generate to fill the rest.`);
+      }
+      return;
+    }
     if(!startStrs[key]){
       trackStarts[key] = null;
       trackBreaks[key] = [];
@@ -2346,15 +3451,20 @@ function render(){
     : { validRuns: [], numLanes: 1, producedTotal: 0 };
 
   // ---- Global calendar span ----
+  const teamStarts = [];
+  TEAM_TRACKS.forEach(key => {
+    teamsState[key].forEach(t => { if(t.start) teamStarts.push(parseLocalDate(t.start)); });
+  });
   const allStarts = [
-    ...episodeTracks.filter(key => trackStarts[key]).map(key => trackStarts[key]),
+    ...episodeTracks.filter(key => !isTeamTrack(key) && trackStarts[key]).map(key => trackStarts[key]),
+    ...teamStarts,
     ...prod.validRuns.map(r => r.startDate),
     ...post.validRuns.map(r => r.startDate)
   ];
   const allEnds = [
     ...episodeTracks.map(key => {
       const eps = trackEpisodes[key];
-      if(eps.length) return eps[eps.length-1].date;
+      if(eps.length) return new Date(Math.max(...eps.map(e => e.date.getTime())));
       return trackStarts[key];
     }).filter(Boolean),
     ...prod.validRuns.map(r => r.finishDate),
@@ -2389,6 +3499,13 @@ function render(){
   }
   const weekMaps = {};
   episodeTracks.forEach(key => {
+    if(isTeamTrack(key)){
+      teamsState[key].forEach(team => {
+        const mapKey = key + ':' + team.id;
+        weekMaps[mapKey] = team.mode === 'pace' ? groupByGlobalWeek(trackEpisodes[key].filter(e => e.teamId === team.id)) : {};
+      });
+      return;
+    }
     weekMaps[key] = modes[key] === 'pace' ? groupByGlobalWeek(trackEpisodes[key]) : {};
   });
 
@@ -2408,13 +3525,21 @@ function render(){
     return weekIdx > min && weekIdx < max;
   }
   const epWeeks = {};
-  episodeTracks.forEach(key => { epWeeks[key] = episodeWeekSet(trackEpisodes[key]); });
+  episodeTracks.forEach(key => {
+    if(isTeamTrack(key)){
+      teamsState[key].forEach(team => {
+        epWeeks[key + ':' + team.id] = episodeWeekSet(trackEpisodes[key].filter(e => e.teamId === team.id));
+      });
+      return;
+    }
+    epWeeks[key] = episodeWeekSet(trackEpisodes[key]);
+  });
 
   // ---- Summary ----
   function finishText(eps){
-    return eps.length
-      ? 'Finishes ' + fmtDateFull(eps[eps.length-1].date)
-      : 'Finishes —';
+    if(!eps.length) return 'Finishes —';
+    const finish = new Date(Math.max(...eps.map(e => e.date.getTime())));
+    return 'Finishes ' + fmtDateFull(finish);
   }
   function runsFinishText(validRuns){
     if(!validRuns.length) return 'Finishes —';
@@ -2424,8 +3549,8 @@ function render(){
   document.getElementById('totalWeeks').textContent = numWeeks;
 
   // ---- Build grid ----
-  // Rows: 1 header | 2 Writing | 3 Editing | 4 Production | 5 Post | 6 Release
   resetDropTargetLists();
+  const layout = buildGridLayout();
   const pxPerWeek = PX_PER_WEEK_LEVELS[zoomIndex];
   const pxPerDay = pxPerWeek/7;
   const labelColW = 200;
@@ -2433,11 +3558,17 @@ function render(){
   const postRowH = scheduleMode.post === 'runs' ? Math.max(54, post.numLanes*32 + 12) : null;
   const dayView = showDayView();
   const headerRowH = dayView ? 50 : 56;
+  const teamRowCount = layout.lanes.writing.length + layout.lanes.editing.length;
+  const rowHeights = [`${headerRowH}px`];
+  for(let r = 0; r < teamRowCount; r++) rowHeights.push('auto');
+  rowHeights.push(prodRowH ? prodRowH + 'px' : 'auto');
+  rowHeights.push(postRowH ? postRowH + 'px' : 'auto');
+  rowHeights.push('auto');
 
   const gantt = document.getElementById('gantt');
   gantt.innerHTML = '';
   gantt.style.gridTemplateColumns = `${labelColW}px repeat(${numWeeks}, ${pxPerWeek}px)`;
-  gantt.style.gridTemplateRows = `${headerRowH}px auto auto ${prodRowH ? prodRowH + 'px' : 'auto'} ${postRowH ? postRowH + 'px' : 'auto'} auto`;
+  gantt.style.gridTemplateRows = rowHeights.join(' ');
 
   const corner = document.createElement('div');
   corner.className = 'row-label corner';
@@ -2467,40 +3598,65 @@ function render(){
     gantt.appendChild(cell);
   }
 
-  function addEpisodeTrackLabel(trackKey){
+  function addEpisodeLaneLabel(trackKey, gridRow, team){
     const label = document.createElement('div');
     label.className = 'row-label';
     label.style.gridColumn = '1';
-    label.style.gridRow = String(TRACK_GRID_ROWS[trackKey]);
-    const start = trackStarts[trackKey];
+    label.style.gridRow = String(gridRow);
+    const multi = team && teamsState[trackKey].length > 1;
+    const title = multi ? `${TRACK_LABEL[trackKey]} · ${team.name}` : TRACK_LABEL[trackKey];
+    const start = team && team.start ? parseLocalDate(team.start) : trackStarts[trackKey];
+    const mode = team ? team.mode : modes[trackKey];
+    const pace = team ? team.pace : paceVals[trackKey];
+    const dayCfg = team ? team.dayConfig : paceState[trackKey].dayConfig;
     const sub = !start
       ? 'set a start date'
-      : (modes[trackKey] === 'pace'
-        ? `${paceVals[trackKey] || 0} ep/wk from ${fmtDate(start)}`
-        : `${paceState[trackKey].dayConfig.filter(c=>c.enabled).map(c=>DAY_NAMES_SHORT[c.day]).join(',') || 'no days set'} from ${fmtDate(start)}`);
-    const finish = finishText(trackEpisodes[trackKey] || []);
-    label.innerHTML = `<div class="rl-name" style="color:${TRACK_ACCENT[trackKey]}">${TRACK_LABEL[trackKey]}</div><div class="rl-sub" title="${sub}">${sub}</div><div class="rl-finish">${finish}</div>`;
+      : (mode === 'pace'
+        ? `${pace || 0} ep/wk from ${fmtDate(start)}`
+        : `${dayCfg.filter(c=>c.enabled).map(c=>DAY_NAMES_SHORT[c.day]).join(',') || 'no days set'} from ${fmtDate(start)}`);
+    const eps = team
+      ? (trackEpisodes[trackKey] || []).filter(e => e.teamId === team.id)
+      : (trackEpisodes[trackKey] || []);
+    const finish = finishText(eps);
+    label.innerHTML = `<div class="rl-name" style="color:${TRACK_ACCENT[trackKey]}">${escapeHtml(title)}</div><div class="rl-sub" title="${escapeHtml(sub)}">${escapeHtml(sub)}</div><div class="rl-finish">${finish}</div>`;
     gantt.appendChild(label);
   }
   function addRunsTrackLabel(runsKey, minutes, unitLabel, validRuns){
     const label = document.createElement('div');
     label.className = 'row-label';
     label.style.gridColumn = '1';
-    label.style.gridRow = String(TRACK_GRID_ROWS[runsKey]);
+    label.style.gridRow = String(layout[runsKey]);
     const sub = `${minutes} min/ep ${unitLabel} · 8h day`;
     const finish = runsFinishText(validRuns);
     label.innerHTML = `<div class="rl-name" style="color:${TRACK_ACCENT[runsKey]}">${RUNS_DOM[runsKey].label}</div><div class="rl-sub" title="${sub}">${sub}</div><div class="rl-finish">${finish}</div>`;
     gantt.appendChild(label);
   }
-  BASE_EPISODE_TRACKS.forEach(addEpisodeTrackLabel);
-  if(scheduleMode.production === 'pace') addEpisodeTrackLabel('production');
+  TEAM_TRACKS.forEach(key => {
+    layout.lanes[key].forEach(lane => {
+      addEpisodeLaneLabel(key, lane.row, getTeam(key, lane.teamId));
+    });
+  });
+  addEpisodeLaneLabel('release', layout.release, null);
+  if(scheduleMode.production === 'pace') addEpisodeLaneLabel('production', layout.production, null);
   else addRunsTrackLabel('production', recTime, 'rec', prod.validRuns);
-  if(scheduleMode.post === 'pace') addEpisodeTrackLabel('post');
+  if(scheduleMode.post === 'pace') addEpisodeLaneLabel('post', layout.post, null);
   else addRunsTrackLabel('post', editTime, 'edit', post.validRuns);
 
-  function appendEpisodeWeekCell(trackKey, i, wkStart, wkEnd){
-    const gridRow = TRACK_GRID_ROWS[trackKey];
-    const isBreak = weekOverlapsBreak(wkStart, wkEnd, trackBreaks[trackKey] || []) || isGapWeek(i, epWeeks[trackKey] || new Set());
+  function chipTooltip(trackKey, ep, team){
+    const label = 'EP ' + (startEpNum + ep - 1);
+    const chunk = chunkForEpisode(ep);
+    const bits = [label];
+    if(team && teamsState[trackKey].length > 1) bits.push(team.name);
+    if(chunk) bits.push(chunk.name);
+    bits.push('drag to reschedule');
+    return bits.join(' · ');
+  }
+
+  function appendEpisodeWeekCell(trackKey, i, wkStart, wkEnd, gridRow, team){
+    const mapKey = team ? trackKey + ':' + team.id : trackKey;
+    const mode = team ? team.mode : modes[trackKey];
+    const breaks = team ? parseTeamBreaks(team) : (trackBreaks[trackKey] || []);
+    const isBreak = weekOverlapsBreak(wkStart, wkEnd, breaks) || isGapWeek(i, epWeeks[mapKey] || new Set());
     const cell = document.createElement('div');
     cell.className = 'cell track-cell' + (isBreak ? ' break-cell' : '');
     cell.style.gridColumn = String(i+2);
@@ -2513,17 +3669,17 @@ function render(){
       layers.push(`linear-gradient(180deg, color-mix(in srgb, ${TRACK_ACCENT[trackKey]} 8%, transparent), transparent)`);
       cell.style.backgroundImage = layers.join(', ');
     }
-    if(modes[trackKey] === 'pace'){
-      (weekMaps[trackKey][i]||[]).forEach(ep=>{
+    if(mode === 'pace'){
+      (weekMaps[mapKey] && weekMaps[mapKey][i] || []).forEach(ep=>{
         const chip = document.createElement('div');
         chip.className = 'chip ' + trackKey;
         const label = 'EP ' + (startEpNum + ep - 1);
         chip.textContent = label;
-        attachTooltip(chip, label + ' · drag to reschedule');
-        makeChipDraggable(chip, trackKey, ep);
+        attachTooltip(chip, chipTooltip(trackKey, ep, team));
+        makeChipDraggable(chip, trackKey, ep, team ? team.id : null);
         cell.appendChild(chip);
       });
-      setupWeekDropTarget(cell, trackKey, wkEnd);
+      setupWeekDropTarget(cell, trackKey, wkEnd, team ? team.id : null);
     }
     gantt.appendChild(cell);
   }
@@ -2532,31 +3688,35 @@ function render(){
     const wkStart = addDays(globalStart, i*7);
     const wkEnd = addDays(globalStart, i*7+6);
 
-    BASE_EPISODE_TRACKS.forEach(trackKey => {
-      appendEpisodeWeekCell(trackKey, i, wkStart, wkEnd);
+    TEAM_TRACKS.forEach(trackKey => {
+      layout.lanes[trackKey].forEach(lane => {
+        appendEpisodeWeekCell(trackKey, i, wkStart, wkEnd, lane.row, getTeam(trackKey, lane.teamId));
+      });
     });
+    appendEpisodeWeekCell('release', i, wkStart, wkEnd, layout.release, null);
 
     RUNS_TRACKS.forEach(runsKey => {
       if(scheduleMode[runsKey] === 'pace'){
-        appendEpisodeWeekCell(runsKey, i, wkStart, wkEnd);
+        appendEpisodeWeekCell(runsKey, i, wkStart, wkEnd, layout[runsKey], null);
         return;
       }
       const pCell = document.createElement('div');
       pCell.className = 'cell';
       pCell.style.gridColumn = String(i+2);
-      pCell.style.gridRow = String(TRACK_GRID_ROWS[runsKey]);
+      pCell.style.gridRow = String(layout[runsKey]);
       if(dayView) pCell.style.backgroundImage = weekendGradient(wkStart);
       gantt.appendChild(pCell);
     });
   }
 
   // Day-precision overlays for tracks in "specific days" mode — one chip per episode for dragging
-  function buildDayOverlay(gridRow, episodes, cls, trackKey){
+  function buildDayOverlay(gridRow, episodes, cls, trackKey, team){
     const overlay = document.createElement('div');
     overlay.className = 'day-overlay';
     overlay.style.gridColumn = `2 / ${numWeeks+2}`;
     overlay.style.gridRow = String(gridRow);
     overlay.style.setProperty('--accent', TRACK_ACCENT[trackKey]);
+    const teamId = team ? team.id : null;
 
     const totalDays = numWeeks * 7;
     for(let d = 0; d < totalDays; d++){
@@ -2567,7 +3727,7 @@ function render(){
       zone.className = 'day-drop-zone';
       zone.style.left = left + 'px';
       zone.style.width = Math.max(1, rightEdge - left) + 'px';
-      setupDayDropTarget(zone, trackKey, dayDate);
+      setupDayDropTarget(zone, trackKey, dayDate, teamId);
       overlay.appendChild(zone);
     }
 
@@ -2589,23 +3749,30 @@ function render(){
       if(stack > 0) chip.style.zIndex = String(1 + stack);
       const label = `EP ${startEpNum + episode - 1}`;
       chip.textContent = label;
-      attachTooltip(chip, `${label} · ${fmtDateFull(date)} · drag to reschedule`);
-      makeChipDraggable(chip, trackKey, episode);
+      attachTooltip(chip, chipTooltip(trackKey, episode, team) + ' · ' + fmtDateFull(date));
+      makeChipDraggable(chip, trackKey, episode, teamId);
       overlay.appendChild(chip);
     });
     return overlay;
   }
-  BASE_EPISODE_TRACKS.forEach(trackKey => {
-    if(modes[trackKey] === 'days'){
-      gantt.appendChild(buildDayOverlay(TRACK_GRID_ROWS[trackKey], trackEpisodes[trackKey], trackKey, trackKey));
-    }
+  TEAM_TRACKS.forEach(trackKey => {
+    layout.lanes[trackKey].forEach(lane => {
+      const team = getTeam(trackKey, lane.teamId);
+      if(team && team.mode === 'days'){
+        const eps = (trackEpisodes[trackKey] || []).filter(e => e.teamId === team.id);
+        gantt.appendChild(buildDayOverlay(lane.row, eps, trackKey, trackKey, team));
+      }
+    });
   });
+  if(modes.release === 'days'){
+    gantt.appendChild(buildDayOverlay(layout.release, trackEpisodes.release || [], 'release', 'release', null));
+  }
 
   function buildRunsOverlay(runsKey, validRuns){
     const overlay = document.createElement('div');
     overlay.className = 'production-row';
     overlay.style.gridColumn = `2 / ${numWeeks+2}`;
-    overlay.style.gridRow = String(TRACK_GRID_ROWS[runsKey]);
+    overlay.style.gridRow = String(layout[runsKey]);
     overlay.style.setProperty('--accent', TRACK_ACCENT[runsKey]);
     {
       const totalDays = numWeeks * 7;
@@ -2664,25 +3831,104 @@ function decodeList(str){ return str ? str.split('|').filter(Boolean).map(pair =
 function encodeDates(episodes){ return episodes.map(e => toISODate(e.date)).join('|'); }
 function decodeDates(str){ return str ? str.split('|').filter(Boolean) : []; }
 function encodeDayConfig(cfg){ return cfg.filter(c => c.enabled).map(c => `${c.day}:${c.count}`).join(','); }
-function applyDayConfigFromParam(key, str){
-  if(!str) return;
+function applyDayConfigTo(cfg, str){
+  if(!str || !cfg) return;
   const map = {};
   str.split(',').filter(Boolean).forEach(pair => {
     const [d,c] = pair.split(':').map(Number);
     map[d] = c;
   });
-  paceState[key].dayConfig.forEach(cfg => {
-    if(Object.prototype.hasOwnProperty.call(map, cfg.day)){ cfg.enabled = true; cfg.count = map[cfg.day]; }
-    else { cfg.enabled = false; }
+  cfg.forEach(item => {
+    if(Object.prototype.hasOwnProperty.call(map, item.day)){ item.enabled = true; item.count = map[item.day]; }
+    else { item.enabled = false; }
+  });
+}
+function applyDayConfigFromParam(key, str){
+  applyDayConfigTo(paceState[key].dayConfig, str);
+}
+
+function teamStartFor(key, teamId){
+  if(isTeamTrack(key)){
+    const team = getTeam(key, teamId) || teamsState[key][0];
+    return team && team.start ? parseLocalDate(team.start) : new Date();
+  }
+  const startStr = document.getElementById(TRACK_DOM[key] + 'Start').value;
+  return startStr ? parseLocalDate(startStr) : new Date();
+}
+
+function ownerTeamId(key, episode){
+  const team = teamsState[key].find(t => flattenAssignments(t).indexOf(episode) !== -1);
+  return team ? team.id : (teamsState[key][0] && teamsState[key][0].id);
+}
+
+function hydrateTrackFromEntries(key, entries){
+  scheduleState[key].episodes = entries.map(e => {
+    const episode = e.episode;
+    const date = typeof e.date === 'string' ? parseLocalDate(e.date) : new Date(e.date);
+    const teamId = e.teamId != null ? e.teamId : (isTeamTrack(key) ? ownerTeamId(key, episode) : undefined);
+    return { episode, date, week: episodeWeekFromStart(date, teamStartFor(key, teamId)), teamId };
   });
 }
 
 function hydrateTrackFromDates(key, dateStrs){
-  const startStr = document.getElementById(TRACK_DOM[key] + 'Start').value;
-  const trackStart = startStr ? parseLocalDate(startStr) : new Date();
-  scheduleState[key].episodes = dateStrs.map((s, i) => {
-    const date = parseLocalDate(s);
-    return { episode: i + 1, date, week: episodeWeekFromStart(date, trackStart) };
+  if(dateStrs.length && String(dateStrs[0]).indexOf(':') !== -1 && !/^\d{4}-\d{2}-\d{2}$/.test(dateStrs[0])){
+    const entries = dateStrs.map(token => {
+      const cut = token.indexOf(':');
+      return { episode: parseInt(token.slice(0, cut), 10), date: token.slice(cut + 1) };
+    }).filter(e => e.episode && e.date);
+    hydrateTrackFromEntries(key, entries);
+    return;
+  }
+  const entries = dateStrs.map((s, i) => ({ episode: i + 1, date: s }));
+  hydrateTrackFromEntries(key, entries);
+}
+
+function encodeEpisodePairs(episodes){
+  return episodes.map(e => e.episode + ':' + toISODate(e.date)).join('|');
+}
+
+function encodeChunksParam(){
+  return chunksState.map(c => `${encodeURIComponent(c.name)};${c.from}-${c.to}`).join('|');
+}
+
+function decodeChunksParam(str){
+  if(!str) return [];
+  return str.split('|').filter(Boolean).map(item => {
+    const [name, range] = item.split(';');
+    const [from, to] = (range || '').split('-').map(Number);
+    return { name: decodeURIComponent(name || 'Chunk'), from: from || 1, to: to || from || 1 };
+  }).filter(c => c.from && c.to);
+}
+
+function encodeTeamsParam(key){
+  return teamsState[key].map(t => {
+    const days = t.mode === 'days' ? encodeDayConfig(t.dayConfig) : '';
+    const assigns = t.assignments.map(a => `${a.chunkId}:${a.from}-${a.to}`).join(',');
+    const breaks = (t.breaks || []).map(b => `${b.start}~${b.end}`).join(',');
+    return [encodeURIComponent(t.name), t.start || '', t.mode, t.pace, days, assigns, breaks].join(';');
+  }).join('|');
+}
+
+function decodeTeamsParam(str){
+  if(!str) return [];
+  return str.split('|').filter(Boolean).map((item, i) => {
+    const parts = item.split(';');
+    const name = decodeURIComponent(parts[0] || ('Team ' + (i + 1)));
+    const start = parts[1] || '';
+    const mode = parts[2] === 'days' ? 'days' : 'pace';
+    const pace = parseFloat(parts[3]) || 2;
+    const dayConfig = defaultDayConfig();
+    applyDayConfigTo(dayConfig, parts[4] || '');
+    const assignments = (parts[5] || '').split(',').filter(Boolean).map(token => {
+      const [chunkId, range] = token.split(':');
+      const [from, to] = (range || '').split('-').map(Number);
+      return { chunkId: parseInt(chunkId, 10), from, to };
+    }).filter(a => a.chunkId && a.from && a.to);
+    const breaks = (parts[6] || '').split(',').filter(Boolean).map((b, bi) => {
+      const [s, e] = b.split('~');
+      return { id: bi + 1, start: s, end: e };
+    }).filter(b => b.start && b.end);
+    return { name, start, mode, pace, dayConfig, assignments, breaks };
   });
 }
 
@@ -2702,14 +3948,23 @@ function buildShareURL(){
   p.set('title', document.getElementById('pageTitle').value);
   p.set('total', document.getElementById('totalEpisodes').value);
   p.set('startEp', document.getElementById('startEpNum').value);
-  p.set('wStart', document.getElementById('wStart').value);
-  p.set('wMode', paceState.writing.mode);
-  p.set('wPace', document.getElementById('wPace').value);
-  if(paceState.writing.mode === 'days') p.set('wDays', encodeDayConfig(paceState.writing.dayConfig));
-  p.set('eStart', document.getElementById('eStart').value);
-  p.set('eMode', paceState.editing.mode);
-  p.set('ePace', document.getElementById('ePace').value);
-  if(paceState.editing.mode === 'days') p.set('eDays', encodeDayConfig(paceState.editing.dayConfig));
+  if(chunksState.length) p.set('chunks', encodeChunksParam());
+  if(teamsState.writing.length) p.set('wTeams', encodeTeamsParam('writing'));
+  if(teamsState.editing.length) p.set('eTeams', encodeTeamsParam('editing'));
+  const firstW = teamsState.writing[0];
+  const firstE = teamsState.editing[0];
+  if(firstW){
+    p.set('wStart', firstW.start || '');
+    p.set('wMode', firstW.mode);
+    p.set('wPace', String(firstW.pace));
+    if(firstW.mode === 'days') p.set('wDays', encodeDayConfig(firstW.dayConfig));
+  }
+  if(firstE){
+    p.set('eStart', firstE.start || '');
+    p.set('eMode', firstE.mode);
+    p.set('ePace', String(firstE.pace));
+    if(firstE.mode === 'days') p.set('eDays', encodeDayConfig(firstE.dayConfig));
+  }
   p.set('rStart', document.getElementById('rStart').value);
   p.set('rMode', paceState.release.mode);
   p.set('rPace', document.getElementById('rPace').value);
@@ -2725,15 +3980,13 @@ function buildShareURL(){
   p.set('wcMode', document.getElementById('weekCountMode').value);
   p.set('wcStart', document.getElementById('weekStartDay').value);
   p.set('zoom', String(zoomIndex));
-  if(breaksState.writing.length) p.set('wBreaks', encodeList(breaksState.writing.map(b => `${b.start}:${b.end}`)));
-  if(breaksState.editing.length) p.set('eBreaks', encodeList(breaksState.editing.map(b => `${b.start}:${b.end}`)));
   if(breaksState.release.length) p.set('rBreaks', encodeList(breaksState.release.map(b => `${b.start}:${b.end}`)));
   if(breaksState.production.length) p.set('pBreaks', encodeList(breaksState.production.map(b => `${b.start}:${b.end}`)));
   if(breaksState.post.length) p.set('ppBreaks', encodeList(breaksState.post.map(b => `${b.start}:${b.end}`)));
   if(runsState.production.length) p.set('runs', encodeList(runsState.production.map(r => `${r.start}:${r.episodes}`)));
   if(runsState.post.length) p.set('postRuns', encodeList(runsState.post.map(r => `${r.start}:${r.episodes}`)));
-  if(scheduleState.writing.episodes.length) p.set('wEps', encodeDates(scheduleState.writing.episodes));
-  if(scheduleState.editing.episodes.length) p.set('eEps', encodeDates(scheduleState.editing.episodes));
+  if(scheduleState.writing.episodes.length) p.set('wEps', encodeEpisodePairs(scheduleState.writing.episodes));
+  if(scheduleState.editing.episodes.length) p.set('eEps', encodeEpisodePairs(scheduleState.editing.episodes));
   if(scheduleState.release.episodes.length) p.set('rEps', encodeDates(scheduleState.release.episodes));
   if(scheduleState.production.episodes.length) p.set('pEps', encodeDates(scheduleState.production.episodes));
   if(scheduleState.post.episodes.length) p.set('ppEps', encodeDates(scheduleState.post.episodes));
@@ -2784,10 +4037,6 @@ function clearAllSettings(){
 
   document.getElementById('totalEpisodes').value = 20;
   document.getElementById('startEpNum').value = 1;
-  document.getElementById('wStart').value = toISODate(today);
-  document.getElementById('wPace').value = 2;
-  document.getElementById('eStart').value = toISODate(today);
-  document.getElementById('ePace').value = 2;
   document.getElementById('rStart').value = toISODate(addDays(today, 28));
   document.getElementById('rPace').value = 1;
   document.getElementById('recTime').value = 90;
@@ -2803,18 +4052,26 @@ function clearAllSettings(){
   zoomIndex = 1;
   updateZoomUI();
 
-  BASE_EPISODE_TRACKS.forEach(key => {
-    paceState[key].mode = 'pace';
-    paceState[key].dayConfig = defaultDayConfig();
-    const prefix = TRACK_DOM[key];
-    document.querySelectorAll(`#${prefix}PaceModeToggle .seg-btn`).forEach(b => b.classList.toggle('active', b.dataset.mode === 'pace'));
-    document.getElementById(prefix + 'PaceField').style.display = '';
-    document.getElementById(prefix + 'DayGrid').style.display = 'none';
-    renderDayGrid(key);
-    breaksState[key] = [];
-    renderBreaksList(key);
-    scheduleState[key].episodes = [];
+  seedDefaultChunksAndTeams({
+    teams: {
+      writing: { start: toISODate(today), pace: 2 },
+      editing: { start: toISODate(today), pace: 2 }
+    }
   });
+  renderChunksList();
+  renderTeamsList('writing');
+  renderTeamsList('editing');
+
+  paceState.release.mode = 'pace';
+  paceState.release.dayConfig = defaultDayConfig();
+  document.querySelectorAll('#rPaceModeToggle .seg-btn').forEach(b => b.classList.toggle('active', b.dataset.mode === 'pace'));
+  document.getElementById('rPaceField').style.display = '';
+  document.getElementById('rDayGrid').style.display = 'none';
+  renderDayGrid('release');
+  breaksState.release = [];
+  renderBreaksList('release');
+  scheduleState.release.episodes = [];
+  TEAM_TRACKS.forEach(key => { scheduleState[key].episodes = []; });
 
   RUNS_TRACKS.forEach(key => {
     applyScheduleModeUI(key, 'runs');
@@ -2829,6 +4086,7 @@ function clearAllSettings(){
 
   try{
     sessionStorage.removeItem(SCHEDULE_STORAGE_KEY);
+    sessionStorage.removeItem(SCHEDULE_STORAGE_KEY_V3);
     sessionStorage.removeItem(SCHEDULE_STORAGE_KEY_LEGACY);
   }catch(e){}
   BASE_EPISODE_TRACKS.forEach(key => generateTrack(key, { force: true }));
@@ -2897,10 +4155,6 @@ syncTitleHeight();
 
 document.getElementById('totalEpisodes').value = urlParams.get('total') || document.getElementById('totalEpisodes').value;
 document.getElementById('startEpNum').value = urlParams.get('startEp') || document.getElementById('startEpNum').value;
-document.getElementById('wStart').value = urlParams.get('wStart') || today.toISOString().slice(0,10);
-document.getElementById('wPace').value = urlParams.get('wPace') || document.getElementById('wPace').value;
-document.getElementById('eStart').value = urlParams.get('eStart') || today.toISOString().slice(0,10);
-document.getElementById('ePace').value = urlParams.get('ePace') || document.getElementById('ePace').value;
 document.getElementById('rStart').value = urlParams.get('rStart') || addDays(today, 28).toISOString().slice(0,10);
 document.getElementById('rPace').value = urlParams.get('rPace') || document.getElementById('rPace').value;
 document.getElementById('recTime').value = urlParams.get('rec') || document.getElementById('recTime').value;
@@ -2910,19 +4164,70 @@ document.getElementById('pPace').value = urlParams.get('pPace') || document.getE
 document.getElementById('ppStart').value = urlParams.get('ppStart') || today.toISOString().slice(0,10);
 document.getElementById('ppPace').value = urlParams.get('ppPace') || document.getElementById('ppPace').value;
 
-if(urlParams.has('wMode')) paceState.writing.mode = urlParams.get('wMode');
-if(urlParams.has('wDays')) applyDayConfigFromParam('writing', urlParams.get('wDays'));
-if(urlParams.has('eMode')) paceState.editing.mode = urlParams.get('eMode');
-if(urlParams.has('eDays')) applyDayConfigFromParam('editing', urlParams.get('eDays'));
 if(urlParams.has('rMode')) paceState.release.mode = urlParams.get('rMode');
 if(urlParams.has('rDays')) applyDayConfigFromParam('release', urlParams.get('rDays'));
-BASE_EPISODE_TRACKS.forEach(key => {
-  const prefix = TRACK_DOM[key];
-  renderDayGrid(key);
-  document.querySelectorAll(`#${prefix}PaceModeToggle .seg-btn`).forEach(b => b.classList.toggle('active', b.dataset.mode === paceState[key].mode));
-  document.getElementById(prefix + 'PaceField').style.display = paceState[key].mode === 'pace' ? '' : 'none';
-  document.getElementById(prefix + 'DayGrid').style.display = paceState[key].mode === 'days' ? 'grid' : 'none';
+renderDayGrid('release');
+document.querySelectorAll('#rPaceModeToggle .seg-btn').forEach(b => b.classList.toggle('active', b.dataset.mode === paceState.release.mode));
+document.getElementById('rPaceField').style.display = paceState.release.mode === 'pace' ? '' : 'none';
+document.getElementById('rDayGrid').style.display = paceState.release.mode === 'days' ? 'grid' : 'none';
+
+function defaultTeamExtrasFromUrl(prefix, modeKey, daysKey, startFallback, paceFallback){
+  const extras = {
+    start: urlParams.get(prefix + 'Start') || startFallback,
+    mode: urlParams.get(modeKey) === 'days' ? 'days' : 'pace',
+    pace: parseFloat(urlParams.get(prefix + 'Pace')) || paceFallback,
+    dayConfig: defaultDayConfig()
+  };
+  if(urlParams.has(daysKey)) applyDayConfigTo(extras.dayConfig, urlParams.get(daysKey));
+  const breaksKey = prefix === 'w' ? 'wBreaks' : 'eBreaks';
+  if(urlParams.has(breaksKey)){
+    extras.breaks = decodeList(urlParams.get(breaksKey)).map(([s, e], i) => s && e ? { id: i + 1, start: s, end: e } : null).filter(Boolean);
+  }
+  return extras;
+}
+
+seedDefaultChunksAndTeams({
+  teams: {
+    writing: defaultTeamExtrasFromUrl('w', 'wMode', 'wDays', toISODate(today), 2),
+    editing: defaultTeamExtrasFromUrl('e', 'eMode', 'eDays', toISODate(today), 2)
+  }
 });
+
+if(urlParams.has('chunks')){
+  const decoded = decodeChunksParam(urlParams.get('chunks'));
+  if(decoded.length){
+    chunkIdCounter = 0;
+    chunksState = [];
+    decoded.forEach(c => addChunk(c.name, c.from, c.to));
+  }
+}
+
+function applyDecodedTeams(key, paramName){
+  if(!urlParams.has(paramName)) return;
+  const decoded = decodeTeamsParam(urlParams.get(paramName));
+  if(!decoded.length) return;
+  const withIds = decoded.map((t, i) => {
+    const assignments = (t.assignments || []).map(a => {
+      const chunk = chunksState[a.chunkId - 1] || getChunk(a.chunkId);
+      return { chunkId: chunk ? chunk.id : a.chunkId, from: a.from, to: a.to };
+    });
+    return { ...t, id: i + 1, assignments };
+  });
+  applyHydratedTeams(key, withIds);
+}
+
+applyDecodedTeams('writing', 'wTeams');
+applyDecodedTeams('editing', 'eTeams');
+if(!urlParams.has('wTeams') && teamsState.writing[0]){
+  teamsState.writing[0].assignments = chunksState.map(c => ({ chunkId: c.id, from: c.from, to: c.to }));
+}
+if(!urlParams.has('eTeams') && teamsState.editing[0]){
+  teamsState.editing[0].assignments = chunksState.map(c => ({ chunkId: c.id, from: c.from, to: c.to }));
+}
+clampAssignmentsToChunks();
+renderChunksList();
+renderTeamsList('writing');
+renderTeamsList('editing');
 
 const pSchedParam = urlParams.get('pSched');
 const ppSchedParam = urlParams.get('ppSched');
@@ -2938,8 +4243,6 @@ if(urlParams.has('postRuns')){
 renderRunsList('production');
 renderRunsList('post');
 
-if(urlParams.has('wBreaks')) decodeList(urlParams.get('wBreaks')).forEach(([s, e]) => { if(s && e) addBreakBlock('writing', s, e); });
-if(urlParams.has('eBreaks')) decodeList(urlParams.get('eBreaks')).forEach(([s, e]) => { if(s && e) addBreakBlock('editing', s, e); });
 if(urlParams.has('rBreaks')) decodeList(urlParams.get('rBreaks')).forEach(([s, e]) => { if(s && e) addBreakBlock('release', s, e); });
 if(urlParams.has('pBreaks')) decodeList(urlParams.get('pBreaks')).forEach(([s, e]) => { if(s && e) addBreakBlock('production', s, e); });
 if(urlParams.has('ppBreaks')) decodeList(urlParams.get('ppBreaks')).forEach(([s, e]) => { if(s && e) addBreakBlock('post', s, e); });
@@ -2963,7 +4266,7 @@ if(getBaseURL() === null){
   document.getElementById('shareHint').textContent = 'Opens this exact configuration when pasted into a new tab.';
 }
 
-['totalEpisodes','startEpNum','wStart','wPace','eStart','ePace','rStart','rPace','pStart','pPace','ppStart','ppPace','recTime','editTime'].forEach(id=>{
+['totalEpisodes','startEpNum','rStart','rPace','pStart','pPace','ppStart','ppPace','recTime','editTime'].forEach(id=>{
   document.getElementById(id).addEventListener('input', render);
 });
 
@@ -2975,7 +4278,12 @@ const epsParams = {
   production: urlParams.has('pEps') ? decodeDates(urlParams.get('pEps')) : null,
   post: urlParams.has('ppEps') ? decodeDates(urlParams.get('ppEps')) : null
 };
-restoreScheduleFromSession();
+if(!urlParams.has('chunks') && !urlParams.has('wTeams') && !urlParams.has('eTeams')){
+  restoreScheduleFromSession();
+  renderChunksList();
+  renderTeamsList('writing');
+  renderTeamsList('editing');
+}
 BASE_EPISODE_TRACKS.forEach(key => {
   const param = epsParams[key];
   if(param && param.length){
