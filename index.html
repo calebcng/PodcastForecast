@@ -1073,6 +1073,14 @@
       </select>
     </div>
     <div class="toolbar-group">
+      <span class="tg-label">On drag</span>
+      <select id="readjustPref" aria-label="What to do with following episodes when dragging">
+        <option value="ask">Ask each time</option>
+        <option value="always">Always reschedule following</option>
+        <option value="ignore">Only move this episode</option>
+      </select>
+    </div>
+    <div class="toolbar-group">
       <span class="tg-label">Zoom</span>
       <button class="zoom-btn" id="zoomOutBtn" type="button" title="Zoom out">−</button>
       <span class="zoom-label" id="zoomLabel">Week</span>
@@ -1263,8 +1271,8 @@
 
 <div class="modal-backdrop" id="moveModal" role="dialog" aria-modal="true" aria-labelledby="moveModalTitle">
   <div class="modal-card">
-    <h3 id="moveModalTitle">Move earlier?</h3>
-    <p id="moveModalBody">You're moving this episode to an earlier slot. Also readjust the following episodes to match the set pace?</p>
+    <h3 id="moveModalTitle">Reschedule following episodes?</h3>
+    <p id="moveModalBody">You're moving this episode. Also readjust the following episodes to match the set pace?</p>
     <div class="modal-actions">
       <button type="button" class="modal-btn ghost" id="moveModalCancel">Cancel</button>
       <button type="button" class="modal-btn" id="moveModalOnly">Only move this episode</button>
@@ -1657,7 +1665,7 @@ function applyEpisodeMove(trackKey, episodeNum, newDate, opts){
   persistSchedule();
 }
 
-// ---- Earlier-move confirmation modal ----
+// ---- Move confirmation modal ----
 let pendingMove = null;
 
 function openMoveModal(payload){
@@ -1665,7 +1673,7 @@ function openMoveModal(payload){
   const startEpNum = parseInt(document.getElementById('startEpNum').value, 10) || 1;
   const label = 'EP ' + (startEpNum + payload.episodeNum - 1);
   document.getElementById('moveModalBody').textContent =
-    `You're moving ${label} on ${TRACK_LABEL[payload.trackKey]} to an earlier slot (${fmtDateFull(payload.newDate)}). Also readjust the following episodes to match the set pace?`;
+    `You're moving ${label} on ${TRACK_LABEL[payload.trackKey]} to ${fmtDateFull(payload.newDate)}. Also readjust the following episodes to match the set pace?`;
   document.getElementById('moveModal').classList.add('open');
 }
 
@@ -1695,17 +1703,51 @@ document.addEventListener('keydown', e => {
   }
 });
 
+const READJUST_PREF_KEY = 'pf-readjust';
+const READJUST_PREF_VALUES = ['ask', 'always', 'ignore'];
+
+function normalizeReadjustPref(value){
+  return READJUST_PREF_VALUES.indexOf(value) !== -1 ? value : 'ask';
+}
+
+function getReadjustPref(){
+  const select = document.getElementById('readjustPref');
+  if(select) return normalizeReadjustPref(select.value);
+  try{
+    return normalizeReadjustPref(localStorage.getItem(READJUST_PREF_KEY));
+  }catch(e){
+    return 'ask';
+  }
+}
+
+function applyReadjustPref(value){
+  const pref = normalizeReadjustPref(value);
+  const select = document.getElementById('readjustPref');
+  if(select) select.value = pref;
+  try{ localStorage.setItem(READJUST_PREF_KEY, pref); }catch(e){}
+}
+
+function decideEpisodeMove(trackKey, episodeNum, newDate){
+  const pref = getReadjustPref();
+  if(pref === 'always'){
+    applyEpisodeMove(trackKey, episodeNum, newDate, { readjust: true });
+    render();
+    return;
+  }
+  if(pref === 'ignore'){
+    applyEpisodeMove(trackKey, episodeNum, newDate, { readjust: false });
+    render();
+    return;
+  }
+  openMoveModal({ trackKey, episodeNum, newDate });
+}
+
 function requestEpisodeMove(trackKey, episodeNum, newDate){
   const item = scheduleState[trackKey].episodes.find(e => e.episode === episodeNum);
   if(!item) return;
   const snapped = startOfDay(newDate);
   if(sameCalendarDay(item.date, snapped)) return;
-  if(snapped.getTime() > startOfDay(item.date).getTime()){
-    applyEpisodeMove(trackKey, episodeNum, snapped, { readjust: true });
-    render();
-  } else {
-    openMoveModal({ trackKey, episodeNum, newDate: snapped });
-  }
+  decideEpisodeMove(trackKey, episodeNum, snapped);
 }
 
 // ---- Pointer-based drag and drop (more reliable than HTML5 DnD in embedded browsers) ----
@@ -1803,12 +1845,7 @@ function commitDropFromPointer(){
     const wkEnd = startOfDay(weekEndDate);
     const d = startOfDay(item.date);
     if(d >= wkStart && d <= wkEnd) return;
-    if(d < wkStart){
-      applyEpisodeMove(trackKey, episode, wkEnd, { readjust: true });
-      render();
-    } else {
-      openMoveModal({ trackKey, episodeNum: episode, newDate: wkEnd });
-    }
+    decideEpisodeMove(trackKey, episode, wkEnd);
   } else {
     requestEpisodeMove(trackKey, episode, activeDropTarget.dayDate);
   }
@@ -2839,6 +2876,16 @@ applyTheme(currentTheme());
 themeToggle.addEventListener('click', () => {
   applyTheme(currentTheme() === 'light' ? 'dark' : 'light');
 });
+
+// ---- drag readjust preference ----
+(function initReadjustPref(){
+  let stored = 'ask';
+  try{ stored = localStorage.getItem(READJUST_PREF_KEY); }catch(e){}
+  applyReadjustPref(stored);
+  document.getElementById('readjustPref').addEventListener('change', e => {
+    applyReadjustPref(e.target.value);
+  });
+})();
 
 // ---- init defaults ----
 const urlParams = new URLSearchParams(window.location.search);
