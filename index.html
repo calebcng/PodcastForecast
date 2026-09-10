@@ -1374,7 +1374,7 @@
           </div>
           <div class="field">
             <label>Pace (episodes / week)</label>
-            <input type="number" id="pPace" value="2" min="0.1" step="0.1" style="--accent:var(--violet)">
+            <input type="number" id="pPace" value="2" min="1" step="1" style="--accent:var(--violet)">
           </div>
           <button class="gen-btn" id="pGenerateBtn" type="button" style="--accent:var(--violet)">Generate production schedule</button>
         </div>
@@ -1417,7 +1417,7 @@
           </div>
           <div class="field">
             <label>Pace (episodes / week)</label>
-            <input type="number" id="ppPace" value="2" min="0.1" step="0.1" style="--accent:var(--rose)">
+            <input type="number" id="ppPace" value="2" min="1" step="1" style="--accent:var(--rose)">
           </div>
           <button class="gen-btn" id="ppGenerateBtn" type="button" style="--accent:var(--rose)">Generate post-production schedule</button>
         </div>
@@ -1453,7 +1453,7 @@
         </div>
         <div class="field" id="rPaceField">
           <label>Pace (episodes / week)</label>
-          <input type="number" id="rPace" value="1" min="0.1" step="0.1" style="--accent:var(--teal)">
+          <input type="number" id="rPace" value="1" min="1" step="1" style="--accent:var(--teal)">
         </div>
         <div class="day-pace-grid" id="rDayGrid" style="display:none;"></div>
       </div>
@@ -3039,7 +3039,7 @@ function renderTeamsList(trackKey){
     const card = document.createElement('div');
     card.className = 'team-card';
     const canRemove = teamsState[trackKey].length > 1;
-    const paceField = `<div class="field team-pace-field" ${team.mode === 'pace' ? '' : 'style="display:none;"'}><label>Pace (episodes / week)</label><input type="number" data-team="${team.id}" data-field="pace" value="${team.pace}" min="0.1" step="0.1"></div>`;
+    const paceField = `<div class="field team-pace-field" ${team.mode === 'pace' ? '' : 'style="display:none;"'}><label>Pace (episodes / week)</label><input type="number" data-team="${team.id}" data-field="pace" value="${team.pace}" min="1" step="1"></div>`;
     const assignRows = chunksState.map(chunk => {
       const assigned = team.assignments.filter(a => a.chunkId === chunk.id);
       const checked = assigned.length > 0;
@@ -3051,9 +3051,9 @@ function renderTeamsList(trackKey){
             ${escapeHtml(chunk.name)} · EP ${toDisplayEp(chunk.from)}–${toDisplayEp(chunk.to)}
           </label>
           ${checked ? `<div class="split-fields">
-            <input type="number" data-team="${team.id}" data-chunk="${chunk.id}" data-split="from" value="${toDisplayEp(split.from)}">
+            <input type="number" data-team="${team.id}" data-chunk="${chunk.id}" data-split="from" value="${toDisplayEp(split.from)}" min="1" step="1">
             <span>–</span>
-            <input type="number" data-team="${team.id}" data-chunk="${chunk.id}" data-split="to" value="${toDisplayEp(split.to)}">
+            <input type="number" data-team="${team.id}" data-chunk="${chunk.id}" data-split="to" value="${toDisplayEp(split.to)}" min="1" step="1">
           </div>
           <button type="button" class="chunk-gen-btn" data-team="${team.id}" data-chunk="${chunk.id}">Generate</button>` : ''}
         </div>`;
