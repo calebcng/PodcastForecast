@@ -349,6 +349,38 @@
     letter-spacing:0.02em;
   }
   .assign-row .chunk-gen-btn:hover{filter:brightness(1.08);}
+  .assign-ranges{
+    display:flex;
+    flex-direction:column;
+    gap:4px;
+    flex:1 1 100%;
+  }
+  .assign-ranges .add-range-btn{
+    align-self:flex-start;
+    background:transparent;
+    border:1px dashed var(--border);
+    color:var(--text-dim);
+    border-radius:5px;
+    font-family:'IBM Plex Mono',monospace;
+    font-size:10px;
+    padding:3px 7px;
+    cursor:pointer;
+  }
+  .assign-ranges .add-range-btn:hover{border-color:var(--accent);color:var(--accent);}
+  .assign-ranges .add-range-btn:disabled{opacity:0.4;cursor:default;}
+  .assign-ranges .add-range-btn:disabled:hover{border-color:var(--border);color:var(--text-dim);}
+  .range-remove{
+    flex:0 0 auto;
+    background:transparent;
+    border:1px solid var(--border);
+    color:var(--text-faint);
+    border-radius:5px;
+    cursor:pointer;
+    font-size:13px;
+    line-height:1;
+    padding:3px 7px;
+  }
+  .range-remove:hover{border-color:var(--red);color:var(--red);}
   .team-actions{display:flex;flex-direction:column;gap:6px;}
   .assign-remaining-btn{
     background:transparent;
@@ -707,10 +739,16 @@
   }
   .share-hint{
     width:100%;
+    display:flex;
+    justify-content:space-between;
+    align-items:baseline;
+    gap:12px 20px;
+    flex-wrap:wrap;
     font-size:11px;
     color:var(--text-faint);
     font-family:'IBM Plex Mono',monospace;
   }
+  .app-version{flex:0 0 auto;letter-spacing:0.04em;}
 
   .toolbar{
     display:flex;
@@ -1472,7 +1510,10 @@
     <button class="share-btn" id="shareBtn" type="button">Copy link with these settings</button>
     <button class="share-btn danger" id="clearSettingsBtn" type="button">Clear all settings</button>
     <input class="share-url" id="shareUrlBox" type="text" readonly>
-    <div class="share-hint" id="shareHint">Works once this page is hosted at a real URL or opened from a saved file — not from this in-chat preview.</div>
+    <div class="share-hint">
+      <span id="shareHint">Works once this page is hosted at a real URL or opened from a saved file — not from this in-chat preview.</span>
+      <span class="app-version" id="appVersion"></span>
+    </div>
   </div>
 </div>
 
@@ -1493,6 +1534,8 @@
 </div>
 
 <script>
+const APP_VERSION = '1.0.0';
+document.getElementById('appVersion').textContent = 'v' + APP_VERSION;
 const MAX_WEEKS = 260; // safety cap (~5 years)
 const MINUTES_PER_DAY = 480;
 const DAY_NAMES_SHORT = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
@@ -1883,6 +1926,81 @@ function assignChunkToTeam(trackKey, team, chunkId){
 
 function unassignChunkFromTeam(team, chunkId){
   team.assignments = team.assignments.filter(a => a.chunkId !== chunkId);
+}
+
+function chunkRanges(team, chunkId){
+  return team.assignments.filter(a => a.chunkId === chunkId).sort((a, b) => a.from - b.from);
+}
+
+function addChunkRange(trackKey, team, chunkId){
+  const chunk = getChunk(chunkId);
+  if(!chunk || !team) return false;
+  const free = leftoverRanges(trackKey, chunk.from, chunk.to);
+  if(!free.length) return false;
+  team.assignments.push({ chunkId, from: free[0].from, to: free[0].to });
+  mergeChunkRanges(team, chunkId);
+  return true;
+}
+
+function removeChunkRange(team, chunkId, index){
+  const target = chunkRanges(team, chunkId)[index];
+  if(!target) return false;
+  team.assignments = team.assignments.filter(a => a !== target);
+  return true;
+}
+
+function mergeChunkRanges(team, chunkId){
+  const others = team.assignments.filter(a => a.chunkId !== chunkId);
+  const ranges = team.assignments.filter(a => a.chunkId === chunkId).sort((a, b) => a.from - b.from);
+  const merged = [];
+  ranges.forEach(r => {
+    const last = merged[merged.length - 1];
+    if(last && r.from <= last.to + 1) last.to = Math.max(last.to, r.to);
+    else merged.push({ chunkId, from: r.from, to: r.to });
+  });
+  team.assignments = others.concat(merged);
+}
+
+function removeEpisodeFromTeam(team, episode){
+  const chunk = chunkForEpisode(episode);
+  if(!chunk) return false;
+  let removed = false;
+  const next = [];
+  team.assignments.forEach(a => {
+    if(a.chunkId !== chunk.id || episode < a.from || episode > a.to){
+      next.push(a);
+      return;
+    }
+    removed = true;
+    if(a.from < episode) next.push({ chunkId: a.chunkId, from: a.from, to: episode - 1 });
+    if(a.to > episode) next.push({ chunkId: a.chunkId, from: episode + 1, to: a.to });
+  });
+  if(removed) team.assignments = next;
+  return removed;
+}
+
+function addEpisodeToTeam(team, episode){
+  const chunk = chunkForEpisode(episode);
+  if(!chunk) return false;
+  const owned = team.assignments.some(a => a.chunkId === chunk.id && episode >= a.from && episode <= a.to);
+  if(!owned) team.assignments.push({ chunkId: chunk.id, from: episode, to: episode });
+  mergeChunkRanges(team, chunk.id);
+  return true;
+}
+
+function transferEpisode(trackKey, episodeNum, destTeamId){
+  if(!isTeamTrack(trackKey)) return false;
+  const dest = getTeam(trackKey, destTeamId);
+  const item = scheduleState[trackKey].episodes.find(e => e.episode === episodeNum);
+  if(!dest || !item || item.teamId === dest.id) return false;
+  if(!chunkForEpisode(episodeNum)) return false;
+  const source = getTeam(trackKey, item.teamId);
+  if(source) removeEpisodeFromTeam(source, episodeNum);
+  addEpisodeToTeam(dest, episodeNum);
+  item.teamId = dest.id;
+  const trackStart = dest.start ? parseLocalDate(dest.start) : new Date();
+  item.week = episodeWeekFromStart(item.date, trackStart);
+  return true;
 }
 
 function assignRemainingToTeam(trackKey, team){
@@ -2452,8 +2570,11 @@ function openMoveModal(payload){
   pendingMove = payload;
   const startEpNum = parseInt(document.getElementById('startEpNum').value, 10) || 1;
   const label = 'EP ' + (startEpNum + payload.episodeNum - 1);
-  document.getElementById('moveModalBody').textContent =
-    `You're moving ${label} on ${TRACK_LABEL[payload.trackKey]} to ${fmtDateFull(payload.newDate)}. Readjust following episodes in this chunk, slide the whole chunk, or readjust all following episodes?`;
+  const dest = payload.destTeamId != null ? getTeam(payload.trackKey, payload.destTeamId) : null;
+  const body = dest
+    ? `You're moving ${label} on ${TRACK_LABEL[payload.trackKey]} onto ${dest.name}, to ${fmtDateFull(payload.newDate)}. Readjust following episodes on ${dest.name}, slide that team's chunk, or readjust all of its following episodes?`
+    : `You're moving ${label} on ${TRACK_LABEL[payload.trackKey]} to ${fmtDateFull(payload.newDate)}. Readjust following episodes in this chunk, slide the whole chunk, or readjust all following episodes?`;
+  document.getElementById('moveModalBody').textContent = body;
   document.getElementById('moveModal').classList.add('open');
 }
 
@@ -2462,13 +2583,22 @@ function closeMoveModal(){
   document.getElementById('moveModal').classList.remove('open');
 }
 
+function commitEpisodeMove(trackKey, episodeNum, newDate, readjust, destTeamId){
+  const transferred = destTeamId != null && transferEpisode(trackKey, episodeNum, destTeamId);
+  applyEpisodeMove(trackKey, episodeNum, newDate, { readjust: readjust });
+  if(transferred){
+    persistSchedule();
+    renderTeamsList(trackKey);
+  }
+  render();
+}
+
 function resolveMoveModal(choice){
   if(!pendingMove){ closeMoveModal(); return; }
-  const { trackKey, episodeNum, newDate } = pendingMove;
+  const { trackKey, episodeNum, newDate, destTeamId } = pendingMove;
   closeMoveModal();
   if(choice === 'cancel') return;
-  applyEpisodeMove(trackKey, episodeNum, newDate, { readjust: choice === 'only' ? false : choice });
-  render();
+  commitEpisodeMove(trackKey, episodeNum, newDate, choice === 'only' ? false : choice, destTeamId);
 }
 
 document.getElementById('moveModalCancel').addEventListener('click', () => resolveMoveModal('cancel'));
@@ -2510,27 +2640,26 @@ function applyReadjustPref(value){
   try{ localStorage.setItem(READJUST_PREF_KEY, pref); }catch(e){}
 }
 
-function decideEpisodeMove(trackKey, episodeNum, newDate){
+function decideEpisodeMove(trackKey, episodeNum, newDate, destTeamId){
   const pref = getReadjustPref();
   if(pref === 'all' || pref === 'chunk' || pref === 'following'){
-    applyEpisodeMove(trackKey, episodeNum, newDate, { readjust: pref });
-    render();
+    commitEpisodeMove(trackKey, episodeNum, newDate, pref, destTeamId);
     return;
   }
   if(pref === 'ignore'){
-    applyEpisodeMove(trackKey, episodeNum, newDate, { readjust: false });
-    render();
+    commitEpisodeMove(trackKey, episodeNum, newDate, false, destTeamId);
     return;
   }
-  openMoveModal({ trackKey, episodeNum, newDate });
+  openMoveModal({ trackKey, episodeNum, newDate, destTeamId: destTeamId != null ? destTeamId : null });
 }
 
-function requestEpisodeMove(trackKey, episodeNum, newDate){
+function requestEpisodeMove(trackKey, episodeNum, newDate, destTeamId){
   const item = scheduleState[trackKey].episodes.find(e => e.episode === episodeNum);
   if(!item) return;
   const snapped = startOfDay(newDate);
-  if(sameCalendarDay(item.date, snapped)) return;
-  decideEpisodeMove(trackKey, episodeNum, snapped);
+  const teamChanged = destTeamId != null && item.teamId !== destTeamId;
+  if(sameCalendarDay(item.date, snapped) && !teamChanged) return;
+  decideEpisodeMove(trackKey, episodeNum, teamChanged && sameCalendarDay(item.date, snapped) ? item.date : snapped, teamChanged ? destTeamId : null);
 }
 
 // ---- Pointer-based drag and drop (more reliable than HTML5 DnD in embedded browsers) ----
@@ -2570,43 +2699,38 @@ function hitTestProdDropTarget(clientX, clientY, trackKey){
   }) || null;
 }
 
-function dropTargetMatches(t, trackKey, teamId){
+function dropTargetMatches(t, trackKey){
   if(t.trackKey !== trackKey) return false;
-  if(teamId == null) return t.teamId == null;
-  return t.teamId === teamId;
+  if(isTeamTrack(trackKey)) return t.teamId != null;
+  return t.teamId == null;
 }
 
-function hitTestDropTarget(clientX, clientY, trackKey, mode, teamId){
+function hitTestDropTarget(clientX, clientY, trackKey){
   const stack = document.elementsFromPoint(clientX, clientY);
   for(let i = 0; i < stack.length; i++){
     const el = stack[i];
-    if(mode === 'pace'){
-      const hit = weekDropTargets.find(t => t.el === el && dropTargetMatches(t, trackKey, teamId));
-      if(hit) return hit;
-    } else {
-      const hit = dayDropTargets.find(t => t.el === el && dropTargetMatches(t, trackKey, teamId));
-      if(hit) return hit;
-    }
+    const week = weekDropTargets.find(t => t.el === el && dropTargetMatches(t, trackKey));
+    if(week) return week;
+    const day = dayDropTargets.find(t => t.el === el && dropTargetMatches(t, trackKey));
+    if(day) return day;
   }
-  if(mode === 'pace'){
-    return weekDropTargets.find(t => {
-      if(!dropTargetMatches(t, trackKey, teamId)) return false;
-      const r = t.el.getBoundingClientRect();
-      return clientX >= r.left && clientX <= r.right && clientY >= r.top && clientY <= r.bottom;
-    }) || null;
-  }
-  return dayDropTargets.find(t => {
-    if(!dropTargetMatches(t, trackKey, teamId)) return false;
+  let best = null;
+  let bestArea = Infinity;
+  weekDropTargets.concat(dayDropTargets).forEach(t => {
+    if(!dropTargetMatches(t, trackKey)) return;
     const r = t.el.getBoundingClientRect();
-    return clientX >= r.left && clientX <= r.right && clientY >= r.top && clientY <= r.bottom;
-  }) || null;
+    if(clientX < r.left || clientX > r.right || clientY < r.top || clientY > r.bottom) return;
+    const area = Math.max(1, r.width) * Math.max(1, r.height);
+    if(area < bestArea){ best = t; bestArea = area; }
+  });
+  return best;
 }
 
 function updateDropHighlight(clientX, clientY){
   if(!dragPayload) return;
   const hit = dragPayload.kind === 'runs'
     ? hitTestProdDropTarget(clientX, clientY, dragPayload.trackKey)
-    : hitTestDropTarget(clientX, clientY, dragPayload.trackKey, trackPaceMode(dragPayload.trackKey, dragPayload.teamId), dragPayload.teamId);
+    : hitTestDropTarget(clientX, clientY, dragPayload.trackKey);
   if(activeDropTarget && (!hit || activeDropTarget.el !== hit.el)){
     activeDropTarget.el.classList.remove('drop-target');
     activeDropTarget = null;
@@ -2624,18 +2748,19 @@ function commitDropFromPointer(){
     return;
   }
   const { trackKey, episode, teamId } = dragPayload;
-  const mode = trackPaceMode(trackKey, teamId);
-  if(mode === 'pace'){
-    const { weekEndDate } = activeDropTarget;
-    const item = scheduleState[trackKey].episodes.find(x => x.episode === episode);
-    if(!item) return;
-    const wkStart = startOfDay(addDays(weekEndDate, -6));
-    const wkEnd = startOfDay(weekEndDate);
+  const item = scheduleState[trackKey].episodes.find(x => x.episode === episode);
+  if(!item) return;
+  const destTeamId = activeDropTarget.teamId;
+  const teamChanged = isTeamTrack(trackKey) && destTeamId != null && destTeamId !== teamId;
+  if(activeDropTarget.weekEndDate){
+    const wkStart = activeDropTarget.wkStart;
+    const wkEnd = activeDropTarget.wkEnd;
     const d = startOfDay(item.date);
-    if(d >= wkStart && d <= wkEnd) return;
-    decideEpisodeMove(trackKey, episode, wkEnd);
-  } else {
-    requestEpisodeMove(trackKey, episode, activeDropTarget.dayDate);
+    const sameWeek = d >= wkStart && d <= wkEnd;
+    if(sameWeek && !teamChanged) return;
+    decideEpisodeMove(trackKey, episode, sameWeek ? item.date : wkEnd, teamChanged ? destTeamId : null);
+  } else if(activeDropTarget.dayDate){
+    requestEpisodeMove(trackKey, episode, activeDropTarget.dayDate, teamChanged ? destTeamId : null);
   }
 }
 
@@ -3138,21 +3263,27 @@ function renderTeamsList(trackKey){
     const canRemove = teamsState[trackKey].length > 1;
     const paceField = `<div class="field team-pace-field" ${team.mode === 'pace' ? '' : 'style="display:none;"'}><label>Pace (episodes / week)</label><input type="number" data-team="${team.id}" data-field="pace" value="${team.pace}" min="1" step="1"></div>`;
     const assignRows = chunksState.map(chunk => {
-      const assigned = team.assignments.filter(a => a.chunkId === chunk.id);
+      const assigned = chunkRanges(team, chunk.id);
       const checked = assigned.length > 0;
-      const split = assigned[0] || { from: chunk.from, to: chunk.to };
+      const canAdd = leftoverRanges(trackKey, chunk.from, chunk.to).length > 0;
+      const rangeRows = assigned.map((range, index) => `
+        <div class="split-fields">
+          <input type="number" data-team="${team.id}" data-chunk="${chunk.id}" data-range="${index}" data-split="from" value="${toDisplayEp(range.from)}" min="1" step="1">
+          <span>–</span>
+          <input type="number" data-team="${team.id}" data-chunk="${chunk.id}" data-range="${index}" data-split="to" value="${toDisplayEp(range.to)}" min="1" step="1">
+          <button type="button" class="range-remove" data-team="${team.id}" data-chunk="${chunk.id}" data-range="${index}" title="Remove range">×</button>
+        </div>`).join('');
       return `
         <div class="assign-row">
           <label class="chunk-check">
             <input type="checkbox" data-team="${team.id}" data-chunk="${chunk.id}" ${checked ? 'checked' : ''}>
             ${escapeHtml(chunk.name)} · EP ${toDisplayEp(chunk.from)}–${toDisplayEp(chunk.to)}
           </label>
-          ${checked ? `<div class="split-fields">
-            <input type="number" data-team="${team.id}" data-chunk="${chunk.id}" data-split="from" value="${toDisplayEp(split.from)}" min="1" step="1">
-            <span>–</span>
-            <input type="number" data-team="${team.id}" data-chunk="${chunk.id}" data-split="to" value="${toDisplayEp(split.to)}" min="1" step="1">
-          </div>
-          <button type="button" class="chunk-gen-btn" data-team="${team.id}" data-chunk="${chunk.id}">Generate</button>` : ''}
+          ${checked ? `<button type="button" class="chunk-gen-btn" data-team="${team.id}" data-chunk="${chunk.id}">Generate</button>
+          <div class="assign-ranges">
+            ${rangeRows}
+            <button type="button" class="add-range-btn" data-team="${team.id}" data-chunk="${chunk.id}" ${canAdd ? '' : 'disabled'}>Add range</button>
+          </div>` : ''}
         </div>`;
     }).join('');
     card.innerHTML = `
@@ -3233,14 +3364,50 @@ function renderTeamsList(trackKey){
     });
   });
   list.querySelectorAll('input[data-split]').forEach(inp => {
-    inp.addEventListener('input', () => {
+    const writeSplit = () => {
       const team = getTeam(trackKey, parseInt(inp.dataset.team, 10));
       const chunkId = parseInt(inp.dataset.chunk, 10);
-      if(!team) return;
-      const a = team.assignments.find(x => x.chunkId === chunkId);
-      if(!a) return;
-      a[inp.dataset.split] = toProgramEp(parseInt(inp.value, 10) || displayStartEp());
+      const index = parseInt(inp.dataset.range, 10);
+      if(!team) return null;
+      const a = chunkRanges(team, chunkId)[index];
+      const chunk = getChunk(chunkId);
+      if(!a || !chunk) return null;
+      const n = toProgramEp(parseInt(inp.value, 10) || displayStartEp());
+      if(inp.dataset.split === 'from') a.from = Math.max(chunk.from, Math.min(chunk.to, n));
+      else a.to = Math.min(chunk.to, Math.max(chunk.from, n));
+      return { team, chunkId };
+    };
+    inp.addEventListener('input', () => {
+      if(writeSplit()) render();
+    });
+    inp.addEventListener('change', () => {
+      const wrote = writeSplit();
+      if(!wrote) return;
       clampAssignmentsToChunks();
+      mergeChunkRanges(wrote.team, wrote.chunkId);
+      renderTeamsList(trackKey);
+      persistSchedule();
+      render();
+    });
+  });
+  list.querySelectorAll('.add-range-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const team = getTeam(trackKey, parseInt(btn.dataset.team, 10));
+      const chunkId = parseInt(btn.dataset.chunk, 10);
+      if(!team || !addChunkRange(trackKey, team, chunkId)) return;
+      renderTeamsList(trackKey);
+      persistSchedule();
+      render();
+    });
+  });
+  list.querySelectorAll('.range-remove').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const team = getTeam(trackKey, parseInt(btn.dataset.team, 10));
+      const chunkId = parseInt(btn.dataset.chunk, 10);
+      const index = parseInt(btn.dataset.range, 10);
+      if(!team || !removeChunkRange(team, chunkId, index)) return;
+      renderTeamsList(trackKey);
+      persistSchedule();
       render();
     });
   });
@@ -3745,7 +3912,7 @@ function render(){
     const bits = [label];
     if(team && teamsState[trackKey].length > 1) bits.push(team.name);
     if(chunk) bits.push(chunk.name);
-    bits.push('drag to reschedule');
+    bits.push(team && teamsState[trackKey].length > 1 ? 'drag to reschedule or another team' : 'drag to reschedule');
     return bits.join(' · ');
   }
 
