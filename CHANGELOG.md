@@ -2,9 +2,14 @@
 
 Notable changes to Podcast Forecast. The version matches `APP_VERSION` in `index.html`.
 
-Add new notes under **Unreleased**. When you ship them, move those notes into a dated version section and set `APP_VERSION` to that version.
-
 ## [Unreleased]
+
+## [1.1.0] - 2026-09-25
+
+### Added
+
+- Undo and redo for schedule changes, from the toolbar or with the usual keyboard shortcuts.
+- Rearrange timeline rows. Each writing and editing team is its own row, so those lanes can sit next to each other, and production, post-production, and release can sit between them. The order is kept until you reset, and a customized order is included in the share link. Settings stay in the fixed track order.
 
 ## [1.0.0] - 2026-09-23
 
