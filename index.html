@@ -445,13 +445,72 @@
     margin-bottom:12px;
     display:flex;
     align-items:center;
+    flex-wrap:wrap;
     gap:8px;
   }
   .strip-label .swatch{
     width:9px;height:9px;border-radius:50%;
     background:var(--accent, var(--text-faint));
     display:inline-block;
+    flex:0 0 auto;
   }
+  .track-title{min-width:0;}
+  .track-nudge{
+    display:inline-flex;
+    gap:3px;
+    margin-left:auto;
+    flex:0 0 auto;
+  }
+  .track-handle,
+  .track-nudge-btn{
+    font-family:'IBM Plex Mono',monospace;
+    text-transform:none;
+    letter-spacing:0;
+    background:transparent;
+    color:var(--text-faint);
+    border:1px solid var(--border);
+    border-radius:4px;
+    line-height:1;
+    padding:0;
+  }
+  .track-handle{
+    cursor:grab;
+    font-size:11px;
+    letter-spacing:-0.14em;
+    width:18px;
+    height:22px;
+    flex:0 0 auto;
+    touch-action:none;
+  }
+  .track-nudge-btn{
+    width:20px;
+    height:20px;
+    font-size:12px;
+    cursor:pointer;
+  }
+  .track-nudge-btn:disabled{opacity:0.35;cursor:default;}
+  .track-handle:hover,
+  .track-nudge-btn:hover:not(:disabled){color:var(--text);border-color:var(--text-dim);}
+  .track-handle:active{cursor:grabbing;}
+  body.is-track-reordering{cursor:grabbing;user-select:none;}
+  body.is-track-reordering .track-handle{cursor:grabbing;}
+  .row-label.track-drag-source{
+    outline:2px dashed var(--accent, var(--text-dim));
+    outline-offset:-3px;
+  }
+  .row-label.track-drop-before::after,
+  .row-label.track-drop-after::after{
+    content:"";
+    position:absolute;
+    left:0;
+    right:0;
+    height:3px;
+    background:var(--text);
+    z-index:4;
+    pointer-events:none;
+  }
+  .row-label.track-drop-before::after{top:0;}
+  .row-label.track-drop-after::after{bottom:0;}
   .field{margin-bottom:10px;}
   .field:last-child{margin-bottom:0;}
   .field label{
@@ -800,6 +859,12 @@
   }
   .zoom-btn:hover:not(:disabled){border-color:var(--text-dim);}
   .zoom-btn:disabled{opacity:0.35;cursor:not-allowed;}
+  .history-btn{
+    width:auto;
+    padding:0 10px;
+    font-family:'IBM Plex Mono',monospace;
+    font-size:12px;
+  }
   .zoom-label{
     font-family:'IBM Plex Mono',monospace;
     font-size:12px;
@@ -885,13 +950,26 @@
     justify-content:center;
     padding:8px 14px;
   }
+  .rl-head{
+    display:flex;
+    align-items:center;
+    gap:6px;
+    min-width:0;
+  }
   .row-label .rl-name{
     font-family:'Barlow Condensed',sans-serif;
     font-weight:600;
     font-size:16px;
     letter-spacing:0.02em;
     color:var(--text);
+    min-width:0;
+    overflow:hidden;
+    text-overflow:ellipsis;
+    white-space:nowrap;
   }
+  .row-label .track-handle{width:16px;height:18px;font-size:10px;}
+  .row-label .track-nudge{gap:2px;}
+  .row-label .track-nudge-btn{width:16px;height:16px;font-size:11px;}
   .row-label .rl-sub{
     font-size:10px;
     color:var(--text-faint);
@@ -1352,6 +1430,11 @@
       <span class="zoom-label" id="zoomLabel">Week</span>
       <button class="zoom-btn" id="zoomInBtn" type="button" title="Zoom in">+</button>
     </div>
+    <div class="toolbar-group">
+      <span class="tg-label">History</span>
+      <button class="zoom-btn history-btn" id="undoBtn" type="button" title="Undo (Ctrl+Z or ⌘Z)" disabled>Undo</button>
+      <button class="zoom-btn history-btn" id="redoBtn" type="button" title="Redo (Ctrl+Shift+Z or ⌘⇧Z)" disabled>Redo</button>
+    </div>
   </div>
 
   <div class="gantt-wrap">
@@ -1369,28 +1452,28 @@
     <textarea id="notesArea" placeholder="Notes about this schedule — talent availability, sponsor deadlines, anything worth remembering..."></textarea>
   </div>
 
-  <div class="console">
-    <div class="strip strip-writing strip-teams" style="--accent:var(--amber)">
+  <div class="console" id="tracksConsole">
+    <div class="strip strip-writing strip-teams" data-track="writing" style="--accent:var(--amber)">
       <div class="strip-aside">
-        <div class="strip-label"><span class="swatch"></span>Track A — Writing</div>
+        <div class="strip-label"><span class="swatch"></span><span class="track-title" data-track-title="writing">Track A — Writing</span></div>
         <button class="add-run-btn" id="writingAddTeamBtn" type="button">+ Add writing team</button>
         <button class="gen-btn" id="wGenerateBtn" type="button" style="--accent:var(--amber)">Generate all writing schedules</button>
       </div>
       <div class="teams-list" id="writingTeamsList"></div>
     </div>
 
-    <div class="strip strip-editing strip-teams" style="--accent:var(--sky)">
+    <div class="strip strip-editing strip-teams" data-track="editing" style="--accent:var(--sky)">
       <div class="strip-aside">
-        <div class="strip-label"><span class="swatch"></span>Track B — Editing</div>
+        <div class="strip-label"><span class="swatch"></span><span class="track-title" data-track-title="editing">Track B — Editing</span></div>
         <button class="add-run-btn" id="editingAddTeamBtn" type="button">+ Add editing team</button>
         <button class="gen-btn" id="eGenerateBtn" type="button" style="--accent:var(--sky)">Generate all editing schedules</button>
       </div>
       <div class="teams-list" id="editingTeamsList"></div>
     </div>
 
-    <div class="strip strip-runs" style="--accent:var(--violet)">
+    <div class="strip strip-runs" data-track="production" style="--accent:var(--violet)">
       <div class="strip-aside">
-        <div class="strip-label"><span class="swatch"></span>Track C — Production</div>
+        <div class="strip-label"><span class="swatch"></span><span class="track-title" data-track-title="production">Track C — Production</span></div>
       </div>
       <div class="strip-col">
         <div class="prod-times">
@@ -1431,9 +1514,9 @@
       </div>
     </div>
 
-    <div class="strip strip-runs" style="--accent:var(--rose)">
+    <div class="strip strip-runs" data-track="post" style="--accent:var(--rose)">
       <div class="strip-aside">
-        <div class="strip-label"><span class="swatch"></span>Track D — Post-production</div>
+        <div class="strip-label"><span class="swatch"></span><span class="track-title" data-track-title="post">Track D — Post-production</span></div>
         <div class="prod-times">
           <div class="field">
             <label>Editing time / episode (min)</label>
@@ -1474,9 +1557,9 @@
       </div>
     </div>
 
-    <div class="strip strip-release" style="--accent:var(--teal)">
+    <div class="strip strip-release" data-track="release" style="--accent:var(--teal)">
       <div class="strip-aside">
-        <div class="strip-label"><span class="swatch"></span>Track E — Release</div>
+        <div class="strip-label"><span class="swatch"></span><span class="track-title" data-track-title="release">Track E — Release</span></div>
         <button class="gen-btn" id="rGenerateBtn" type="button" style="--accent:var(--teal)">Generate release schedule</button>
       </div>
       <div class="strip-col">
@@ -1732,8 +1815,182 @@ const TRACK_ACCENT = {
   post: 'var(--rose)'
 };
 const TEAM_TRACKS = ['writing', 'editing'];
+const DEFAULT_TRACK_ORDER = ['writing', 'editing', 'production', 'post', 'release'];
+const SOLO_TRACKS = ['production', 'post', 'release'];
+let laneOrder = [];
 
 const scheduleMode = { production: 'runs', post: 'runs' }; // 'runs' | 'pace'
+
+function parseLane(token){
+  const raw = String(token || '').trim();
+  const cut = raw.indexOf(':');
+  if(cut === -1) return { trackKey: raw, teamId: null };
+  const teamId = parseInt(raw.slice(cut + 1), 10);
+  return { trackKey: raw.slice(0, cut), teamId: isNaN(teamId) ? null : teamId };
+}
+
+function laneToken(trackKey, teamId){
+  return isTeamTrack(trackKey) ? trackKey + ':' + teamId : trackKey;
+}
+
+function laneExists(token){
+  const lane = parseLane(token);
+  if(DEFAULT_TRACK_ORDER.indexOf(lane.trackKey) === -1) return false;
+  if(isTeamTrack(lane.trackKey)) return !!(lane.teamId && getTeam(lane.trackKey, lane.teamId));
+  return lane.teamId == null;
+}
+
+function defaultLaneOrder(){
+  const out = [];
+  TEAM_TRACKS.forEach(key => {
+    teamsState[key].forEach(team => out.push(laneToken(key, team.id)));
+  });
+  SOLO_TRACKS.forEach(key => out.push(key));
+  return out;
+}
+
+function expandLegacyLanes(list){
+  const raw = Array.isArray(list) ? list : String(list || '').split(',');
+  const out = [];
+  raw.forEach(item => {
+    const token = String(item || '').trim();
+    if(!token) return;
+    const lane = parseLane(token);
+    if(lane.teamId == null && isTeamTrack(lane.trackKey)){
+      teamsState[lane.trackKey].forEach(team => out.push(laneToken(lane.trackKey, team.id)));
+      return;
+    }
+    out.push(token);
+  });
+  return out;
+}
+
+function reconcileLaneOrder(list){
+  const source = expandLegacyLanes(list == null ? laneOrder : list);
+  const seen = {};
+  const out = [];
+  source.forEach(token => {
+    if(seen[token] || !laneExists(token)) return;
+    seen[token] = true;
+    out.push(token);
+  });
+  function insertMissing(token, trackKey){
+    if(seen[token]) return;
+    seen[token] = true;
+    let at = -1;
+    for(let i = 0; i < out.length; i++){
+      if(parseLane(out[i]).trackKey === trackKey) at = i;
+    }
+    if(at === -1) out.push(token);
+    else out.splice(at + 1, 0, token);
+  }
+  TEAM_TRACKS.forEach(key => {
+    teamsState[key].forEach(team => insertMissing(laneToken(key, team.id), key));
+  });
+  SOLO_TRACKS.forEach(key => insertMissing(key, key));
+  laneOrder = out;
+  return out;
+}
+
+function teamsInLaneOrder(trackKey){
+  const rank = {};
+  laneOrder.forEach((token, i) => {
+    const lane = parseLane(token);
+    if(lane.trackKey === trackKey && lane.teamId != null) rank[lane.teamId] = i;
+  });
+  return teamsState[trackKey].slice().sort((a, b) => {
+    const ra = Object.prototype.hasOwnProperty.call(rank, a.id) ? rank[a.id] : 1e9;
+    const rb = Object.prototype.hasOwnProperty.call(rank, b.id) ? rank[b.id] : 1e9;
+    return ra - rb;
+  });
+}
+
+function applyTrackStripOrder(){
+  laneOrder.forEach((token, i) => {
+    document.querySelectorAll('[data-track-up="' + token + '"]').forEach(btn => { btn.disabled = i === 0; });
+    document.querySelectorAll('[data-track-down="' + token + '"]').forEach(btn => { btn.disabled = i === laneOrder.length - 1; });
+  });
+}
+
+function setLaneOrder(list){
+  reconcileLaneOrder(list);
+  applyTrackStripOrder();
+  TEAM_TRACKS.forEach(renderTeamsList);
+}
+
+function trackMoveChanges(token, insertBefore){
+  const from = laneOrder.indexOf(token);
+  if(from < 0) return false;
+  return insertBefore !== from && insertBefore !== from + 1;
+}
+
+// insertBefore is an index in the current lane list. laneOrder.length places the lane last.
+function moveLane(token, insertBefore){
+  if(!isFinite(insertBefore)) return;
+  insertBefore = Math.max(0, Math.min(laneOrder.length, insertBefore));
+  if(!trackMoveChanges(token, insertBefore)) return;
+  const from = laneOrder.indexOf(token);
+  const next = laneOrder.slice();
+  next.splice(from, 1);
+  next.splice(insertBefore > from ? insertBefore - 1 : insertBefore, 0, token);
+  laneOrder = next;
+  applyTrackStripOrder();
+  const movedKey = parseLane(token).trackKey;
+  if(isTeamTrack(movedKey)) renderTeamsList(movedKey);
+  persistSchedule();
+  render();
+}
+
+function laneLabelText(token){
+  const lane = parseLane(token);
+  const team = lane.teamId != null ? getTeam(lane.trackKey, lane.teamId) : null;
+  if(team && teamsState[lane.trackKey].length > 1) return TRACK_LABEL[lane.trackKey] + ' ' + team.name;
+  return TRACK_LABEL[lane.trackKey] || token;
+}
+
+function trackReorderHandle(token){
+  const btn = document.createElement('button');
+  btn.type = 'button';
+  btn.className = 'track-handle';
+  btn.setAttribute('data-track-handle', token);
+  btn.setAttribute('aria-label', 'Drag to reorder ' + laneLabelText(token));
+  btn.title = 'Drag to reorder';
+  btn.textContent = '⋮⋮';
+  return btn;
+}
+
+function laneNudgeButton(token, dir){
+  const btn = document.createElement('button');
+  btn.type = 'button';
+  btn.className = 'track-nudge-btn';
+  btn.setAttribute(dir === 'up' ? 'data-track-up' : 'data-track-down', token);
+  const name = laneLabelText(token);
+  btn.setAttribute('aria-label', 'Move ' + name + (dir === 'up' ? ' up' : ' down'));
+  btn.title = dir === 'up' ? 'Move up' : 'Move down';
+  btn.textContent = dir === 'up' ? '↑' : '↓';
+  const idx = laneOrder.indexOf(token);
+  btn.disabled = dir === 'up' ? idx <= 0 : idx < 0 || idx >= laneOrder.length - 1;
+  return btn;
+}
+
+function decorateTrackLabel(label, token){
+  const trackKey = parseLane(token).trackKey;
+  label.dataset.lane = token;
+  label.dataset.trackLead = '1';
+  label.dataset.trackTail = '1';
+  label.style.setProperty('--accent', TRACK_ACCENT[trackKey]);
+  const head = document.createElement('div');
+  head.className = 'rl-head';
+  head.appendChild(trackReorderHandle(token));
+  const name = label.querySelector('.rl-name');
+  if(name) head.appendChild(name);
+  const nudge = document.createElement('span');
+  nudge.className = 'track-nudge';
+  nudge.appendChild(laneNudgeButton(token, 'up'));
+  nudge.appendChild(laneNudgeButton(token, 'down'));
+  head.appendChild(nudge);
+  label.insertBefore(head, label.firstChild);
+}
 
 function isTeamTrack(key){ return TEAM_TRACKS.indexOf(key) !== -1; }
 function activeEpisodeTracks(){
@@ -2079,13 +2336,15 @@ let urlParams = new URLSearchParams();
 
 function persistSchedule(){
   try{
+    reconcileLaneOrder();
     const payload = {
       version: 4,
       total: programTotal(),
       startEp: displayStartEp(),
       chunks: chunksState.map(c => ({ id: c.id, name: c.name, from: c.from, to: c.to })),
       teams: {},
-      episodes: {}
+      episodes: {},
+      order: laneOrder.slice()
     };
     TEAM_TRACKS.forEach(key => {
       payload.teams[key] = teamsState[key].map(t => ({
@@ -2148,6 +2407,7 @@ function restoreV4Payload(payload){
     });
   }
   clampAssignmentsToChunks();
+  if(payload.order && !urlParams.has('order')) setLaneOrder(payload.order);
   let ok = false;
   allScheduleKeys().forEach(key => {
     const list = payload.episodes && payload.episodes[key];
@@ -2935,8 +3195,8 @@ function renderDayGrid(key){
   });
 }
 
-function setPaceMode(key, mode){
-  paceState[key].mode = mode;
+function syncPaceModeUI(key){
+  const mode = paceState[key].mode;
   const prefix = TRACK_DOM[key];
   const toggle = document.getElementById(prefix + 'PaceModeToggle');
   if(!toggle) return;
@@ -2945,6 +3205,10 @@ function setPaceMode(key, mode){
   const dayGrid = document.getElementById(prefix + 'DayGrid');
   if(paceField) paceField.style.display = mode === 'pace' ? '' : 'none';
   if(dayGrid) dayGrid.style.display = mode === 'days' ? 'grid' : 'none';
+}
+function setPaceMode(key, mode){
+  paceState[key].mode = mode;
+  syncPaceModeUI(key);
   render();
 }
 document.querySelectorAll('#rPaceModeToggle .seg-btn').forEach(b => b.addEventListener('click', () => setPaceMode('release', b.dataset.mode)));
@@ -3257,7 +3521,8 @@ function renderTeamsList(trackKey){
   const allBtn = document.getElementById(TRACK_DOM[trackKey] + 'GenerateBtn');
   if(allBtn) allBtn.style.display = teamsState[trackKey].length > 1 ? '' : 'none';
   list.innerHTML = '';
-  teamsState[trackKey].forEach(team => {
+  reconcileLaneOrder();
+  teamsInLaneOrder(trackKey).forEach(team => {
     const card = document.createElement('div');
     card.className = 'team-card';
     const canRemove = teamsState[trackKey].length > 1;
@@ -3558,26 +3823,30 @@ function collectTeamWarnings(key, total, warnings){
 }
 
 function buildGridLayout(){
+  reconcileLaneOrder();
   let row = 2;
-  const layout = { lanes: { writing: [], editing: [] }, production: 0, post: 0, release: 0 };
-  TEAM_TRACKS.forEach(key => {
-    const teams = teamsState[key];
-    const multi = teams.length > 1;
-    if(!teams.length){
-      layout.lanes[key].push({ teamId: null, row: row++, multi: false });
+  const layout = { lanes: { writing: [], editing: [] }, production: 0, post: 0, release: 0, sequence: [] };
+  laneOrder.forEach(token => {
+    const lane = parseLane(token);
+    const entry = { token: token, trackKey: lane.trackKey, teamId: lane.teamId, row: row++ };
+    layout.sequence.push(entry);
+    if(isTeamTrack(lane.trackKey)){
+      layout.lanes[lane.trackKey].push({
+        teamId: lane.teamId,
+        row: entry.row,
+        multi: teamsState[lane.trackKey].length > 1
+      });
       return;
     }
-    teams.forEach(t => {
-      layout.lanes[key].push({ teamId: t.id, row: row++, multi });
-    });
+    layout[lane.trackKey] = entry.row;
   });
-  layout.production = row++;
-  layout.post = row++;
-  layout.release = row++;
   return layout;
 }
 
 function render(){
+  try{
+  reconcileLaneOrder();
+  applyTrackStripOrder();
   const total = programTotal();
   const startEpNum = displayStartEp();
   const recTime = parseFloat(document.getElementById('recTime').value) || 0;
@@ -3817,17 +4086,18 @@ function render(){
   const layout = buildGridLayout();
   const pxPerWeek = PX_PER_WEEK_LEVELS[zoomIndex];
   const pxPerDay = pxPerWeek/7;
-  const labelColW = 200;
+  const labelColW = 228;
   const prodRowH = scheduleMode.production === 'runs' ? Math.max(54, prod.numLanes*32 + 12) : null;
   const postRowH = scheduleMode.post === 'runs' ? Math.max(54, post.numLanes*32 + 12) : null;
   const dayView = showDayView();
   const headerRowH = dayView ? 50 : 56;
-  const teamRowCount = layout.lanes.writing.length + layout.lanes.editing.length;
   const rowHeights = [`${headerRowH}px`];
-  for(let r = 0; r < teamRowCount; r++) rowHeights.push('auto');
-  rowHeights.push(prodRowH ? prodRowH + 'px' : 'auto');
-  rowHeights.push(postRowH ? postRowH + 'px' : 'auto');
-  rowHeights.push('auto');
+  layout.sequence.forEach(entry => {
+    let height = 'auto';
+    if(entry.trackKey === 'production' && prodRowH) height = prodRowH + 'px';
+    if(entry.trackKey === 'post' && postRowH) height = postRowH + 'px';
+    rowHeights.push(height);
+  });
 
   const gantt = document.getElementById('gantt');
   gantt.innerHTML = '';
@@ -3862,7 +4132,7 @@ function render(){
     gantt.appendChild(cell);
   }
 
-  function addEpisodeLaneLabel(trackKey, gridRow, team){
+  function addEpisodeLaneLabel(trackKey, gridRow, team, token){
     const label = document.createElement('div');
     label.className = 'row-label';
     label.style.gridColumn = '1';
@@ -3883,9 +4153,10 @@ function render(){
       : (trackEpisodes[trackKey] || []);
     const finish = finishText(eps);
     label.innerHTML = `<div class="rl-name" style="color:${TRACK_ACCENT[trackKey]}">${escapeHtml(title)}</div><div class="rl-sub" title="${escapeHtml(sub)}">${escapeHtml(sub)}</div><div class="rl-finish">${finish}</div>`;
+    decorateTrackLabel(label, token);
     gantt.appendChild(label);
   }
-  function addRunsTrackLabel(runsKey, minutes, unitLabel, validRuns){
+  function addRunsTrackLabel(runsKey, minutes, unitLabel, validRuns, token){
     const label = document.createElement('div');
     label.className = 'row-label';
     label.style.gridColumn = '1';
@@ -3893,18 +4164,20 @@ function render(){
     const sub = `${minutes} min/ep ${unitLabel} · 8h day`;
     const finish = runsFinishText(validRuns);
     label.innerHTML = `<div class="rl-name" style="color:${TRACK_ACCENT[runsKey]}">${RUNS_DOM[runsKey].label}</div><div class="rl-sub" title="${sub}">${sub}</div><div class="rl-finish">${finish}</div>`;
+    decorateTrackLabel(label, token);
     gantt.appendChild(label);
   }
-  TEAM_TRACKS.forEach(key => {
-    layout.lanes[key].forEach(lane => {
-      addEpisodeLaneLabel(key, lane.row, getTeam(key, lane.teamId));
-    });
+  layout.sequence.forEach(entry => {
+    if(isTeamTrack(entry.trackKey)){
+      addEpisodeLaneLabel(entry.trackKey, entry.row, getTeam(entry.trackKey, entry.teamId), entry.token);
+      return;
+    }
+    if((entry.trackKey === 'production' || entry.trackKey === 'post') && scheduleMode[entry.trackKey] !== 'pace'){
+      addRunsTrackLabel(entry.trackKey, entry.trackKey === 'production' ? recTime : editTime, entry.trackKey === 'production' ? 'rec' : 'edit', entry.trackKey === 'production' ? prod.validRuns : post.validRuns, entry.token);
+      return;
+    }
+    addEpisodeLaneLabel(entry.trackKey, entry.row, null, entry.token);
   });
-  addEpisodeLaneLabel('release', layout.release, null);
-  if(scheduleMode.production === 'pace') addEpisodeLaneLabel('production', layout.production, null);
-  else addRunsTrackLabel('production', recTime, 'rec', prod.validRuns);
-  if(scheduleMode.post === 'pace') addEpisodeLaneLabel('post', layout.post, null);
-  else addRunsTrackLabel('post', editTime, 'edit', post.validRuns);
 
   function chipTooltip(trackKey, ep, team){
     const label = 'EP ' + (startEpNum + ep - 1);
@@ -3952,22 +4225,16 @@ function render(){
     const wkStart = addDays(globalStart, i*7);
     const wkEnd = addDays(globalStart, i*7+6);
 
-    TEAM_TRACKS.forEach(trackKey => {
-      layout.lanes[trackKey].forEach(lane => {
-        appendEpisodeWeekCell(trackKey, i, wkStart, wkEnd, lane.row, getTeam(trackKey, lane.teamId));
-      });
-    });
-    appendEpisodeWeekCell('release', i, wkStart, wkEnd, layout.release, null);
-
-    RUNS_TRACKS.forEach(runsKey => {
-      if(scheduleMode[runsKey] === 'pace'){
-        appendEpisodeWeekCell(runsKey, i, wkStart, wkEnd, layout[runsKey], null);
+    layout.sequence.forEach(entry => {
+      if(isTeamTrack(entry.trackKey) || entry.trackKey === 'release' || scheduleMode[entry.trackKey] === 'pace'){
+        const team = entry.teamId != null ? getTeam(entry.trackKey, entry.teamId) : null;
+        appendEpisodeWeekCell(entry.trackKey, i, wkStart, wkEnd, entry.row, team);
         return;
       }
       const pCell = document.createElement('div');
       pCell.className = 'cell';
       pCell.style.gridColumn = String(i+2);
-      pCell.style.gridRow = String(layout[runsKey]);
+      pCell.style.gridRow = String(entry.row);
       if(dayView) pCell.style.backgroundImage = weekendGradient(wkStart);
       gantt.appendChild(pCell);
     });
@@ -4087,7 +4354,234 @@ function render(){
     play.innerHTML = '<div class="tag">Today</div>';
     gantt.appendChild(play);
   }
+  } finally {
+    recordHistoryStep();
+  }
 }
+
+// ---- Undo / redo ----
+// Snapshots cover the schedule document. Zoom, week counting, theme, the On drag
+// preference, the title, and notes stay outside the stack.
+const HISTORY_LIMIT = 100;
+let editHistory = [];
+let historyIndex = -1;
+let historyLock = false;
+let nextCoalesce = null;
+let coalesceOpen = false;
+
+function cloneDayConfig(cfg){
+  return (cfg || []).map(c => ({ day: c.day, enabled: !!c.enabled, count: c.count }));
+}
+function cloneTeam(t){
+  return {
+    id: t.id,
+    name: t.name,
+    start: t.start,
+    mode: t.mode,
+    pace: t.pace,
+    dayConfig: cloneDayConfig(t.dayConfig),
+    breaks: (t.breaks || []).map(b => ({ id: b.id, start: b.start, end: b.end })),
+    assignments: (t.assignments || []).map(a => ({ chunkId: a.chunkId, from: a.from, to: a.to }))
+  };
+}
+function cloneBreaks(list){
+  return (list || []).map(b => ({ id: b.id, start: b.start, end: b.end }));
+}
+function cloneRuns(list){
+  return (list || []).map(r => ({ id: r.id, start: r.start, episodes: r.episodes }));
+}
+
+function captureArrangement(){
+  const episodes = {};
+  allScheduleKeys().forEach(key => {
+    episodes[key] = scheduleState[key].episodes.map(e => {
+      const entry = { episode: e.episode, date: toISODate(e.date) };
+      if(e.teamId != null) entry.teamId = e.teamId;
+      return entry;
+    });
+  });
+  const pace = {};
+  ['release', 'production', 'post'].forEach(key => {
+    pace[key] = { mode: paceState[key].mode, dayConfig: cloneDayConfig(paceState[key].dayConfig) };
+  });
+  const breaks = {};
+  allScheduleKeys().forEach(key => { breaks[key] = cloneBreaks(breaksState[key]); });
+  return {
+    total: document.getElementById('totalEpisodes').value,
+    startEp: document.getElementById('startEpNum').value,
+    rStart: document.getElementById('rStart').value,
+    rPace: document.getElementById('rPace').value,
+    rec: document.getElementById('recTime').value,
+    edit: document.getElementById('editTime').value,
+    pStart: document.getElementById('pStart').value,
+    pPace: document.getElementById('pPace').value,
+    ppStart: document.getElementById('ppStart').value,
+    ppPace: document.getElementById('ppPace').value,
+    scheduleMode: { production: scheduleMode.production, post: scheduleMode.post },
+    pace: pace,
+    chunkIdCounter: chunkIdCounter,
+    chunks: chunksState.map(c => ({ id: c.id, name: c.name, from: c.from, to: c.to })),
+    teamIdCounters: { writing: teamIdCounters.writing, editing: teamIdCounters.editing },
+    teamBreakIdCounter: teamBreakIdCounter,
+    teams: {
+      writing: teamsState.writing.map(cloneTeam),
+      editing: teamsState.editing.map(cloneTeam)
+    },
+    episodes: episodes,
+    runIdCounters: { production: runIdCounters.production, post: runIdCounters.post },
+    runs: { production: cloneRuns(runsState.production), post: cloneRuns(runsState.post) },
+    breakIdCounter: breakIdCounter,
+    breaks: breaks,
+    order: laneOrder.slice()
+  };
+}
+
+function applyArrangement(snap){
+  historyLock = true;
+  try{
+    document.getElementById('totalEpisodes').value = snap.total;
+    document.getElementById('startEpNum').value = snap.startEp;
+    document.getElementById('rStart').value = snap.rStart;
+    document.getElementById('rPace').value = snap.rPace;
+    document.getElementById('recTime').value = snap.rec;
+    document.getElementById('editTime').value = snap.edit;
+    document.getElementById('pStart').value = snap.pStart;
+    document.getElementById('pPace').value = snap.pPace;
+    document.getElementById('ppStart').value = snap.ppStart;
+    document.getElementById('ppPace').value = snap.ppPace;
+
+    ['release', 'production', 'post'].forEach(key => {
+      const src = snap.pace[key];
+      paceState[key].mode = src.mode === 'days' ? 'days' : 'pace';
+      paceState[key].dayConfig = cloneDayConfig(src.dayConfig);
+    });
+    syncPaceModeUI('release');
+    renderDayGrid('release');
+
+    applyScheduleModeUI('production', snap.scheduleMode.production === 'pace' ? 'pace' : 'runs');
+    applyScheduleModeUI('post', snap.scheduleMode.post === 'pace' ? 'pace' : 'runs');
+
+    chunkIdCounter = snap.chunkIdCounter;
+    chunksState = snap.chunks.map(c => ({ id: c.id, name: c.name, from: c.from, to: c.to }));
+    teamIdCounters = { writing: snap.teamIdCounters.writing, editing: snap.teamIdCounters.editing };
+    teamBreakIdCounter = snap.teamBreakIdCounter;
+    TEAM_TRACKS.forEach(key => {
+      teamsState[key] = (snap.teams[key] || []).map(cloneTeam);
+    });
+    allScheduleKeys().forEach(key => {
+      hydrateTrackFromEntries(key, snap.episodes[key] || []);
+    });
+
+    runIdCounters = { production: snap.runIdCounters.production, post: snap.runIdCounters.post };
+    runsState.production = cloneRuns(snap.runs.production);
+    runsState.post = cloneRuns(snap.runs.post);
+
+    breakIdCounter = snap.breakIdCounter;
+    allScheduleKeys().forEach(key => {
+      breaksState[key] = cloneBreaks(snap.breaks[key]);
+    });
+
+    setLaneOrder(snap.order || defaultLaneOrder());
+    renderChunksList();
+    renderTeamsList('writing');
+    renderTeamsList('editing');
+    renderRunsList('production');
+    renderRunsList('post');
+    allScheduleKeys().forEach(key => renderBreaksList(key));
+    persistSchedule();
+    render();
+  } finally {
+    historyLock = false;
+    updateUndoButtons();
+  }
+}
+
+function updateUndoButtons(){
+  const undoBtn = document.getElementById('undoBtn');
+  const redoBtn = document.getElementById('redoBtn');
+  if(undoBtn) undoBtn.disabled = historyIndex <= 0;
+  if(redoBtn) redoBtn.disabled = historyIndex < 0 || historyIndex >= editHistory.length - 1;
+}
+
+function recordHistoryStep(){
+  if(historyLock) return;
+  const id = nextCoalesce;
+  nextCoalesce = null;
+  const snap = captureArrangement();
+  const json = JSON.stringify(snap);
+  const tip = editHistory[historyIndex];
+  if(tip && tip.json === json) return;
+  const atTip = historyIndex === editHistory.length - 1;
+  if(id && coalesceOpen && atTip && tip && tip.coalesceId === id){
+    const prev = editHistory[historyIndex - 1];
+    if(prev && prev.json === json){
+      editHistory.pop();
+      historyIndex--;
+      updateUndoButtons();
+      return;
+    }
+    tip.snap = snap;
+    tip.json = json;
+    updateUndoButtons();
+    return;
+  }
+  editHistory = editHistory.slice(0, historyIndex + 1);
+  editHistory.push({ snap: snap, json: json, coalesceId: id || null });
+  while(editHistory.length > HISTORY_LIMIT) editHistory.shift();
+  historyIndex = editHistory.length - 1;
+  coalesceOpen = !!id;
+  updateUndoButtons();
+}
+
+function undo(){
+  if(historyIndex <= 0) return;
+  historyIndex--;
+  applyArrangement(editHistory[historyIndex].snap);
+}
+function redo(){
+  if(historyIndex >= editHistory.length - 1) return;
+  historyIndex++;
+  applyArrangement(editHistory[historyIndex].snap);
+}
+
+document.getElementById('undoBtn').addEventListener('click', undo);
+document.getElementById('redoBtn').addEventListener('click', redo);
+
+document.addEventListener('pointerdown', () => { coalesceOpen = false; }, true);
+document.addEventListener('input', e => {
+  const el = e.target;
+  if(!el || (el.tagName !== 'INPUT' && el.tagName !== 'TEXTAREA')) return;
+  if(el.id === 'pageTitle' || el.id === 'notesArea' || el.id === 'shareUrlBox') return;
+  const parts = [];
+  const host = el.closest('.runs-list, .breaks-list, .day-pace-grid, .teams-list, #chunksList');
+  if(host){
+    if(host.id) parts.push(host.id);
+    if(host.dataset && host.dataset.team) parts.push('hostTeam=' + host.dataset.team);
+    const strip = host.closest('[data-track]');
+    if(strip) parts.push(strip.getAttribute('data-track'));
+  }
+  if(el.id) parts.push(el.id);
+  ['key', 'team', 'field', 'chunk', 'range', 'split', 'id', 'day'].forEach(name => {
+    if(el.dataset && el.dataset[name] != null && el.dataset[name] !== '') parts.push(name + '=' + el.dataset[name]);
+  });
+  if(!parts.length) return;
+  nextCoalesce = parts.join('|');
+}, true);
+document.addEventListener('input', () => { nextCoalesce = null; });
+
+document.addEventListener('keydown', e => {
+  if(document.getElementById('moveModal').classList.contains('open')) return;
+  const mod = e.metaKey || e.ctrlKey;
+  if(!mod || e.altKey) return;
+  const key = e.key.toLowerCase();
+  if(key === 'z' && !e.shiftKey){
+    e.preventDefault();
+    undo();
+  } else if((key === 'z' && e.shiftKey) || key === 'y'){
+    e.preventDefault();
+    redo();
+  }
+});
 
 // ---- URL param helpers ----
 function encodeList(items){ return items.join('|'); }
@@ -4319,6 +4813,7 @@ function collectCompactState(){
   }
   const notes = document.getElementById('notesArea').value;
   if(notes) state.notes = notes;
+  if(laneOrder.join(',') !== defaultLaneOrder().join(',')) state.order = laneOrder.join(',');
   return state;
 }
 
@@ -4363,6 +4858,7 @@ function compactStateToParams(state){
   setIf('wcMode', state.wcMode);
   setIf('wcStart', state.wcStart);
   setIf('zoom', state.zoom);
+  setIf('order', state.order);
   setIf('rBreaks', state.rBreaks);
   setIf('pBreaks', state.pBreaks);
   setIf('ppBreaks', state.ppBreaks);
@@ -4512,7 +5008,7 @@ document.getElementById('shareBtn').addEventListener('click', () => {
 });
 
 function clearAllSettings(){
-  const ok = window.confirm('Reset all settings, notes, and schedules to defaults? This cannot be undone.');
+  const ok = window.confirm('Reset all settings, notes, and schedules to defaults? You can undo the schedule afterward.');
   if(!ok) return;
 
   const today = new Date();
@@ -4543,6 +5039,9 @@ function clearAllSettings(){
       editing: { start: toISODate(today), pace: 2 }
     }
   });
+  laneOrder = [];
+  reconcileLaneOrder();
+  applyTrackStripOrder();
   renderChunksList();
   renderTeamsList('writing');
   renderTeamsList('editing');
@@ -4770,6 +5269,13 @@ async function bootFromShareParams(){
     renderTeamsList('writing');
     renderTeamsList('editing');
   }
+  if(urlParams.has('order')) setLaneOrder(urlParams.get('order').split(','));
+  else {
+    reconcileLaneOrder();
+    applyTrackStripOrder();
+  }
+  renderTeamsList('writing');
+  renderTeamsList('editing');
   BASE_EPISODE_TRACKS.forEach(key => {
     const param = epsParams[key];
     if(param && param.length){
@@ -4790,6 +5296,113 @@ async function bootFromShareParams(){
   render();
 }
 
+let trackDrag = null;
+
+function trackBlockRect(token){
+  const el = document.querySelector('#gantt .row-label[data-lane="' + token + '"]');
+  if(!el) return null;
+  const rect = el.getBoundingClientRect();
+  return { top: rect.top, bottom: rect.bottom };
+}
+
+function insertIndexAt(clientY){
+  for(let i = 0; i < laneOrder.length; i++){
+    const rect = trackBlockRect(laneOrder[i]);
+    if(!rect) continue;
+    if(clientY < rect.top || clientY <= rect.bottom) return i;
+  }
+  return laneOrder.length;
+}
+
+function clearTrackDragMarks(){
+  document.querySelectorAll('.track-drag-source, .track-drop-before, .track-drop-after').forEach(el => {
+    el.classList.remove('track-drag-source', 'track-drop-before', 'track-drop-after');
+  });
+}
+
+function markTrackDrag(sourceToken, insertAt){
+  clearTrackDragMarks();
+  const sourceRow = document.querySelector('#gantt .row-label[data-lane="' + sourceToken + '"]');
+  if(sourceRow) sourceRow.classList.add('track-drag-source');
+  if(!trackMoveChanges(sourceToken, insertAt)) return;
+  const mark = insertAt >= laneOrder.length ? laneOrder[laneOrder.length - 1] : laneOrder[insertAt];
+  const target = mark ? document.querySelector('#gantt .row-label[data-lane="' + mark + '"]') : null;
+  if(!target) return;
+  target.classList.add(insertAt >= laneOrder.length ? 'track-drop-after' : 'track-drop-before');
+}
+
+function focusNudge(token, dir){
+  const primary = document.querySelector('[data-track-' + dir + '="' + token + '"]');
+  if(primary && !primary.disabled){ primary.focus(); return; }
+  const other = dir === 'up' ? 'down' : 'up';
+  const fallback = document.querySelector('[data-track-' + other + '="' + token + '"]');
+  if(fallback && !fallback.disabled) fallback.focus();
+}
+
+function onTrackPointerMove(e){
+  if(!trackDrag || e.pointerId !== trackDrag.pointerId) return;
+  if(!trackDrag.active && Math.abs(e.clientY - trackDrag.startY) < 4) return;
+  trackDrag.active = true;
+  document.body.classList.add('is-track-reordering');
+  trackDrag.insertAt = insertIndexAt(e.clientY);
+  markTrackDrag(trackDrag.key, trackDrag.insertAt);
+}
+
+function onTrackPointerUp(e){
+  if(!trackDrag || e.pointerId !== trackDrag.pointerId) return;
+  const drag = trackDrag;
+  if(!drag.active && Math.abs(e.clientY - drag.startY) >= 4){
+    drag.active = true;
+    drag.insertAt = insertIndexAt(e.clientY);
+  }
+  trackDrag = null;
+  clearTrackDragMarks();
+  document.body.classList.remove('is-track-reordering');
+  if(drag.active && drag.insertAt != null) moveLane(drag.key, drag.insertAt);
+}
+
+function initTrackReorder(){
+  document.addEventListener('click', e => {
+    if(!e.target.closest) return;
+    const up = e.target.closest('[data-track-up]');
+    if(up){
+      if(up.disabled) return;
+      const token = up.getAttribute('data-track-up');
+      moveLane(token, laneOrder.indexOf(token) - 1);
+      focusNudge(token, 'up');
+      return;
+    }
+    const down = e.target.closest('[data-track-down]');
+    if(down){
+      if(down.disabled) return;
+      const token = down.getAttribute('data-track-down');
+      moveLane(token, laneOrder.indexOf(token) + 2);
+      focusNudge(token, 'down');
+    }
+  });
+  document.addEventListener('pointerdown', e => {
+    if(!e.target.closest) return;
+    const handle = e.target.closest('[data-track-handle]');
+    if(!handle || e.button !== 0 || trackDrag) return;
+    e.preventDefault();
+    e.stopPropagation();
+    const key = handle.getAttribute('data-track-handle');
+    trackDrag = {
+      key: key,
+      pointerId: e.pointerId,
+      startY: e.clientY,
+      active: false,
+      insertAt: null
+    };
+    try{ handle.setPointerCapture(e.pointerId); }catch(err){}
+  });
+  document.addEventListener('pointermove', onTrackPointerMove);
+  document.addEventListener('pointerup', onTrackPointerUp);
+  document.addEventListener('pointercancel', onTrackPointerUp);
+}
+
+applyTrackStripOrder();
+initTrackReorder();
 bootFromShareParams().catch(err => {
   console.error(err);
 });
